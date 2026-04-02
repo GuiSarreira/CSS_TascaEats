@@ -19,99 +19,99 @@
 
 ### 1.1 Entidades e Atributos
 
-#### Utilizador (classe base — herança JPA)
+#### User (classe base — herança JPA)
 - `id` (Long, PK, gerado)
-- `name` (String, não nulo)
+- `nome` (String, não nulo)
 - `email` (String, único, não nulo)
 - `password` (String, não nulo — mock auth)
-- `phone` (String)
-- `role` (enum: CLIENT, ADMIN, DELIVERY_PERSON) — discriminador
-- `registrationDate` (LocalDateTime)
+- `telemovel` (String)
+- `type` (UserTypes: CLIENTE, ADMIN, ENTREGADOR) — discriminador
+- `registoData` (LocalDateTime)
 
 **Estratégia de herança: JOINED** (cada subtipo tem a sua tabela, juntam-se por FK)
 
-#### Cliente (extends Utilizador)
-- `address` (String — por agora só uma morada, futuramente várias)
-- `orders` → relação 1:N com Pedido
+#### Cliente (extends User)
+- `morada` (String — por agora só uma morada, futuramente várias)
+- `pedidos` → relação 1:N com Pedido
 
-#### Administrador (extends Utilizador)
-- `restaurants` → relação 1:N com Restaurante
+#### Admin (extends User)
+- `restaurantes` → relação 1:N com Restaurante
 
-#### Entregador (extends Utilizador)
-- `vehicleType` (String — ex: moto, carro, bicicleta)
-- `available` (boolean — se está disponível para entregas)
-- `deliveries` → relação 1:N com Entrega
+#### Entregador (extends User)
+- `tipoVeiculo` (String — ex: moto, carro, bicicleta)
+- `disponivel` (boolean — se está disponível para entregas)
+- `entregas` → relação 1:N com Entrega
 
 #### Restaurante
 - `id` (Long, PK)
-- `name` (String, não nulo)
+- `nome` (String, não nulo)
 - `nif` (String, único, não nulo)
-- `address` (String, não nulo)
-- `city` (String, não nulo — para buscas)
-- `open` (boolean — aberto/fechado para pedidos)
-- `admin` → relação N:1 com Administrador
-- `products` → relação 1:N com Produto
+- `morada` (String, não nulo)
+- `cidade` (String, não nulo — para buscas)
+- `aberto` (boolean — aberto/fechado para pedidos)
+- `admin` → relação N:1 com Admin
+- `produtos` → relação 1:N com Produto
 
 #### Produto
 - `id` (Long, PK)
-- `name` (String, não nulo)
-- `description` (String)
-- `price` (BigDecimal, não nulo)
-- `available` (boolean — disponível/esgotado)
-- `deleted` (boolean — soft-delete, default false)
-- `restaurant` → relação N:1 com Restaurante
+- `nome` (String, não nulo)
+- `descrição` (String)
+- `price` (Double, não nulo)
+- `disponivel` (boolean — disponível/esgotado)
+- `eliminado` (boolean — soft-delete, default false)
+- `restaurante` → relação N:1 com Restaurante
 
-#### Pedido (Order)
+#### Pedido
 - `id` (Long, PK)
-- `createdAt` (LocalDateTime)
-- `totalPrice` (BigDecimal)
-- `deliveryAddress` (String)
-- `status` (enum: CREATED, PAID, PREPARING, READY, IN_DELIVERY, DELIVERED, CANCELLED)
-- `client` → relação N:1 com Cliente
-- `restaurant` → relação N:1 com Restaurante
-- `items` → relação 1:N com ItemPedido
-- `payment` → relação 1:1 com Pagamento
-- `delivery` → relação 1:1 com Entrega
+- `dataHora` (LocalDateTime)
+- `precoTotal` (Double)
+- `endereçoEntrega` (String)
+- `status` (PedidoStatus: CREATED, PAID, PREPARING, READY, IN_DELIVERY, DELIVERED, CANCELLED)
+- `cliente` → relação N:1 com Cliente
+- `restaurante` → relação N:1 com Restaurante
+- `produtosPedido` → relação 1:N com ProdutoPedido
+- `pagamento` → relação 1:1 com Pagamento
+- `entrega` → relação 1:1 com Entrega
 - `version` (Long — optimistic locking para concorrência)
 
-#### ItemPedido (OrderItem)
+#### ProdutoPedido
 - `id` (Long, PK)
 - `quantity` (int)
-- `priceAtPurchase` (BigDecimal — preço no momento da compra)
-- `order` → relação N:1 com Pedido
-- `product` → relação N:1 com Produto
+- `precoCompra` (Double — preço no momento da compra)
+- `pedido` → relação N:1 com Pedido
+- `produto` → relação N:1 com Produto
 
-#### Pagamento (Payment — herança JPA)
+#### Pagamento (herança JPA)
 - `id` (Long, PK)
-- `amount` (BigDecimal)
-- `paymentDate` (LocalDateTime)
-- `status` (enum: PENDING, COMPLETED, FAILED)
-- `order` → relação 1:1 com Pedido
+- `preco` (Double)
+- `dataPagamento` (LocalDateTime)
+- `status` (PagamentoStatus: PENDING, COMPLETED, FAILED)
+- `pedido` → relação 1:1 com Pedido
 
 **Estratégia de herança: SINGLE_TABLE** (poucos campos diferenciadores)
 
 Subtipos:
-- **MultibancoPagamento**: `entityReference` (String)
-- **MBWayPagamento**: `phoneNumber` (String)
-- **DinheiroPagamento**: sem campos extra
+- **Multibanco**: `referencia` (String)
+- **MBWay**: `telemovel` (String)
+- **Dinheiro**: sem campos extra
 
-#### Entrega (Delivery)
+#### Entrega
 - `id` (Long, PK)
-- `pickupTime` (LocalDateTime — hora de retirada no restaurante)
-- `deliveryTime` (LocalDateTime — hora de entrega ao cliente)
-- `deliveryPerson` → relação N:1 com Entregador
-- `order` → relação 1:1 com Pedido
+- `horaSaída` (LocalDateTime — hora de retirada no restaurante)
+- `horaChegada` (LocalDateTime — hora de entrega ao cliente)
+- `entregador` → relação N:1 com Entregador
+- `pedido` → relação 1:1 com Pedido
 
 ### 1.2 Diagrama de Relações (resumo)
 
 ```
-Utilizador (JOINED)
+User (JOINED)
   ├── Cliente ──(1:N)──> Pedido
-  ├── Administrador ──(1:N)──> Restaurante
+  ├── Admin ──(1:N)──> Restaurante
   └── Entregador ──(1:N)──> Entrega
 
 Restaurante ──(1:N)──> Produto
-Pedido ──(1:N)──> ItemPedido ──(N:1)──> Produto
+Pedido ──(1:N)──> ProdutoPedido ──(N:1)──> Produto
 Pedido ──(1:1)──> Pagamento (SINGLE_TABLE)
 Pedido ──(1:1)──> Entrega
 ```
@@ -205,7 +205,7 @@ Pedido ──(1:1)──> Entrega
 - Apenas o admin dono do restaurante pode editá-lo
 
 ### Produtos
-- Produto com pedidos associados → **soft-delete** (campo `deleted=true`)
+- Produto com pedidos associados → **soft-delete** (campo `eliminado=true`)
 - Produto sem pedidos pode ser removido fisicamente
 - Preço deve ser > 0
 
@@ -215,8 +215,8 @@ Pedido ──(1:1)──> Entrega
 - ❌ Não é possível cancelar pedido se estado ≥ PREPARING
 - Estado segue fluxo: CREATED → PAID → PREPARING → READY → IN_DELIVERY → DELIVERED
 - Pedido cancelável apenas em: CREATED ou PAID
-- Valor total = soma(priceAtPurchase × quantity) de todos os items
-- `priceAtPurchase` captura o preço no momento (não muda se produto for atualizado depois)
+- Valor total = soma(precoCompra × quantity) de todos os items
+- `precoCompra` captura o preço no momento (não muda se produto for atualizado depois)
 
 ### Pagamento
 - Obrigatório para avançar o pedido para PAID
@@ -224,11 +224,11 @@ Pedido ──(1:1)──> Entrega
 - Tipos: MULTIBANCO, MBWAY, CASH
 
 ### Entregas
-- ❌ Não é possível atribuir entregador **indisponível** (available=false)
+- ❌ Não é possível atribuir entregador **indisponível** (disponivel=false)
 - ❌ Entregador não pode ter duas entregas ativas ao mesmo tempo
 - Pedido deve estar em estado READY para atribuir entregador
-- Ao atribuir: entregador fica `available=false`, pedido passa a IN_DELIVERY
-- Ao concluir: entregador volta a `available=true`, pedido passa a DELIVERED
+- Ao atribuir: entregador fica `disponivel=false`, pedido passa a IN_DELIVERY
+- Ao concluir: entregador volta a `disponivel=true`, pedido passa a DELIVERED
 
 ### Concorrência
 - Optimistic locking via `@Version` no Pedido
@@ -269,21 +269,21 @@ pt.ul.fc.css.tascaeats/
 ## 5. Plano de Implementação
 
 ### Fase A — Modelo de Domínio (Entidades JPA)
-- [ ] Classe base `User` + herança JOINED (Client, Admin, DeliveryPerson)
-- [ ] Entidade `Restaurant`
-- [ ] Entidade `Product` (com soft-delete)
-- [ ] Entidade `Order` + `OrderItem` (com @Version)
-- [ ] Entidade `Payment` + herança SINGLE_TABLE
-- [ ] Entidade `Delivery`
+- [ ] Classe base `User` + herança JOINED (Cliente, Admin, Entregador)
+- [ ] Entidade `Restaurante`
+- [ ] Entidade `Produto` (com soft-delete, campo `eliminado`)
+- [ ] Entidade `Pedido` + `ProdutoPedido` (com @Version)
+- [ ] Entidade `Pagamento` + herança SINGLE_TABLE (Multibanco, MBWay, Dinheiro)
+- [ ] Entidade `Entrega`
 - [ ] Validar schema gerado pelo Hibernate
 
 ### Fase B — Repositórios
-- [ ] UserRepository, ClientRepository, AdminRepository, DeliveryPersonRepository
-- [ ] RestaurantRepository (com queries por nome e cidade)
-- [ ] ProductRepository
-- [ ] OrderRepository
-- [ ] PaymentRepository
-- [ ] DeliveryRepository
+- [ ] UserRepository, ClienteRepository, AdminRepository, EntregadorRepository
+- [ ] RestauranteRepository (com queries por nome e cidade)
+- [ ] ProdutoRepository
+- [ ] PedidoRepository
+- [ ] PagamentoRepository
+- [ ] EntregaRepository
 
 ### Fase C — Serviços + Regras de Negócio
 - [ ] AuthService (mock login)

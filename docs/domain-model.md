@@ -9,85 +9,85 @@ classDiagram
     class User {
         <<Abstract>>
         Long id
-        String name
+        String nome
         String email
         String password
-        String phone
-        UserRole role
-        LocalDateTime registrationDate
+        String telemovel
+        UserTypes type
+        LocalDateTime registoData
     }
 
-    class Client {
-        String address
+    class Cliente {
+        String morada
     }
 
     class Admin {
     }
 
-    class DeliveryPerson {
-        String vehicleType
-        boolean available
+    class Entregador {
+        String tipoVeiculo
+        boolean disponivel
     }
 
-    class Restaurant {
+    class Restaurante {
         Long id
-        String name
+        String nome
         String nif
-        String address
-        String city
-        boolean open
+        String morada
+        String cidade
+        boolean aberto
     }
 
-    class Product {
+    class Produto {
         Long id
-        String name
-        String description
-        BigDecimal price
-        boolean available
-        boolean deleted
+        String nome
+        String descricao
+        Double price
+        boolean disponivel
+        boolean eliminado
     }
 
-    class Order {
+    class Pedido {
         Long id
-        LocalDateTime createdAt
-        BigDecimal totalPrice
-        String deliveryAddress
-        OrderStatus status
+        LocalDateTime dataHora
+        Double precoTotal
+        String enderecoEntrega
+        PedidoStatus status
         Long version
     }
 
-    class OrderItem {
+    class ProdutoPedido {
         Long id
         int quantity
-        BigDecimal priceAtPurchase
+        Double precoCompra
     }
 
-    class Payment {
+    class Pagamento {
         <<Abstract>>
         Long id
-        BigDecimal amount
-        LocalDateTime paymentDate
-        PaymentStatus status
+        Double preco
+        LocalDateTime dataPagamento
+        PagamentoStatus status
     }
 
-    class MultibancoPagamento {
-        String entityReference
+    class Multibanco {
+        String referencia
     }
 
-    class MBWayPagamento {
-        String phoneNumber
+    class MBWay {
+        String telemovel
     }
 
-    class DinheiroPagamento {
+    class Dinheiro {
     }
 
-    class Delivery {
+    class Entrega {
         Long id
-        LocalDateTime pickupTime
-        LocalDateTime deliveryTime
+        LocalDateTime horaSaida
+        LocalDateTime horaChegada
     }
 
-    class OrderStatus {
+    class PedidoStatus {
         <<Enumeration>>
         CREATED
         PAID
@@ -98,40 +98,40 @@ classDiagram
         CANCELLED
     }
 
-    class PaymentStatus {
+    class PagamentoStatus {
         <<Enumeration>>
         PENDING
         COMPLETED
         FAILED
     }
 
-    class UserRole {
+    class UserTypes {
         <<Enumeration>>
-        CLIENT
+        CLIENTE
         ADMIN
-        DELIVERY_PERSON
+        ENTREGADOR
     }
 
-    User <|-- Client : JOINED
+    User <|-- Cliente : JOINED
     User <|-- Admin : JOINED
-    User <|-- DeliveryPerson : JOINED
+    User <|-- Entregador : JOINED
 
-    Payment <|-- MultibancoPagamento : SINGLE_TABLE
-    Payment <|-- MBWayPagamento : SINGLE_TABLE
-    Payment <|-- DinheiroPagamento : SINGLE_TABLE
+    Pagamento <|-- Multibanco : SINGLE_TABLE
+    Pagamento <|-- MBWay : SINGLE_TABLE
+    Pagamento <|-- Dinheiro : SINGLE_TABLE
 
-    Client "1" --> "*" Order : places
-    Admin "1" --> "*" Restaurant : manages
-    DeliveryPerson "1" --> "*" Delivery : performs
+    Cliente "1" --> "*" Pedido : faz
+    Admin "1" --> "*" Restaurante : gere
+    Entregador "1" --> "*" Entrega : faz
 
-    Restaurant "1" --> "*" Product : has
-    Order "*" --> "1" Restaurant : from
-    Order "1" --> "*" OrderItem : contains
-    Order "1" --> "0..1" Payment : paid by
-    Order "1" --> "0..1" Delivery : delivered by
+    Restaurante "1" --> "*" Produto : tem
+    Pedido "*" --> "1" Restaurante : do
+    Pedido "1" --> "*" ProdutoPedido : contem
+    Pedido "1" --> "0..1" Pagamento : pago por
+    Pedido "1" --> "0..1" Entrega : entregue por
 
-    OrderItem "*" --> "1" Product : references
-    Delivery "*" --> "1" DeliveryPerson : assigned to
+    ProdutoPedido "*" --> "1" Produto : associado
+    Entrega "*" --> "1" Entregador : para
 ```
 
 ## Fluxo de Estados do Pedido
@@ -154,26 +154,26 @@ stateDiagram-v2
 
 | Hierarquia | Estratégia | Justificação |
 |-----------|------------|--------------|
-| `User` → Client, Admin, DeliveryPerson | **JOINED** | Subtipos com atributos distintos; queries frequentes por subtipo; melhor normalização |
-| `Payment` → Multibanco, MBWay, Dinheiro | **SINGLE_TABLE** | Poucos campos diferenciadores; queries polimórficas frequentes; melhor performance |
+| `User` → Cliente, Admin, Entregador | **JOINED** | Subtipos com atributos distintos; queries frequentes por subtipo; melhor normalização |
+| `Pagamento` → Multibanco, MBWay, Dinheiro | **SINGLE_TABLE** | Poucos campos diferenciadores; queries polimórficas frequentes; melhor performance |
 
 ## Relações Principais
 
 | De | Para | Cardinalidade | Notas |
 |----|------|--------------|-------|
-| Client | Order | 1:N | Cliente faz vários pedidos |
-| Admin | Restaurant | 1:N | Admin gere vários restaurantes |
-| DeliveryPerson | Delivery | 1:N | Entregador faz várias entregas |
-| Restaurant | Product | 1:N | Restaurante tem vários produtos |
-| Order | OrderItem | 1:N | Pedido contém vários items |
-| OrderItem | Product | N:1 | Item referencia um produto |
-| Order | Payment | 1:1 | Pedido tem um pagamento |
-| Order | Delivery | 1:1 | Pedido tem uma entrega |
-| Order | Restaurant | N:1 | Pedido é de um restaurante |
+| Cliente | Pedido | 1:N | Cliente faz vários pedidos |
+| Admin | Restaurante | 1:N | Admin gere vários restaurantes |
+| Entregador | Entrega | 1:N | Entregador faz várias entregas |
+| Restaurante | Produto | 1:N | Restaurante tem vários produtos |
+| Pedido | ProdutoPedido | 1:N | Pedido contém vários items |
+| ProdutoPedido | Produto | N:1 | Item referencia um produto |
+| Pedido | Pagamento | 1:1 | Pedido tem um pagamento |
+| Pedido | Entrega | 1:1 | Pedido tem uma entrega |
+| Pedido | Restaurante | N:1 | Pedido é de um restaurante |
 
 ## Regras de Integridade
 
-- **Soft-delete** em `Product`: se tem pedidos associados, marca `deleted=true` em vez de apagar
-- **Optimistic locking** em `Order`: campo `@Version` para controlo de concorrência
-- **`priceAtPurchase`** em `OrderItem`: captura o preço no momento da compra (imutável)
-- **`available`** em `DeliveryPerson`: controla disponibilidade para novas entregas
+- **Soft-delete** em `Produto`: se tem pedidos associados, marca `eliminado=true` em vez de apagar
+- **Optimistic locking** em `Pedido`: campo `@Version` para controlo de concorrência
+- **`precoCompra`** em `ProdutoPedido`: captura o preço no momento da compra (imutável)
+- **`disponivel`** em `Entregador`: controla disponibilidade para novas entregas
