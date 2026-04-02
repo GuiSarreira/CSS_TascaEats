@@ -128,67 +128,67 @@ Pedido ──(1:1)──> Entrega
 ### B. Registo de Utilizadores
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| POST | `/api/users/clients` | Registar cliente |
-| POST | `/api/users/admins` | Registar administrador |
-| POST | `/api/users/delivery-persons` | Registar entregador |
+| POST | `/api/users/clientes`   | Registar cliente |
+| POST | `/api/users/admins`    | Registar administrador |
+| POST | `/api/users/entregadores` | Registar entregador |
 
 ### C. Verificar, Remover e Atualizar Utilizadores
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| GET | `/api/users/{id}` | Ver utilizador por ID |
-| GET | `/api/users` | Listar utilizadores |
-| PUT | `/api/users/{id}` | Atualizar utilizador |
-| DELETE | `/api/users/{id}` | Remover utilizador |
+| GET   | `/api/users/{id}`     | Ver utilizador por ID |
+| GET   | `/api/users`          | Listar utilizadores |
+| PUT   | `/api/users/{id}`     | Atualizar utilizador |
+| DELETE | `/api/users/{id}`    | Remover utilizador |
 
 ### D. Buscar Restaurantes
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| GET | `/api/restaurants?name=X` | Buscar por nome |
-| GET | `/api/restaurants?city=X` | Buscar por cidade |
+| GET | `/api/restaurantes?nome=X` | Buscar por nome |
+| GET | `/api/restaurantes?cidade=X` | Buscar por cidade |
 
 ### E. Criar Restaurante e Gerir Estado
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| POST | `/api/restaurants` | Criar restaurante (admin) |
-| PATCH | `/api/restaurants/{id}/open` | Abrir restaurante |
-| PATCH | `/api/restaurants/{id}/close` | Fechar restaurante |
+| POST | `/api/restaurantes`         | Criar restaurante (admin) |
+| PATCH | `/api/restaurantes/{id}/aberto`  | Abrir restaurante |
+| PATCH | `/api/restaurantes/{id}/fechado` | Fechar restaurante |
 
 ### F. CRUD de Produtos no Cardápio
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| POST | `/api/restaurants/{id}/products` | Adicionar produto |
-| PUT | `/api/restaurants/{id}/products/{pid}` | Atualizar produto |
-| DELETE | `/api/restaurants/{id}/products/{pid}` | Remover produto (soft-delete) |
+| POST | `/api/restaurantes/{id}/produtos` | Adicionar produto |
+| PUT | `/api/restaurantes/{id}/produtos/{pid}` | Atualizar produto |
+| DELETE | `/api/restaurantes/{id}/produtos/{pid}` | Remover produto (soft-delete) |
 
 ### G. Buscar Produtos de um Restaurante
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| GET | `/api/restaurants/{id}/products` | Listar produtos (ativos) |
+| GET | `/api/restaurantes/{id}/produtos` | Listar produtos (ativos) |
 
 ### H. Criação de Pedido
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| POST | `/api/orders` | Criar pedido (com items) |
+| POST | `/api/pedidos` | Criar pedido (com items) |
 
 ### I. Pagamento
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| POST | `/api/orders/{id}/payment` | Registar e processar pagamento |
+| POST | `/api/pedidos/{id}/pagamento` | Registar e processar pagamento |
 
 ### J. Atualização de Estado do Pedido
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| PATCH | `/api/orders/{id}/status` | Atualizar estado do pedido |
+| PATCH | `/api/pedidos/{id}/status` | Atualizar estado do pedido |
 
 ### K. Atribuição de Entregador
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| POST | `/api/orders/{id}/delivery` | Atribuir entregador ao pedido |
+| POST | `/api/pedidos/{id}/entregar` | Atribuir entregador ao pedido |
 
 ### L. Cancelamento de Pedido
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| PATCH | `/api/orders/{id}/cancel` | Cancelar pedido |
+| PATCH | `/api/pedidos/{id}/cancelar` | Cancelar pedido |
 
 ---
 
@@ -288,11 +288,11 @@ pt.ul.fc.css.tascaeats/
 ### Fase C — Serviços + Regras de Negócio
 - [ ] AuthService (mock login)
 - [ ] UserService (CRUD + validações)
-- [ ] RestaurantService (criar, abrir/fechar, buscar)
-- [ ] ProductService (CRUD + soft-delete)
-- [ ] OrderService (criar, atualizar estado, cancelar)
-- [ ] PaymentService (registar e processar)
-- [ ] DeliveryService (atribuir entregador)
+- [ ] RestauranteService (criar, abrir/fechar, buscar)
+- [ ] ProdutoService (CRUD + soft-delete)
+- [ ] PedidoService (criar, atualizar estado, cancelar)
+- [ ] PagamentoService (registar e processar)
+- [ ] EntregaService (atribuir entregador)
 
 ### Fase D — DTOs
 - [ ] Request/Response DTOs para cada endpoint
@@ -301,11 +301,11 @@ pt.ul.fc.css.tascaeats/
 ### Fase E — Controllers REST
 - [ ] AuthController
 - [ ] UserController
-- [ ] RestaurantController
-- [ ] ProductController (nested em restaurant)
-- [ ] OrderController
-- [ ] PaymentController
-- [ ] DeliveryController
+- [ ] RestauranteController
+- [ ] ProdutoController (nested em restaurant)
+- [ ] PedidoController
+- [ ] PagamentoController
+- [ ] EntregaController
 
 ### Fase F — Tratamento de Erros
 - [ ] GlobalExceptionHandler (@ControllerAdvice)
