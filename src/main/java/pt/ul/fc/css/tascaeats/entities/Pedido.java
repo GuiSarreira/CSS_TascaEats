@@ -214,157 +214,70 @@ public class Pedido {
         return this.status == PedidoStatus.CREATED || this.status == PedidoStatus.PAID;
     }
 
-    /**
-     * Devolve o identificador único do pedido.
-     *
-     * @return o id do pedido
-     */
     public Long getId() {
         return id;
     }
 
-    /**
-     * Devolve a data e hora de criação do pedido.
-     *
-     * @return data e hora de criação
-     */
     public LocalDateTime getDataHora() {
         return dataHora;
     }
 
-    /**
-     * Devolve o preço total calculado do pedido.
-     *
-     * @return preço total em euros
-     */
     public Double getPrecoTotal() {
         return precoTotal;
     }
 
-    /**
-     * Devolve a morada de entrega deste pedido.
-     *
-     * @return morada de entrega
-     */
     public String getEnderecoEntrega() {
         return enderecoEntrega;
     }
 
-    /**
-     * Define a morada de entrega do pedido.
-     *
-     * @param enderecoEntrega nova morada de entrega
-     */
     public void setEnderecoEntrega(String enderecoEntrega) {
         this.enderecoEntrega = enderecoEntrega;
     }
 
-    /**
-     * Devolve o estado atual do pedido.
-     *
-     * @return estado do pedido
-     */
     public PedidoStatus getStatus() {
         return status;
     }
 
-    /**
-     * Define diretamente o estado do pedido.
-     *
-     * @param status novo estado
-     */
     public void setStatus(PedidoStatus status) {
         this.status = status;
     }
 
-    /**
-     * Devolve a versão atual usada pelo mecanismo de optimistic locking.
-     *
-     * @return versão do pedido
-     */
     public Long getVersion() {
         return version;
     }
 
-    /**
-     * Devolve o cliente que efetuou este pedido.
-     *
-     * @return o cliente do pedido
-     */
     public Cliente getCliente() {
         return cliente;
     }
 
-    /**
-     * Define o cliente do pedido.
-     *
-     * @param cliente o cliente a associar
-     */
     public void setCliente(Cliente cliente) {
         this.cliente = cliente;
     }
 
-    /**
-     * Devolve o restaurante ao qual o pedido foi feito.
-     *
-     * @return o restaurante do pedido
-     */
     public Restaurante getRestaurante() {
         return restaurante;
     }
 
-    /**
-     * Define o restaurante do pedido.
-     *
-     * @param restaurante o restaurante a associar
-     */
     public void setRestaurante(Restaurante restaurante) {
         this.restaurante = restaurante;
     }
 
-    /**
-     * Devolve a lista de itens deste pedido como uma lista não modificável.
-     *
-     * @return lista imutável dos itens do pedido
-     */
     public List<ProdutoPedido> getProdutosPedido() {
         return Collections.unmodifiableList(produtosPedido);
     }
 
-    /**
-     * Devolve o pagamento associado a este pedido, ou {@code null} se ainda não
-     * pago.
-     *
-     * @return o pagamento, ou {@code null}
-     */
     public Pagamento getPagamento() {
         return pagamento;
     }
 
-    /**
-     * Define o pagamento associado a este pedido.
-     *
-     * @param pagamento o pagamento a associar
-     */
     public void setPagamento(Pagamento pagamento) {
         this.pagamento = pagamento;
     }
 
-    /**
-     * Devolve a entrega associada a este pedido, ou {@code null} se ainda não
-     * atribuída.
-     *
-     * @return a entrega, ou {@code null}
-     */
     public Entrega getEntrega() {
         return entrega;
     }
 
-    /**
-     * Define a entrega associada a este pedido.
-     *
-     * @param entrega a entrega a associar
-     */
     public void setEntrega(Entrega entrega) {
         this.entrega = entrega;
     }

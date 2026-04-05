@@ -128,48 +128,22 @@ public abstract class Pagamento {
         return this.status == PagamentoStatus.COMPLETED;
     }
 
-    /**
-     * Devolve o identificador único do pagamento.
-     *
-     * @return o id do pagamento
-     */
     public Long getId() {
         return id;
     }
 
-    /**
-     * Devolve o montante do pagamento.
-     *
-     * @return montante em euros
-     */
     public Double getPreco() {
         return preco;
     }
 
-    /**
-     * Define o montante do pagamento.
-     *
-     * @param preco novo montante em euros
-     */
     public void setPreco(Double preco) {
         this.preco = preco;
     }
 
-    /**
-     * Devolve a data e hora de processamento do pagamento.
-     * {@code null} se ainda não processado.
-     *
-     * @return data de pagamento ou {@code null}
-     */
     public LocalDateTime getDataPagamento() {
         return dataPagamento;
     }
 
-    /**
-     * Devolve o estado atual do pagamento.
-     *
-     * @return estado do pagamento
-     */
     public PagamentoStatus getStatus() {
         return status;
     }

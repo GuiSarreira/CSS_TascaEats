@@ -37,5 +37,5 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
      * * @param maxPrice O valor máximo do preço do produto.
      * @return Lista de produtos com preço inferior ou igual ao valor especificado.
      */
-    List<Produto> findByPriceLessThanEqualAndEliminadoFalse(Double maxPrice);
+    List<Produto> findByPrecoLessThanEqualAndEliminadoFalse(Double maxPreco);
 }

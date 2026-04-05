@@ -37,7 +37,7 @@ public class ProdutoPedido {
     /**
      * Preço unitário do produto no momento em que o pedido foi efetuado.
      *
-     * Capturado a partir de {@link Produto#getPrice()} no construtor e imutável
+     * Capturado a partir de {@link Produto#getPreco()} no construtor e imutável
      * após criação, garantindo que atualizações futuras ao catálogo não alterem
      * o valor de pedidos históricos.
      */
@@ -81,75 +81,34 @@ public class ProdutoPedido {
         this.precoCompra = produto.getPreco();
     }
 
-    /**
-     * Devolve o identificador único deste item.
-     *
-     * @return o id do item
-     */
     public Long getId() {
         return id;
     }
 
-    /**
-     * Devolve a quantidade encomendada.
-     *
-     * @return quantidade do produto neste item
-     */
     public int getQuantity() {
         return quantity;
     }
 
-    /**
-     * Define a quantidade encomendada.
-     *
-     * @param quantity nova quantidade; deve ser maior que zero
-     */
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 
-    /**
-     * Devolve o preço unitário capturado no momento da compra.
-     *
-     * @return preço de compra em euros
-     */
     public Double getPrecoCompra() {
         return precoCompra;
     }
 
-    /**
-     * Devolve o pedido ao qual este item pertence.
-     *
-     * @return o pedido pai
-     */
     public Pedido getPedido() {
         return pedido;
     }
 
-    /**
-     * Define o pedido ao qual este item pertence.
-     * Usado internamente por {@link Pedido#adicionarProduto(ProdutoPedido)}.
-     *
-     * @param pedido o pedido a associar
-     */
     public void setPedido(Pedido pedido) {
         this.pedido = pedido;
     }
 
-    /**
-     * Devolve o produto referenciado por este item.
-     *
-     * @return o produto encomendado
-     */
     public Produto getProduto() {
         return produto;
     }
 
-    /**
-     * Define o produto referenciado por este item.
-     *
-     * @param produto o produto a associar
-     */
     public void setProduto(Produto produto) {
         this.produto = produto;
     }

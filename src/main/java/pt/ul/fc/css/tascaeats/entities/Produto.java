@@ -4,40 +4,81 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Classe que representa um produto no catálogo de um {@link Restaurante}.
+ *
+ * Um produto pode ser encomendado por clientes ao criar um {@link Pedido}.
+ * Cada vez que é encomendado, cria-se um {@link ProdutoPedido} que captura
+ * o preço no momento da compra, garantindo imutabilidade histórica.
+ *
+ * Soft-delete
+ * Um produto com pedidos associados não pode ser removido fisicamente da BD.
+ * Em vez disso, é marcado com {@code eliminado = true} via {@link #deleteLogicamente()},
+ * ficando invisível para novos pedidos mas preservado nos registos históricos.
+ */
 @Entity
 public class Produto {
 
+    /** Identificador único do produto, gerado automaticamente pela base de dados. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Nome do produto. Não pode ser nulo. */
     @Column(nullable = false)
     private String nome;
 
+    /** Descrição do produto. */
     @Column
     private String descricao;
 
+    /** Preço unitário do produto em euros. Deve ser maior que zero. */
     @Column(nullable = false)
     private Double preco;
 
+    /**
+     * Indica se o produto está disponível para encomenda.
+     * {@code false} quando esgotado; produto com {@code eliminado = true}
+     * também fica automaticamente indisponível.
+     */
     @Column(nullable = false)
     private boolean disponivel = true;
 
+    /**
+     * Indica se o produto foi apagado logicamente (soft-delete).
+     * Quando {@code true}, o produto não é apresentado no catálogo mas
+     * os registos em {@link ProdutoPedido} históricos são preservados.
+     */
     @Column(nullable = false)
     private boolean eliminado = false;
 
-    // Relação N:1 - Muitos produtos pertencem a um Restaurante
+    /**
+     * Restaurante ao qual este produto pertence. Lado N da relação N:1.
+     * A chave estrangeira {@code restaurante_id} fica nesta tabela.
+     */
     @ManyToOne
     @JoinColumn(name = "restaurante_id", nullable = false)
     private Restaurante restaurante;
 
-    // Relação 1:N - Um produto pode estar em várias linhas de pedidos diferentes
+    /**
+     * Referências deste produto em itens de pedidos.
+     * Lado inverso da relação — o dono é {@link ProdutoPedido#getProduto()}.
+     */
     @OneToMany(mappedBy = "produto")
     private List<ProdutoPedido> itensPedido = new ArrayList<>();
 
+    /** Construtor protegido exigido pelo JPA.*/
     protected Produto() {
     }
 
+    /**
+     * Cria um novo produto, disponível e não eliminado por defeito.
+     *
+     * @param nome        nome do produto
+     * @param descricao   descrição
+     * @param preco       preço unitário em euros; deve ser maior que zero
+     * @param restaurante restaurante ao qual o produto pertence
+     */
     public Produto(String nome, String descricao, Double preco, Restaurante restaurante) {
         this.nome = nome;
         this.descricao = descricao;
@@ -48,8 +89,9 @@ public class Produto {
     }
 
     /**
-     * Implementação do Soft-Delete.
-     * Altera o estado mas mantém o registo na Base de Dados.
+     * Implementa o soft-delete deste produto.
+     * Marca-o como eliminado e indisponível, mas mantém o registo na BD
+     * para preservar a integridade de {@link ProdutoPedido} históricos.
      */
     public void deleteLogicamente() {
         this.eliminado = true;
