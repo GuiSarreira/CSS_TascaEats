@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pt.ul.fc.css.tascaeats.entities.Entrega;
+import pt.ul.fc.css.tascaeats.entities.EntregaStatus;
 import pt.ul.fc.css.tascaeats.entities.Entregador;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,11 +36,12 @@ public interface EntregaRepository extends JpaRepository<Entrega, Long> {
 
     /**
      * Lista entregas com um determinado estado.
-     * Estados possíveis: "ATRIBUIDA", "EM_CAMINHO", "CONCLUIDA", "CANCELADA".
+     * Estados possíveis: {@link EntregaStatus#ATRIBUIDA}, {@link EntregaStatus#A_CAMINHO},
+     * {@link EntregaStatus#CONCLUIDA}, {@link EntregaStatus#CANCELADA}.
      * @param status O estado das entregas a filtrar.
      * @return Lista de entregas no estado especificado.
      */
-    List<Entrega> findByStatus(String status);
+    List<Entrega> findByStatus(EntregaStatus status);
 
     /**
      * Lista entregas de um entregador com um determinado estado.
@@ -47,26 +49,28 @@ public interface EntregaRepository extends JpaRepository<Entrega, Long> {
      * @param status     O estado das entregas a filtrar.
      * @return Lista de entregas que satisfazem ambos os critérios.
      */
-    List<Entrega> findByEntregadorAndStatus(Entregador entregador, String status);
+    List<Entrega> findByEntregadorAndStatus(Entregador entregador, EntregaStatus status);
 
     /**
      * Lista entregas de um entregador cujo estado esteja numa lista de valores.
-     * Útil para verificar se um entregador tem entregas ativas (ATRIBUIDA ou EM_CAMINHO).
+     * Útil para verificar se um entregador tem entregas ativas (ATRIBUIDA ou A_CAMINHO).
      * @param entregador O entregador a filtrar.
      * @param statuses   Lista de estados a considerar.
      * @return Lista de entregas que satisfazem os critérios.
      */
     @Query("SELECT e FROM Entrega e WHERE e.entregador = :entregador AND e.status IN :statuses")
     List<Entrega> findByEntregadorAndStatusIn(@Param("entregador") Entregador entregador,
-                                               @Param("statuses") List<String> statuses);
+                                               @Param("statuses") List<EntregaStatus> statuses);
 
     /**
-     * Verifica se um entregador tem entregas ativas (ATRIBUIDA ou EM_CAMINHO).
+     * Verifica se um entregador tem entregas ativas (ATRIBUIDA ou A_CAMINHO).
      * Regra de negócio: um entregador não pode ter duas entregas ativas ao mesmo tempo.
      * @param entregadorId O identificador do entregador.
      * @return Lista de entregas ativas do entregador (deve ter no máximo 1 para ser válido).
      */
-    @Query("SELECT e FROM Entrega e WHERE e.entregador.id = :entregadorId AND e.status IN ('ATRIBUIDA', 'EM_CAMINHO')")
+    @Query("SELECT e FROM Entrega e WHERE e.entregador.id = :entregadorId " +
+           "AND e.status IN (pt.ul.fc.css.tascaeats.entities.EntregaStatus.ATRIBUIDA, " +
+           "pt.ul.fc.css.tascaeats.entities.EntregaStatus.A_CAMINHO)")
     List<Entrega> findEntregasAtivasByEntregadorId(@Param("entregadorId") Long entregadorId);
 
     /**
@@ -74,7 +78,9 @@ public interface EntregaRepository extends JpaRepository<Entrega, Long> {
      * Query de negócio para responder a: "Qual o entregador com mais entregas?"
      * @return Lista de arrays contendo [Entregador, totalEntregas] ordenada por total decrescente.
      */
-    @Query("SELECT e.entregador, COUNT(e) as totalEntregas FROM Entrega e WHERE e.status = 'CONCLUIDA' GROUP BY e.entregador ORDER BY totalEntregas DESC")
+    @Query("SELECT e.entregador, COUNT(e) AS totalEntregas FROM Entrega e " +
+           "WHERE e.status = pt.ul.fc.css.tascaeats.entities.EntregaStatus.CONCLUIDA " +
+           "GROUP BY e.entregador ORDER BY totalEntregas DESC")
     List<Object[]> findEntregadoresPorNumeroEntregas();
 
     /**
@@ -82,12 +88,12 @@ public interface EntregaRepository extends JpaRepository<Entrega, Long> {
      * @param entregadorId O identificador do entregador.
      * @return Número total de entregas concluídas pelo entregador.
      */
-    @Query("SELECT COUNT(e) FROM Entrega e WHERE e.entregador.id = :entregadorId AND e.status = 'CONCLUIDA'")
+    @Query("SELECT COUNT(e) FROM Entrega e WHERE e.entregador.id = :entregadorId " +
+           "AND e.status = pt.ul.fc.css.tascaeats.entities.EntregaStatus.CONCLUIDA")
     Long countEntregasConcluidasByEntregadorId(@Param("entregadorId") Long entregadorId);
 
     /**
      * Lista entregas concluídas dentro de um período de tempo.
-     * Útil para análises de desempenho e relatórios.
      * @param inicio Data/hora de início do período.
      * @param fim    Data/hora de fim do período.
      * @return Lista de entregas concluídas no período especificado.
@@ -98,7 +104,6 @@ public interface EntregaRepository extends JpaRepository<Entrega, Long> {
 
     /**
      * Verifica se já existe uma entrega associada a um determinado pedido.
-     * Útil para evitar duplicação de entregas para o mesmo pedido.
      * @param pedidoId O identificador do pedido.
      * @return true se já existir uma entrega para o pedido, false caso contrário.
      */

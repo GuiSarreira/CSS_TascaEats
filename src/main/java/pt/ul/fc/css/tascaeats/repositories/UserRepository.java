@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pt.ul.fc.css.tascaeats.entities.User;
+import pt.ul.fc.css.tascaeats.entities.UserTypes;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,19 +38,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByAtivoTrue();
 
     /**
-     * Procura utilizadores pelo seu papel (role).
-     * Os papéis possíveis são: "CLIENTE", "ADMIN", "ENTREGADOR".
+     * Procura utilizadores pelo seu papel.
+     * Os papéis possíveis estão definidos em {@link pt.ul.fc.css.tascaeats.entities.UserTypes}.
      * @param role O papel do utilizador a filtrar.
      * @return Lista de utilizadores que possuem o papel especificado.
      */
-    List<User> findByRole(String role);
+    List<User> findByRole(UserTypes role);
 
     /**
      * Procura utilizadores ativos que possuem um determinado papel.
      * @param role O papel do utilizador a filtrar.
      * @return Lista de utilizadores ativos com o papel especificado.
      */
-    List<User> findByRoleAndAtivoTrue(String role);
+    List<User> findByRoleAndAtivoTrue(UserTypes role);
 
     /**
      * Verifica se já existe um utilizador registado com o email fornecido.
@@ -67,12 +68,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.nome LIKE %:nome%")
     List<User> buscarPorNome(@Param("nome") String nome);
 
-    /**
-     * Procura utilizadores ativos que possuem um determinado papel.
-     * Versão alternativa usando @Query para maior clareza.
-     * @param role O papel do utilizador a filtrar.
-     * @return Lista de utilizadores ativos com o papel especificado.
-     */
-    @Query("SELECT u FROM User u WHERE u.role = :role AND u.ativo = true")
-    List<User> findAtivosByRole(@Param("role") String role);
 }

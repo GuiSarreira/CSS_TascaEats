@@ -18,14 +18,17 @@ public interface EntregadorRepository extends JpaRepository<Entregador, Long> {
 
     /**
      * Procura um entregador pelo seu email.
+     * 
      * @param email O email do entregador a pesquisar.
-     * @return Um Optional contendo o entregador correspondente, ou vazio se não existir.
+     * @return Um Optional contendo o entregador correspondente, ou vazio se não
+     *         existir.
      */
     Optional<Entregador> findByEmail(String email);
 
     /**
      * Lista todos os entregadores que estão disponíveis para novas entregas.
      * Um entregador disponível tem disponivel = true e não possui entregas ativas.
+     * 
      * @return Lista de entregadores com campo disponivel = true.
      */
     List<Entregador> findByDisponivelTrue();
@@ -33,12 +36,14 @@ public interface EntregadorRepository extends JpaRepository<Entregador, Long> {
     /**
      * Lista entregadores disponíveis e ativos (não removidos via soft-delete).
      * Esta é a condição completa para um entregador poder receber uma nova entrega.
+     * 
      * @return Lista de entregadores com disponivel = true e ativo = true.
      */
     List<Entregador> findByDisponivelTrueAndAtivoTrue();
 
     /**
      * Procura entregadores pela sua zona de atuação.
+     * 
      * @param zonaAtuacao A zona onde o entregador opera (ex: "Lisboa", "Porto").
      * @return Lista de entregadores que atuam na zona especificada.
      */
@@ -46,15 +51,15 @@ public interface EntregadorRepository extends JpaRepository<Entregador, Long> {
 
     /**
      * Procura entregadores disponíveis numa determinada zona de atuação.
-     * Útil para atribuir entregadores a pedidos com base na localização do restaurante.
+     * 
      * @param zonaAtuacao A zona onde se procura entregadores disponíveis.
      * @return Lista de entregadores disponíveis na zona especificada.
      */
     List<Entregador> findByZonaAtuacaoAndDisponivelTrue(String zonaAtuacao);
 
     /**
-     * Procura um entregador pelo ID, verificando se está disponível.
-     * Útil para validação antes de atribuir uma entrega.
+     * Procura um entregador pelo ID, verificando se está disponível..
+     * 
      * @param id O identificador único do entregador.
      * @return Um Optional contendo o entregador se estiver disponível, ou vazio.
      */
@@ -62,7 +67,7 @@ public interface EntregadorRepository extends JpaRepository<Entregador, Long> {
 
     /**
      * Procura entregadores disponíveis, ativos e numa zona específica.
-     * Versão usando @Query para maior clareza e controle.
+     * 
      * @param zona A zona onde se procura entregadores.
      * @return Lista de entregadores que cumprem todas as condições.
      */
@@ -71,7 +76,7 @@ public interface EntregadorRepository extends JpaRepository<Entregador, Long> {
 
     /**
      * Lista entregadores que nunca realizaram nenhuma entrega.
-     * Útil para análise de desempenho ou onboarding.
+     * 
      * @return Lista de entregadores sem entregas associadas.
      */
     @Query("SELECT e FROM Entregador e WHERE SIZE(e.entregas) = 0")

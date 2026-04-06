@@ -336,3 +336,6 @@ O modelo deve permitir responder a:
 4. Produtos mais vendidos da plataforma
 5. Método de pagamento mais utilizado
 6. Clientes registados sem compras
+
+Repositorios (Pedido e Pagamento) e javadoc
+Implementei os repositorios para o Pedido e Pagamento. Alterei o javadoc de algumas das classes que fizeram. Corrigi os nomes dos métodos utilizados para o RestauranteService

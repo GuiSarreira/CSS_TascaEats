@@ -6,7 +6,7 @@ package pt.ul.fc.css.tascaeats.entities;
  * <p>Uma entrega é criada no estado {@code ATRIBUIDA} quando um {@link Entregador}
  * é associado a um {@link Pedido} no estado {@code READY}. O fluxo normal é:
  * <pre>
- *   ATRIBUIDA → EM_CAMINHO → CONCLUIDA
+ *   ATRIBUIDA → A_CAMINHO → CONCLUIDA
  *            ↘ CANCELADA
  * </pre>
  */
