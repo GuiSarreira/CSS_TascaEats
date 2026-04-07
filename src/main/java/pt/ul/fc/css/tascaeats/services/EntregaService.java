@@ -18,7 +18,14 @@ public class EntregaService {
     private final EntregadorRepository entregadorRepository;
     private final PedidoRepository pedidoRepository;
 
-    public EntregaService(EntregaRepository entregaRepository,
+    /**
+     * Construtor para injeção de dependências dos repositórios necessários.
+     *
+     * @param entregaRepository    repositório de entregas
+     * @param entregadorRepository repositório de entregadores
+     * @param pedidoRepository     repositório de pedidos
+     */
+    public EntregaService(EntregaRepository entregaRepository, 
                           EntregadorRepository entregadorRepository,
                           PedidoRepository pedidoRepository) {
         this.entregaRepository = entregaRepository;
@@ -27,8 +34,25 @@ public class EntregaService {
     }
 
     /**
-     * Atribui um entregador a um pedido que está pronto para entrega.
-     * Regras: Pedido deve estar READY; entregador disponível; sem outras entregas ativas.
+     * Atribui um entregador específico a um pedido pronto para entrega.
+     *
+     * Regras aplicadas:
+     * - O pedido deve estar no estado {@code READY}.
+     * - O pedido não pode já ter uma entrega atribuída.
+     * - O entregador deve estar disponível ({@code disponivel = true}).
+     * - O entregador não pode ter nenhuma entrega ativa.
+     *
+     * Após atribuição: o entregador fica {@code disponivel = false} e o pedido
+     * avança de {@code READY} para {@code IN_DELIVERY}.
+     *
+     * @param pedidoId     ID do pedido a entregar
+     * @param entregadorId ID do entregador a atribuir
+     * @return a entrega criada e persistida com estado {@code ATRIBUIDA}
+     * @throws RuntimeException      se o pedido ou entregador não forem
+     *                               encontrados, ou o entregador estiver
+     *                               indisponível
+     * @throws IllegalStateException se o pedido não estiver {@code READY} ou já
+     *                               tiver entrega atribuída
      */
     @Transactional
     public Entrega atribuirEntregador(Long pedidoId, Long entregadorId) {
@@ -61,7 +85,19 @@ public class EntregaService {
     }
 
     /**
-     * Atribui automaticamente o primeiro entregador disponível na zona do restaurante.
+     * Atribui automaticamente o primeiro entregador disponível na cidade do
+     * restaurante.
+     *
+     * Aplica as mesmas regras que {@link #atribuirEntregador(Long, Long)},
+     * selecionando o primeiro entregador disponível na zona correspondente
+     * à cidade do restaurante associado ao pedido.
+     *
+     * @param pedidoId ID do pedido a entregar
+     * @return a entrega criada e persistida com estado {@code ATRIBUIDA}
+     * @throws RuntimeException      se o pedido não for encontrado ou não houver
+     *                               entregadores disponíveis na zona
+     * @throws IllegalStateException se o pedido não estiver {@code READY} ou já
+     *                               tiver entrega atribuída
      */
     @Transactional
     public Entrega atribuirEntregadorAutomatico(Long pedidoId) {
@@ -94,8 +130,19 @@ public class EntregaService {
     }
 
     /**
-     * Regista a conclusão de uma entrega.
-     * Regras: Entrega deve estar EM_CAMINHO; após concluir, entregador fica disponível.
+     * Regista a conclusão bem-sucedida de uma entrega.
+     *
+     * Regras aplicadas:
+     * - A entrega deve estar no estado {@code A_CAMINHO}.
+     *
+     * Após conclusão: o entregador volta a {@code disponivel = true} e o pedido
+     * avança de {@code IN_DELIVERY} para {@code DELIVERED}.
+     *
+     * @param entregaId ID da entrega a concluir
+     * @return a entrega atualizada com estado {@code CONCLUIDA}
+     * @throws RuntimeException      se a entrega não for encontrada
+     * @throws IllegalStateException se a entrega não estiver no estado
+     *                               {@code A_CAMINHO}
      */
     @Transactional
     public Entrega concluirEntrega(Long entregaId) {
@@ -115,6 +162,18 @@ public class EntregaService {
 
     /**
      * Cancela uma entrega que ainda não foi iniciada.
+     *
+     * Regras aplicadas:
+     * - A entrega deve estar no estado {@code ATRIBUIDA}.
+     *
+     * Após cancelamento: o entregador volta a {@code disponivel = true} e o pedido
+     * retorna ao estado {@code READY} para poder ser reatribuído.
+     *
+     * @param entregaId ID da entrega a cancelar
+     * @return a entrega atualizada com estado {@code CANCELADA}
+     * @throws RuntimeException      se a entrega não for encontrada
+     * @throws IllegalStateException se a entrega não estiver no estado
+     *                               {@code ATRIBUIDA}
      */
     @Transactional
     public Entrega cancelarEntrega(Long entregaId) {
@@ -133,7 +192,17 @@ public class EntregaService {
     }
 
     /**
-     * Inicia uma entrega (muda de ATRIBUIDA para A_CAMINHO).
+     * Marca uma entrega como iniciada, avançando de {@code ATRIBUIDA} para
+     * {@code A_CAMINHO}.
+     *
+     * Indica que o entregador já recolheu o pedido no restaurante e está a caminho
+     * do cliente.
+     *
+     * @param entregaId ID da entrega a iniciar
+     * @return a entrega atualizada com estado {@code A_CAMINHO}
+     * @throws RuntimeException      se a entrega não for encontrada
+     * @throws IllegalStateException se a entrega não estiver no estado
+     *                               {@code ATRIBUIDA}
      */
     @Transactional
     public Entrega iniciarEntrega(Long entregaId) {
@@ -145,7 +214,12 @@ public class EntregaService {
     }
 
     /**
-     * Busca uma entrega pelo ID do pedido.
+     * Procura a entrega associada a um pedido.
+     *
+     * @param pedidoId ID do pedido
+     * @return a entrega associada ao pedido
+     * @throws RuntimeException se não existir nenhuma entrega para o pedido
+     *                          indicado
      */
     public Entrega buscarPorPedidoId(Long pedidoId) {
         return entregaRepository.findByPedidoId(pedidoId)
@@ -153,7 +227,11 @@ public class EntregaService {
     }
 
     /**
-     * Lista entregas ativas de um entregador.
+     * Lista as entregas ativas (estados {@code ATRIBUIDA} ou {@code A_CAMINHO}) de
+     * um entregador.
+     *
+     * @param entregadorId ID do entregador
+     * @return lista de entregas ativas do entregador
      */
     public List<Entrega> listarEntregasAtivasPorEntregador(Long entregadorId) {
         return entregaRepository.findEntregasAtivasByEntregadorId(entregadorId);
