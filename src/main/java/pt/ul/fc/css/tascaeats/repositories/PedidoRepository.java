@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import pt.ul.fc.css.tascaeats.entities.Cliente;
 import pt.ul.fc.css.tascaeats.entities.Pedido;
 import pt.ul.fc.css.tascaeats.entities.PedidoStatus;
 
@@ -88,7 +87,8 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
         *
         * @return lista de arrays {@code [cliente_id, ano, mes, totalPedidos]}
         */
-       @Query("SELECT p.cliente.id, FUNCTION('YEAR', p.dataHora), FUNCTION('MONTH', p.dataHora), COUNT(p) " + "FROM Pedido p " +
+       @Query("SELECT p.cliente.id, FUNCTION('YEAR', p.dataHora), FUNCTION('MONTH', p.dataHora), COUNT(p) "
+                     + "FROM Pedido p " +
                      "GROUP BY p.cliente.id, FUNCTION('YEAR', p.dataHora), FUNCTION('MONTH', p.dataHora)")
        List<Object[]> findMediaPedidosPorClientePorMes();
 

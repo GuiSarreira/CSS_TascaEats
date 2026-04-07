@@ -66,7 +66,7 @@ public class RestauranteController {
      * @param restaurante Objeto com os novos dados.
      * @return O restaurante atualizado.
      */
-    @PutMapping("/{id")
+    @PutMapping("/{id}")
     public ResponseEntity<Restaurante> atualizar(@PathVariable Long id, @RequestBody Restaurante restaurante) {
         return ResponseEntity.ok(restauranteService.atualizarRestaurante(id, restaurante));
     }
@@ -77,7 +77,7 @@ public class RestauranteController {
      * @param aberto Boolean indicando o novo estado.
      * @return Status 204 (No Content) após sucesso.
      */
-    @PatchMapping("/{id/estado")
+    @PatchMapping("/{id}/estado")
     public ResponseEntity<Void> alterarEstado(@PathVariable Long id, @RequestParam boolean aberto) {
         restauranteService.alterarEstadoAbertura(id, aberto);
         return ResponseEntity.noContent().build();
@@ -88,7 +88,7 @@ public class RestauranteController {
      * @param nif O NIF do restaurante.
      * @return Status 204 (No Content).
      */
-    @DeleteMapping("/{id")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
         restauranteService.removerRestaurante(id);
         return ResponseEntity.noContent().build();
