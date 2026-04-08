@@ -3,7 +3,6 @@ package pt.ul.fc.css.tascaeats.services;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import pt.ul.fc.css.tascaeats.dto.CriarPedidoRequest;
 import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.repositories.*;
 
@@ -70,27 +69,27 @@ public class PedidoService {
      *                                  quantidade for inválida
      */
     @Transactional
-    public Pedido criarPedido(CriarPedidoRequest request) {
-        // 1. Validações iniciais usando o DTO
-        Cliente cliente = clienteRepository.findById(request.getClienteId())
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado: id=" + request.getClienteId()));
+    public Pedido criarPedido(Long clienteId, Long restauranteId, String enderecoEntrega, Map<Long, Integer> itens) {
+        // 1. Validações iniciais
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado: id=" + clienteId));
 
-        Restaurante restaurante = restauranteRepository.findById(request.getRestauranteId())
-                .orElseThrow(() -> new RuntimeException("Restaurante não encontrado: id=" + request.getRestauranteId()));
+        Restaurante restaurante = restauranteRepository.findById(restauranteId)
+                .orElseThrow(() -> new RuntimeException("Restaurante não encontrado: id=" + restauranteId));
 
         if (!restaurante.isAberto()) {
             throw new IllegalStateException("Não é possível criar um pedido: o restaurante está fechado.");
         }
 
-        if (request.getItens() == null || request.getItens().isEmpty()) {
+        if (itens == null || itens.isEmpty()) {
             throw new IllegalArgumentException("O pedido deve conter pelo menos um produto.");
         }
 
         // 2. Criação da entidade
-        Pedido pedido = new Pedido(cliente, restaurante, request.getEnderecoEntrega());
+        Pedido pedido = new Pedido(cliente, restaurante, enderecoEntrega);
 
         // 3. Processamento dos itens
-        for (Map.Entry<Long, Integer> entry : request.getItens().entrySet()) {
+        for (Map.Entry<Long, Integer> entry : itens.entrySet()) {
             Produto produto = produtoRepository.findById(entry.getKey())
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado: id=" + entry.getKey()));
 
@@ -105,7 +104,7 @@ public class PedidoService {
                 throw new IllegalArgumentException(
                         "A quantidade do produto '" + produto.getNome() + "' deve ser maior que zero.");
             }
-            
+
             pedido.adicionarProduto(new ProdutoPedido(produto, entry.getValue()));
         }
 

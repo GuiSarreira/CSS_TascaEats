@@ -1,7 +1,6 @@
 package pt.ul.fc.css.tascaeats.services;
 
 import pt.ul.fc.css.tascaeats.repositories.*;
-import pt.ul.fc.css.tascaeats.dto.CriarProdutoRequest;
 import pt.ul.fc.css.tascaeats.entities.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,18 +64,22 @@ public class ProdutoService {
     }
 
     /**
-     * Atualiza dados fundamentais do produto (preço, descrição, nome).
-     * @param id Identificador único do produto a ser editado.
-     * @param novosDados Objeto contendo as novas informações para atualização.
-     * @return O produto após a persistência das alterações.
+     * Atualiza dados fundamentais do produto (nome, descrição e preço).
+     *
+     * @param id      identificador único do produto a ser editado
+     * @param nome    novo nome do produto
+     * @param descricao nova descrição do produto
+     * @param preco   novo preço unitário em euros
+     * @return o produto após a persistência das alterações
+     * @throws RuntimeException se o produto não for encontrado
      */
     @Transactional
-    public Produto atualizarProduto(Long id, CriarProdutoRequest request) {
+    public Produto atualizarProduto(Long id, String nome, String descricao, Double preco) {
         Produto produto = buscarPorId(id);
 
-        produto.setNome(request.getNome());
-        produto.setDescricao(request.getDescricao());
-        produto.setPreco(request.getPreco());
+        produto.setNome(nome);
+        produto.setDescricao(descricao);
+        produto.setPreco(preco);
 
         return produtoRepository.save(produto);
     }

@@ -25,7 +25,8 @@ public class ProdutoController {
 
     /**
      * Cria um novo produto no menu de um restaurante.
-     * * @param restauranteId ID do restaurante pai.
+     *
+     * @param restauranteId ID do restaurante pai.
      * @param request DTO com os dados do novo produto.
      * @return ProdutoResponse com os dados do produto criado e status 201.
      */
@@ -47,7 +48,8 @@ public class ProdutoController {
 
     /**
      * Lista o menu ativo de um restaurante.
-     * * @param restauranteId ID do restaurante.
+     *
+     * @param restauranteId ID do restaurante.
      * @return Lista de DTOs ProdutoResponse.
      */
     @GetMapping
@@ -62,7 +64,8 @@ public class ProdutoController {
 
     /**
      * Procura um produto específico pelo seu ID.
-     * * @param id ID do produto.
+     *
+     * @param id ID do produto.
      * @return ProdutoResponse correspondente.
      */
     @GetMapping("/{id}")
@@ -73,20 +76,26 @@ public class ProdutoController {
 
     /**
      * Atualiza os dados de um produto.
-     * * @param id ID do produto a editar.
+     *
+     * @param id ID do produto a editar.
      * @param request DTO com os novos dados.
      * @return ProdutoResponse atualizado.
      */
     @PutMapping("/{id}")
     public ResponseEntity<ProdutoResponse> atualizar(@PathVariable Long id, @RequestBody CriarProdutoRequest request) {
-        Produto produtoAtualizado = produtoService.atualizarProduto(id, request);
-
+        Produto produtoAtualizado = produtoService.atualizarProduto(
+            id,
+            request.getNome(),
+            request.getDescricao(),
+            request.getPreco()
+        );
         return ResponseEntity.ok(ProdutoResponse.from(produtoAtualizado));
     }
 
     /**
      * Altera a disponibilidade de um produto sem o remover do menu.
-     * * @param id ID do produto.
+     *
+     * @param id ID do produto.
      * @param disponivel Novo estado de disponibilidade.
      * @return 204 No Content.
      */
@@ -98,7 +107,8 @@ public class ProdutoController {
 
     /**
      * Remove um produto do menu (Soft-Delete).
-     * * @param id ID do produto.
+     *
+     * @param id ID do produto.
      * @return 204 No Content.
      */
     @DeleteMapping("/{id}")

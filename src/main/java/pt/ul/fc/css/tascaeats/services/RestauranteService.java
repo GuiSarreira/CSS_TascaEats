@@ -15,33 +15,48 @@ import java.util.Optional;
 public class RestauranteService {
 
     private final RestauranteRepository restauranteRepository;
+    private final UserRepository userRepository;
 
     /**
-     * Construtor para injeção de dependência do repositório.
-     * @param restauranteRepository O repositório de dados de restaurante.
+     * Construtor para injeção de dependências dos repositórios necessários.
+     *
+     * @param restauranteRepository repositório de restaurantes
+     * @param userRepository        repositório de utilizadores (necessário para validar o admin)
      */
-    public RestauranteService(RestauranteRepository restauranteRepository) {
+    public RestauranteService(RestauranteRepository restauranteRepository, UserRepository userRepository) {
         this.restauranteRepository = restauranteRepository;
+        this.userRepository = userRepository;
     }
 
     /**
-     * Regra: Apenas um utilizador do tipo Admin pode criar um restaurante.
-     * @param restaurante Objeto restaurante com os dados iniciais.
-     * @param user Utilizador que tenta realizar a operação.
-     * @return O Restaurante guardado na base de dados.
-     * @throws SecurityException Se o utilizador não for um Administrador.
-     * @throws IllegalArgumentException Se o NIF já estiver registado no sistema.
+     * Cria um novo restaurante.
+     *
+     * Regra: apenas utilizadores do tipo {@link Admin} podem criar restaurantes.
+     *
+     * @param nome    nome do restaurante
+     * @param morada  morada do restaurante
+     * @param cidade  cidade onde está localizado
+     * @param nif     NIF único do restaurante
+     * @param adminId ID do utilizador que cria o restaurante (deve ser Admin)
+     * @return o restaurante persistido
+     * @throws RuntimeException         se o utilizador indicado por {@code adminId} não existir
+     * @throws SecurityException        se o utilizador não for um administrador
+     * @throws IllegalArgumentException se já existir um restaurante com o mesmo NIF
      */
     @Transactional
-    public Restaurante criarRestaurante(Restaurante restaurante, User user) {
+    public Restaurante criarRestaurante(String nome, String morada, String cidade, String nif, Long adminId) {
+        User user = userRepository.findById(adminId)
+            .orElseThrow(() -> new RuntimeException("Utilizador não encontrado: id=" + adminId));
+
         if (!(user instanceof Admin)) {
             throw new SecurityException("Acesso Negado: Apenas administradores podem criar restaurantes.");
         }
-        
-        if (restauranteRepository.findByNif(restaurante.getNif()).isPresent()) {
+
+        if (restauranteRepository.findByNif(nif).isPresent()) {
             throw new IllegalArgumentException("Já existe um restaurante registado com este NIF.");
         }
 
+        Restaurante restaurante = new Restaurante(nome, morada, cidade, nif);
         restaurante.setAdmin((Admin) user);
 
         return restauranteRepository.save(restaurante);
@@ -99,41 +114,54 @@ public class RestauranteService {
 
     /**
      * Atualiza os dados de um restaurante existente.
-     * @param id O ID do restaurante a editar.
-     * @param novosDados Objeto com as novas informações (nome, morada, cidade).
-     * @return O restaurante atualizado.
-     * @throws RuntimeException Se não for encontrado nenhum restaurante com o ID indicado.
+     *
+     * Apenas o administrador dono do restaurante pode editá-lo.
+     * O NIF não pode ser alterado após o registo.
+     *
+     * @param id      ID do restaurante a editar
+     * @param nome    novo nome do restaurante
+     * @param morada  nova morada do restaurante
+     * @param cidade  nova cidade do restaurante
+     * @param adminId ID do utilizador que solicita a edição (deve ser o dono)
+     * @return o restaurante atualizado e persistido
+     * @throws RuntimeException  se o restaurante não for encontrado
+     * @throws SecurityException se o utilizador não for o admin dono do restaurante
      */
     @Transactional
-    public Restaurante atualizarRestaurante(Long id, Restaurante novosDados, User userLogado) {
+    public Restaurante atualizarRestaurante(Long id, String nome, String morada, String cidade, Long adminId) {
         Restaurante restauranteExistente = restauranteRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Restaurante não encontrado com ID: " + id));
 
-        if (!restauranteExistente.getAdmin().equals(userLogado)) {
+        if (!restauranteExistente.getAdmin().getId().equals(adminId)) {
             throw new SecurityException("Não tem permissão para alterar este restaurante.");
         }
 
         // O NIF nunca deve ser alterado após o registo
-        restauranteExistente.setNome(novosDados.getNome());
-        restauranteExistente.setMorada(novosDados.getMorada());
-        restauranteExistente.setCidade(novosDados.getCidade());
-        
+        restauranteExistente.setNome(nome);
+        restauranteExistente.setMorada(morada);
+        restauranteExistente.setCidade(cidade);
+
         return restauranteRepository.save(restauranteExistente);
     }
 
     /**
      * Remove um restaurante do sistema se este não possuir histórico de pedidos.
-     * @param id O ID do restaurante a remover.
-     * @throws RuntimeException Se o restaurante não for encontrado.
-     * @throws IllegalStateException Se o restaurante já tiver processado pedidos.
+     *
+     * Apenas o administrador dono do restaurante pode removê-lo.
+     *
+     * @param id      ID do restaurante a remover
+     * @param adminId ID do utilizador que solicita a remoção
+     * @throws RuntimeException      se o restaurante não for encontrado
+     * @throws SecurityException     se o utilizador não for o admin dono do restaurante
+     * @throws IllegalStateException se o restaurante já tiver pedidos associados
      */
     @Transactional
-    public void removerRestaurante(Long id, User userLogado) {
+    public void removerRestaurante(Long id, Long adminId) {
         Restaurante restaurante = restauranteRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Restaurante não encontrado com o ID: " + id));
 
-        if (!restaurante.getAdmin().equals(userLogado)) {
-            throw new SecurityException("Não tem permissão para alterar este restaurante.");
+        if (!restaurante.getAdmin().getId().equals(adminId)) {
+            throw new SecurityException("Não tem permissão para remover este restaurante.");
         }
 
         if (!restaurante.getPedidos().isEmpty()) {

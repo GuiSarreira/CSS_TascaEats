@@ -30,19 +30,25 @@ public class PedidoController {
     /**
      * Cria um novo pedido na plataforma e devolve os dados formatados para resposta.
      * O processo valida se o restaurante está aberto e se os produtos estão disponíveis.
-     * * @param request DTO contendo o ID do cliente, ID do restaurante, morada e mapa de itens.
+     *
+     * @param request DTO contendo o ID do cliente, ID do restaurante, morada e mapa de itens.
      * @return ResponseEntity contendo o PedidoResponse e o status HTTP 201 (Created).
      */
     @PostMapping
     public ResponseEntity<PedidoResponse> criar(@RequestBody CriarPedidoRequest request) {
-        Pedido novoPedido = pedidoService.criarPedido(request);
-        
+        Pedido novoPedido = pedidoService.criarPedido(
+            request.getClienteId(),
+            request.getRestauranteId(),
+            request.getEnderecoEntrega(),
+            request.getItens()
+        );
         return ResponseEntity.status(HttpStatus.CREATED).body(PedidoResponse.from(novoPedido));
     }
 
     /**
      * Recupera os detalhes de um pedido específico através do seu identificador.
-     * * @param id O identificador único do pedido.
+     *
+     * @param id O identificador único do pedido.
      * @return ResponseEntity contendo o PedidoResponse e o status HTTP 200 (OK).
      */
     @GetMapping("/{id}")
@@ -53,7 +59,8 @@ public class PedidoController {
 
     /**
      * Lista o histórico de pedidos de um cliente específico, ordenado por data decrescente.
-     * * @param clienteId O identificador do cliente.
+     *
+     * @param clienteId O identificador do cliente.
      * @return ResponseEntity contendo uma lista de PedidoResponse e o status HTTP 200 (OK).
      */
     @GetMapping("/cliente/{clienteId}")
@@ -69,7 +76,8 @@ public class PedidoController {
 
     /**
      * Avança o pedido para o próximo estado no fluxo de trabalho (ex: de PAID para PREPARING).
-     * * @param id O identificador do pedido a transitar.
+     *
+     * @param id O identificador do pedido a transitar.
      * @return ResponseEntity contendo o PedidoResponse atualizado e o status HTTP 200 (OK).
      */
     @PatchMapping("/{id}/avancar")
@@ -81,7 +89,8 @@ public class PedidoController {
     /**
      * Cancela um pedido se este ainda não tiver entrado em fase de preparação.
      * A operação apenas é permitida se o pedido estiver nos estados CREATED ou PAID.
-     * * @param id ID do pedido a cancelar.
+     *
+     * @param id ID do pedido a cancelar.
      * @return ResponseEntity com status HTTP 204 (No Content) após sucesso.
      */
     @PatchMapping("/{id}/cancelar")

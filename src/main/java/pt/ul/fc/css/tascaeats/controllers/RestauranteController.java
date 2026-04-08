@@ -1,7 +1,9 @@
 package pt.ul.fc.css.tascaeats.controllers;
 
+import pt.ul.fc.css.tascaeats.dto.*;
 import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.services.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -21,60 +23,103 @@ public class RestauranteController {
     }
 
     /**
+     * Cria um novo restaurante.
+     *
+     * @param request DTO com os dados do restaurante e o {@code adminId} do
+     *                criador.
+     * @return O restaurante criado com status 201 (Created).
+     */
+    @PostMapping
+    public ResponseEntity<RestauranteResponse> criar(@RequestBody CriarRestauranteRequest request) {
+        Restaurante novoRestaurante = restauranteService.criarRestaurante(
+            request.getNome(),
+            request.getMorada(),
+            request.getCidade(),
+            request.getNif(),
+            request.getAdminId()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(RestauranteResponse.from(novoRestaurante));
+    }
+
+    /**
      * Retorna a lista de todos os restaurantes registados.
+     *
      * @return Lista de todos os restaurantes e status 200 (OK).
      */
     @GetMapping
-    public ResponseEntity<List<Restaurante>> listarTodos() {
-        return ResponseEntity.ok(restauranteService.listarTodos());
+    public ResponseEntity<List<RestauranteResponse>> listarTodos() {
+        List<RestauranteResponse> response = restauranteService.listarTodos().stream()
+                .map(RestauranteResponse::from)
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     /**
      * Procura um restaurante pelo seu identificador único (ID).
+     *
      * @param id O ID do restaurante.
-     * @return O restaurante encontrado ou status 404 caso ocorra erro no serviço.
+     * @return O restaurante encontrado ou status 404 caso não exista.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Restaurante> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(restauranteService.buscarPorId(id));
+    public ResponseEntity<RestauranteResponse> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(RestauranteResponse.from(restauranteService.buscarPorId(id)));
     }
 
     /**
      * Pesquisa restaurantes pelo nome.
+     *
      * @param nome Parte do nome a pesquisar.
      * @return Lista de restaurantes correspondentes.
      */
     @GetMapping("/nome")
-    public ResponseEntity<List<Restaurante>> buscarPorNome(@RequestParam String nome) {
-        return ResponseEntity.ok(restauranteService.buscarPorNome(nome));
+    public ResponseEntity<List<RestauranteResponse>> buscarPorNome(@RequestParam String nome) {
+        List<RestauranteResponse> response = restauranteService.buscarPorNome(nome).stream()
+                .map(RestauranteResponse::from)
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     /**
      * Pesquisa restaurantes por cidade.
+     *
      * @param cidade Nome da cidade.
      * @return Lista de restaurantes na cidade indicada.
      */
     @GetMapping("/cidade")
-    public ResponseEntity<List<Restaurante>> buscarPorCidade(@RequestParam String cidade) {
-        return ResponseEntity.ok(restauranteService.buscarPorCidade(cidade));
+    public ResponseEntity<List<RestauranteResponse>> buscarPorCidade(@RequestParam String cidade) {
+        List<RestauranteResponse> response = restauranteService.buscarPorCidade(cidade).stream()
+                .map(RestauranteResponse::from)
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     /**
-     * Atualiza os dados de um restaurante existente através do seu NIF.
-     * @param nif O NIF do restaurante a editar.
-     * @param restaurante Objeto com os novos dados.
+     * Atualiza os dados de um restaurante existente.
+     *
+     * @param id      ID do restaurante a editar.
+     * @param request DTO com os novos dados (nome, morada, cidade).
+     * @param adminId ID do administrador que solicita a edição (deve ser o dono do
+     *                restaurante).
      * @return O restaurante atualizado.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Restaurante> atualizar(@PathVariable Long id, 
-        @RequestBody Restaurante restaurante, 
-        @RequestAttribute("user") User userLogado) {
-        return ResponseEntity.ok(restauranteService.atualizarRestaurante(id, restaurante, userLogado));
+    public ResponseEntity<RestauranteResponse> atualizar(@PathVariable Long id,
+            @RequestBody CriarRestauranteRequest request, @RequestParam Long adminId) {
+        return ResponseEntity.ok(
+            RestauranteResponse.from(
+                restauranteService.atualizarRestaurante(
+                    id,
+                    request.getNome(),
+                    request.getMorada(),
+                    request.getCidade(),
+                    adminId
+                )));
     }
 
     /**
      * Altera o estado de abertura (Aberto/Fechado) do restaurante.
-     * @param nif O NIF do restaurante.
+     *
+     * @param id     ID do restaurante.
      * @param aberto Boolean indicando o novo estado.
      * @return Status 204 (No Content) após sucesso.
      */
@@ -85,13 +130,16 @@ public class RestauranteController {
     }
 
     /**
-     * Remove um restaurante do sistema através do NIF.
-     * @param nif O NIF do restaurante.
+     * Remove um restaurante do sistema se este não tiver histórico de pedidos.
+     *
+     * @param id      ID do restaurante a remover.
+     * @param adminId ID do administrador que solicita a remoção (deve ser o dono do
+     *                restaurante).
      * @return Status 204 (No Content).
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id, @RequestAttribute("user") User userLogado) {
-        restauranteService.removerRestaurante(id, userLogado);
+    public ResponseEntity<Void> remover(@PathVariable Long id, @RequestParam Long adminId) {
+        restauranteService.removerRestaurante(id, adminId);
         return ResponseEntity.noContent().build();
     }
 }
