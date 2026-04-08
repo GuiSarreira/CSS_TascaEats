@@ -9,8 +9,9 @@ import pt.ul.fc.css.tascaeats.dto.*;
 import java.util.List;
 
 /**
- * Controller REST para gestão de Pedidos.
- * Fornece endpoints para criação, consulta e controlo do ciclo de vida das encomendas.
+ * Controller REST responsável pela exposição dos endpoints de gestão de pedidos.
+ * Permite a criação de novas encomendas, consulta de detalhes e histórico,
+ * bem como a gestão do ciclo de vida (avanço de estado e cancelamento).
  */
 @RestController
 @RequestMapping("/api/pedidos")
@@ -18,80 +19,70 @@ public class PedidoController {
 
     private final PedidoService pedidoService;
 
+    /**
+     * Construtor para injeção de dependências do serviço de pedidos.
+     * @param pedidoService O serviço que contém a lógica de negócio dos pedidos.
+     */
     public PedidoController(PedidoService pedidoService) {
         this.pedidoService = pedidoService;
     }
 
     /**
-     * Cria um novo pedido na plataforma.
-     * @param request Objeto contendo IDs do cliente/restaurante, morada e itens.
-     * @return O pedido criado com status 201 (Created).
+     * Cria um novo pedido na plataforma e devolve os dados formatados para resposta.
+     * O processo valida se o restaurante está aberto e se os produtos estão disponíveis.
+     * * @param request DTO contendo o ID do cliente, ID do restaurante, morada e mapa de itens.
+     * @return ResponseEntity contendo o PedidoResponse e o status HTTP 201 (Created).
      */
     @PostMapping
-    public ResponseEntity<Pedido> criar(@RequestBody PedidoRequest request) {
-        Pedido novoPedido = pedidoService.criarPedido(
-                request.clienteId(),
-                request.restauranteId(),
-                request.enderecoEntrega(),
-                request.itens()
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(novoPedido);
+    public ResponseEntity<PedidoResponse> criar(@RequestBody CriarPedidoRequest request) {
+        Pedido novoPedido = pedidoService.criarPedido(request);
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(PedidoResponse.from(novoPedido));
     }
 
     /**
-     * Obtém os detalhes de um pedido específico.
-     * @param id ID do pedido.
-     * @return Detalhes do pedido.
+     * Recupera os detalhes de um pedido específico através do seu identificador.
+     * * @param id O identificador único do pedido.
+     * @return ResponseEntity contendo o PedidoResponse e o status HTTP 200 (OK).
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Pedido> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(pedidoService.buscarPorId(id));
+    public ResponseEntity<PedidoResponse> buscarPorId(@PathVariable Long id) {
+        Pedido pedido = pedidoService.buscarPorId(id);
+        return ResponseEntity.ok(PedidoResponse.from(pedido));
     }
 
     /**
-     * Lista o histórico de pedidos de um cliente.
-     * @param clienteId ID do cliente.
-     * @return Lista de pedidos ordenados por data.
+     * Lista o histórico de pedidos de um cliente específico, ordenado por data decrescente.
+     * * @param clienteId O identificador do cliente.
+     * @return ResponseEntity contendo uma lista de PedidoResponse e o status HTTP 200 (OK).
      */
     @GetMapping("/cliente/{clienteId}")
-    public ResponseEntity<List<Pedido>> listarPorCliente(@PathVariable Long clienteId) {
-        return ResponseEntity.ok(pedidoService.buscarPorCliente(clienteId));
+    public ResponseEntity<List<PedidoResponse>> listarPorCliente(@PathVariable Long clienteId) {
+        List<Pedido> pedidos = pedidoService.buscarPorCliente(clienteId);
+        
+        List<PedidoResponse> response = pedidos.stream()
+                .map(PedidoResponse::from)
+                .toList();
+                
+        return ResponseEntity.ok(response);
     }
 
     /**
-     * Lista todos os pedidos recebidos por um restaurante.
-     * @param restauranteId ID do restaurante.
-     * @return Lista de pedidos do restaurante.
-     */
-    @GetMapping("/restaurante/{restauranteId}")
-    public ResponseEntity<List<Pedido>> listarPorRestaurante(@PathVariable Long restauranteId) {
-        return ResponseEntity.ok(pedidoService.buscarPorRestaurante(restauranteId));
-    }
-
-    /**
-     * Filtra pedidos por estado.
-     * @param status Estado do pedido (CREATED, PAID, PREPARING, READY, etc).
-     * @return Lista de pedidos no estado indicado.
-     */
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<Pedido>> listarPorStatus(@PathVariable PedidoStatus status) {
-        return ResponseEntity.ok(pedidoService.buscarPorStatus(status));
-    }
-
-    /**
-     * Avança o pedido para o próximo estado no fluxo (PREPARING para READY).
-     * @param id ID do pedido a avançar.
-     * @return O pedido com o novo estado atualizado.
+     * Avança o pedido para o próximo estado no fluxo de trabalho (ex: de PAID para PREPARING).
+     * * @param id O identificador do pedido a transitar.
+     * @return ResponseEntity contendo o PedidoResponse atualizado e o status HTTP 200 (OK).
      */
     @PatchMapping("/{id}/avancar")
-    public ResponseEntity<Pedido> avancarEstado(@PathVariable Long id) {
-        return ResponseEntity.ok(pedidoService.avancarEstado(id));
+    public ResponseEntity<PedidoResponse> avancarEstado(@PathVariable Long id) {
+        Pedido pedidoAtualizado = pedidoService.avancarEstado(id);
+        return ResponseEntity.ok(PedidoResponse.from(pedidoAtualizado));
     }
 
     /**
-     * Cancela um pedido (apenas permitido se estiver em CREATED ou PAID).
-     * @param id ID do pedido a cancelar.
-     * @return Status 204 No Content após sucesso.
+     * Cancela um pedido se este ainda não tiver entrado em fase de preparação.
+     * A operação apenas é permitida se o pedido estiver nos estados CREATED ou PAID.
+     * * @param id ID do pedido a cancelar.
+     * @return ResponseEntity com status HTTP 204 (No Content) após sucesso.
      */
     @PatchMapping("/{id}/cancelar")
     public ResponseEntity<Void> cancelar(@PathVariable Long id) {

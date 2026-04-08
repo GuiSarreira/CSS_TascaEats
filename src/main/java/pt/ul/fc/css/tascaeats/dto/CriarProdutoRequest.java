@@ -1,5 +1,8 @@
 package pt.ul.fc.css.tascaeats.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 /**
  * DTO de request para o endpoint {@code POST /api/restaurantes/{id}/produtos}.
  *
@@ -9,12 +12,15 @@ package pt.ul.fc.css.tascaeats.dto;
 public class CriarProdutoRequest {
 
     /** Nome do produto. */
+    @NotNull
     private String nome;
 
     /** Descrição do produto (opcional). */
     private String descricao;
 
     /** Preço unitário em euros. Deve ser maior que zero. */
+    @NotNull
+    @Positive
     private Double preco;
 
     /**

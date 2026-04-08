@@ -2,10 +2,9 @@ package pt.ul.fc.css.tascaeats.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pt.ul.fc.css.tascaeats.dto.PagamentoRequest;
-import pt.ul.fc.css.tascaeats.dto.PagamentoResponse;
-import pt.ul.fc.css.tascaeats.entities.Pagamento;
-import pt.ul.fc.css.tascaeats.services.PagamentoService;
+import pt.ul.fc.css.tascaeats.dto.*;
+import pt.ul.fc.css.tascaeats.entities.*;
+import pt.ul.fc.css.tascaeats.services.*;
 
 /**
  * Controller REST para gestão de Pagamentos.
@@ -28,9 +27,7 @@ public class PagamentoController {
      * @return O pagamento processado com status 200 (OK).
      */
     @PostMapping("/{pedidoId}/pagamento")
-    public ResponseEntity<PagamentoResponse> processarPagamento(
-            @PathVariable Long pedidoId,
-            @RequestBody PagamentoRequest request) {
+    public ResponseEntity<PagamentoResponse> processarPagamento(@PathVariable Long pedidoId,@RequestBody PagamentoRequest request) {
         Pagamento pagamento = pagamentoService.processarPagamento(
                 pedidoId,
                 request.getTipoPagamento(),

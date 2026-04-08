@@ -38,10 +38,11 @@ public class RestauranteService {
             throw new SecurityException("Acesso Negado: Apenas administradores podem criar restaurantes.");
         }
         
-        // Verificamos se já existe um restaurante com o mesmo NIF antes de salvar
         if (restauranteRepository.findByNif(restaurante.getNif()).isPresent()) {
             throw new IllegalArgumentException("Já existe um restaurante registado com este NIF.");
         }
+
+        restaurante.setAdmin((Admin) user);
 
         return restauranteRepository.save(restaurante);
     }
@@ -104,9 +105,13 @@ public class RestauranteService {
      * @throws RuntimeException Se não for encontrado nenhum restaurante com o ID indicado.
      */
     @Transactional
-    public Restaurante atualizarRestaurante(Long id, Restaurante novosDados) {
+    public Restaurante atualizarRestaurante(Long id, Restaurante novosDados, User userLogado) {
         Restaurante restauranteExistente = restauranteRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Restaurante não encontrado com ID: " + id));
+
+        if (!restauranteExistente.getAdmin().equals(userLogado)) {
+            throw new SecurityException("Não tem permissão para alterar este restaurante.");
+        }
 
         // O NIF nunca deve ser alterado após o registo
         restauranteExistente.setNome(novosDados.getNome());
@@ -123,9 +128,13 @@ public class RestauranteService {
      * @throws IllegalStateException Se o restaurante já tiver processado pedidos.
      */
     @Transactional
-    public void removerRestaurante(Long id) {
+    public void removerRestaurante(Long id, User userLogado) {
         Restaurante restaurante = restauranteRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Restaurante não encontrado com o ID: " + id));
+
+        if (!restaurante.getAdmin().equals(userLogado)) {
+            throw new SecurityException("Não tem permissão para alterar este restaurante.");
+        }
 
         if (!restaurante.getPedidos().isEmpty()) {
             throw new IllegalStateException("Não é possível remover um restaurante que já processou pedidos. Considere desativá-lo.");

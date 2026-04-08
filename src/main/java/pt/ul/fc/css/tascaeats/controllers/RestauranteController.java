@@ -2,7 +2,6 @@ package pt.ul.fc.css.tascaeats.controllers;
 
 import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.services.*;
-//import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -67,8 +66,10 @@ public class RestauranteController {
      * @return O restaurante atualizado.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Restaurante> atualizar(@PathVariable Long id, @RequestBody Restaurante restaurante) {
-        return ResponseEntity.ok(restauranteService.atualizarRestaurante(id, restaurante));
+    public ResponseEntity<Restaurante> atualizar(@PathVariable Long id, 
+        @RequestBody Restaurante restaurante, 
+        @RequestAttribute("user") User userLogado) {
+        return ResponseEntity.ok(restauranteService.atualizarRestaurante(id, restaurante, userLogado));
     }
 
     /**
@@ -89,8 +90,8 @@ public class RestauranteController {
      * @return Status 204 (No Content).
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id) {
-        restauranteService.removerRestaurante(id);
+    public ResponseEntity<Void> remover(@PathVariable Long id, @RequestAttribute("user") User userLogado) {
+        restauranteService.removerRestaurante(id, userLogado);
         return ResponseEntity.noContent().build();
     }
 }

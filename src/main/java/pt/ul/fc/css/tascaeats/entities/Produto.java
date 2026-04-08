@@ -1,6 +1,8 @@
 package pt.ul.fc.css.tascaeats.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +36,7 @@ public class Produto {
 
     /** Preço unitário do produto em euros. Deve ser maior que zero. */
     @Column(nullable = false)
+    @Positive
     private Double preco;
 
     /**

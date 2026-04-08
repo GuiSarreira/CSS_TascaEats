@@ -2,6 +2,8 @@ package pt.ul.fc.css.tascaeats.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import pt.ul.fc.css.tascaeats.dto.CriarPedidoRequest;
 import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.repositories.*;
 
@@ -68,27 +70,31 @@ public class PedidoService {
      *                                  quantidade for inválida
      */
     @Transactional
-    public Pedido criarPedido(Long clienteId, Long restauranteId, String enderecoEntrega, Map<Long, Integer> itens) {
-        Cliente cliente = clienteRepository.findById(clienteId)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado: id=" + clienteId));
+    public Pedido criarPedido(CriarPedidoRequest request) {
+        // 1. Validações iniciais usando o DTO
+        Cliente cliente = clienteRepository.findById(request.getClienteId())
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado: id=" + request.getClienteId()));
 
-        Restaurante restaurante = restauranteRepository.findById(restauranteId)
-                .orElseThrow(() -> new RuntimeException("Restaurante não encontrado: id=" + restauranteId));
+        Restaurante restaurante = restauranteRepository.findById(request.getRestauranteId())
+                .orElseThrow(() -> new RuntimeException("Restaurante não encontrado: id=" + request.getRestauranteId()));
 
         if (!restaurante.isAberto()) {
             throw new IllegalStateException("Não é possível criar um pedido: o restaurante está fechado.");
         }
 
-        if (itens == null || itens.isEmpty()) {
+        if (request.getItens() == null || request.getItens().isEmpty()) {
             throw new IllegalArgumentException("O pedido deve conter pelo menos um produto.");
         }
 
-        Pedido pedido = new Pedido(cliente, restaurante, enderecoEntrega);
+        // 2. Criação da entidade
+        Pedido pedido = new Pedido(cliente, restaurante, request.getEnderecoEntrega());
 
-        for (Map.Entry<Long, Integer> entry : itens.entrySet()) {
+        // 3. Processamento dos itens
+        for (Map.Entry<Long, Integer> entry : request.getItens().entrySet()) {
             Produto produto = produtoRepository.findById(entry.getKey())
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado: id=" + entry.getKey()));
 
+            // Regras de negócio para o produto
             if (produto.isEliminado()) {
                 throw new IllegalStateException("O produto '" + produto.getNome() + "' foi removido do menu.");
             }
@@ -99,6 +105,7 @@ public class PedidoService {
                 throw new IllegalArgumentException(
                         "A quantidade do produto '" + produto.getNome() + "' deve ser maior que zero.");
             }
+            
             pedido.adicionarProduto(new ProdutoPedido(produto, entry.getValue()));
         }
 

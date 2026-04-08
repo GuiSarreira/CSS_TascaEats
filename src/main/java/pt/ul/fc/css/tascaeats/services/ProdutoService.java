@@ -1,6 +1,7 @@
 package pt.ul.fc.css.tascaeats.services;
 
 import pt.ul.fc.css.tascaeats.repositories.*;
+import pt.ul.fc.css.tascaeats.dto.CriarProdutoRequest;
 import pt.ul.fc.css.tascaeats.entities.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,14 +71,14 @@ public class ProdutoService {
      * @return O produto após a persistência das alterações.
      */
     @Transactional
-    public Produto atualizarProduto(Long id, Produto novosDados) {
-        Produto produtoExistente = buscarPorId(id);
+    public Produto atualizarProduto(Long id, CriarProdutoRequest request) {
+        Produto produto = buscarPorId(id);
 
-        produtoExistente.setNome(novosDados.getNome());
-        produtoExistente.setDescricao(novosDados.getDescricao());
-        produtoExistente.setPreco(novosDados.getPreco());
+        produto.setNome(request.getNome());
+        produto.setDescricao(request.getDescricao());
+        produto.setPreco(request.getPreco());
 
-        return produtoRepository.save(produtoExistente);
+        return produtoRepository.save(produto);
     }
 
     /**
@@ -99,8 +100,13 @@ public class ProdutoService {
     @Transactional
     public void removerProduto(Long id) {
         Produto produto = buscarPorId(id);
-        produto.deleteLogicamente();
-        produtoRepository.save(produto);
+        
+        if (produto.getItensPedido().isEmpty()) {
+            produtoRepository.delete(produto);
+        } else {
+            produto.deleteLogicamente();
+            produtoRepository.save(produto);
+        }
     }
 
     /**
