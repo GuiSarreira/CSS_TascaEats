@@ -25,9 +25,9 @@ public class EntregaService {
      * @param entregadorRepository repositório de entregadores
      * @param pedidoRepository     repositório de pedidos
      */
-    public EntregaService(EntregaRepository entregaRepository, 
-                          EntregadorRepository entregadorRepository,
-                          PedidoRepository pedidoRepository) {
+    public EntregaService(EntregaRepository entregaRepository,
+            EntregadorRepository entregadorRepository,
+            PedidoRepository pedidoRepository) {
         this.entregaRepository = entregaRepository;
         this.entregadorRepository = entregadorRepository;
         this.pedidoRepository = pedidoRepository;
