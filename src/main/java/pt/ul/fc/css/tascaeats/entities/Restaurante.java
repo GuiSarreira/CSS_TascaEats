@@ -38,13 +38,9 @@ public class Restaurante {
     /** Indica se o restaurante está aberto para receber pedidos. */
     private boolean aberto = false;
 
-    /** Morada física do restaurante. */
-    @Column(nullable = false)
-    private String morada;
-
-    /** Cidade onde o restaurante está localizado. Usado para pesquisas por localização. */
-    @Column(nullable = false)
-    private String cidade;
+    /** Morada física do restaurante (rua, código postal e cidade). */
+    @Embedded
+    private Endereco morada;
 
     /**
      * Catálogo de produtos do restaurante.
@@ -81,10 +77,9 @@ public class Restaurante {
      * @param cidade  cidade onde está localizado
      * @param nif     NIF único do restaurante
      */
-    public Restaurante(String nome, String morada, String cidade, String nif) {
+    public Restaurante(String nome, Endereco morada, String nif) {
         this.nome = nome;
         this.morada = morada;
-        this.cidade = cidade;
         this.nif = nif;
         this.aberto = false;
     }
@@ -141,20 +136,12 @@ public class Restaurante {
         this.aberto = aberto;
     }
 
-    public String getMorada() {
+    public Endereco getMorada() {
         return morada;
     }
 
-    public void setMorada(String morada) {
+    public void setMorada(Endereco morada) {
         this.morada = morada;
-    }
-
-    public String getCidade() {
-        return cidade;
-    }
-
-    public void setCidade(String cidade) {
-        this.cidade = cidade;
     }
 
     public List<Produto> getMenu() {

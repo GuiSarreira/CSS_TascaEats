@@ -1,5 +1,6 @@
 package pt.ul.fc.css.tascaeats.dto;
 
+import pt.ul.fc.css.tascaeats.entities.Endereco;
 import pt.ul.fc.css.tascaeats.entities.Pedido;
 import pt.ul.fc.css.tascaeats.entities.PedidoStatus;
 
@@ -28,7 +29,7 @@ public class PedidoResponse {
     private Double precoTotal;
 
     /** Morada de entrega para este pedido. */
-    private String enderecoEntrega;
+    private Endereco enderecoEntrega;
 
     /** Estado atual do pedido no seu ciclo de vida. */
     private PedidoStatus status;
@@ -52,7 +53,7 @@ public class PedidoResponse {
     public PedidoResponse() {
     }
 
-    private PedidoResponse(Long id, LocalDateTime dataHora, Double precoTotal, String enderecoEntrega,
+    private PedidoResponse(Long id, LocalDateTime dataHora, Double precoTotal, Endereco enderecoEntrega,
             PedidoStatus status, Long clienteId, String clienteNome,
             Long restauranteId, String restauranteNome, List<ItemPedidoResponse> itens) {
         this.id = id;
@@ -103,7 +104,7 @@ public class PedidoResponse {
         return precoTotal;
     }
 
-    public String getEnderecoEntrega() {
+    public Endereco getEnderecoEntrega() {
         return enderecoEntrega;
     }
 

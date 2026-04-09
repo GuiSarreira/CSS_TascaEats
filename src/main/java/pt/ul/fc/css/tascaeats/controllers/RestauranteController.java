@@ -34,7 +34,6 @@ public class RestauranteController {
         Restaurante novoRestaurante = restauranteService.criarRestaurante(
             request.getNome(),
             request.getMorada(),
-            request.getCidade(),
             request.getNif(),
             request.getAdminId()
         );
@@ -111,7 +110,6 @@ public class RestauranteController {
                     id,
                     request.getNome(),
                     request.getMorada(),
-                    request.getCidade(),
                     adminId
                 )));
     }

@@ -48,7 +48,7 @@ public class UserService {
      * @throws IllegalArgumentException se o email já estiver registado
      */
     @Transactional
-    public Cliente registarCliente(String email, String nome, String password, String morada) {
+    public Cliente registarCliente(String email, String nome, String password, Endereco morada) {
         if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email já registado: " + email);
         }
@@ -150,13 +150,13 @@ public class UserService {
      * @throws RuntimeException se o utilizador não for encontrado
      */
     @Transactional
-    public User atualizarUser(Long id, String novoNome, String novaPassword, String novaMorada) {
+    public User atualizarUser(Long id, String novoNome, String novaPassword, Endereco novaMorada) {
         User user = buscarPorId(id);
         if (novoNome != null && !novoNome.isBlank())
             user.setNome(novoNome);
         if (novaPassword != null && !novaPassword.isBlank())
             user.setPassword(novaPassword);
-        if (user instanceof Cliente && novaMorada != null && !novaMorada.isBlank()) {
+        if (user instanceof Cliente && novaMorada != null) {
             ((Cliente) user).setMorada(novaMorada);
         }
         return userRepository.save(user);

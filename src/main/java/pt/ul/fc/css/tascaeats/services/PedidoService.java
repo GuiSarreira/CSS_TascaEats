@@ -69,7 +69,7 @@ public class PedidoService {
      *                                  quantidade for inválida
      */
     @Transactional
-    public Pedido criarPedido(Long clienteId, Long restauranteId, String enderecoEntrega, Map<Long, Integer> itens) {
+    public Pedido criarPedido(Long clienteId, Long restauranteId, Endereco enderecoEntrega, Map<Long, Integer> itens) {
         // 1. Validações iniciais
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado: id=" + clienteId));

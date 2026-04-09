@@ -1,5 +1,7 @@
 package pt.ul.fc.css.tascaeats.dto;
 
+import pt.ul.fc.css.tascaeats.entities.Endereco;
+
 /**
  * DTO de request para o endpoint {@code PUT /api/users/{id}}.
  *
@@ -30,9 +32,9 @@ public class AtualizarUserRequest {
 
     /**
      * Nova morada. Apenas aplicada a utilizadores do tipo {@code Cliente}.
-     * Ignorada se {@code null} ou em branco.
+     * Ignorada se {@code null}.
      */
-    private String morada;
+    private Endereco morada;
 
     /** Construtor vazio exigido para deserialização do JSON. */
     public AtualizarUserRequest() {
@@ -54,11 +56,11 @@ public class AtualizarUserRequest {
         this.password = password;
     }
 
-    public String getMorada() {
+    public Endereco getMorada() {
         return morada;
     }
 
-    public void setMorada(String morada) {
+    public void setMorada(Endereco morada) {
         this.morada = morada;
     }
 }

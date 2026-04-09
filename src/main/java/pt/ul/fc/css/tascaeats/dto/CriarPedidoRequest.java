@@ -1,5 +1,6 @@
 package pt.ul.fc.css.tascaeats.dto;
 
+import pt.ul.fc.css.tascaeats.entities.Endereco;
 import java.util.Map;
 
 /**
@@ -13,12 +14,13 @@ import java.util.Map;
  *
  * Exemplo de JSON:
  * {@code
- *  {
- *  "clienteId": 1,
- *  "restauranteId": 3,
- *  "enderecoEntrega": "Rua das Flores, 10, Lisboa",
- *  "itens": { "7": 2, "12": 1 }
- *  }
+ * {
+ * "clienteId": 1,
+ * "restauranteId": 3,
+ * "enderecoEntrega": { "rua": "Rua das Flores, 10", "codigoPostal": "1200-123",
+ * "cidade": "Lisboa" },
+ * "itens": { "7": 2, "12": 1 }
+ * }
  * }
  */
 public class CriarPedidoRequest {
@@ -30,7 +32,7 @@ public class CriarPedidoRequest {
     private Long restauranteId;
 
     /** Morada de entrega para este pedido específico. */
-    private String enderecoEntrega;
+    private Endereco enderecoEntrega;
 
     /**
      * Mapa de produtos e quantidades.
@@ -58,11 +60,11 @@ public class CriarPedidoRequest {
         this.restauranteId = restauranteId;
     }
 
-    public String getEnderecoEntrega() {
+    public Endereco getEnderecoEntrega() {
         return enderecoEntrega;
     }
 
-    public void setEnderecoEntrega(String enderecoEntrega) {
+    public void setEnderecoEntrega(Endereco enderecoEntrega) {
         this.enderecoEntrega = enderecoEntrega;
     }
 

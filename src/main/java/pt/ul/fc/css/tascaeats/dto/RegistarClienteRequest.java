@@ -1,5 +1,7 @@
 package pt.ul.fc.css.tascaeats.dto;
 
+import pt.ul.fc.css.tascaeats.entities.Endereco;
+
 /**
  * DTO de request para o endpoint {@code POST /api/users/clientes}.
  *
@@ -27,7 +29,7 @@ public class RegistarClienteRequest {
     private String password;
 
     /** Morada de entrega por omissão do cliente. */
-    private String morada;
+    private Endereco morada;
 
     /** Construtor vazio exigido para deserialização do JSON. */
     public RegistarClienteRequest() {
@@ -57,11 +59,11 @@ public class RegistarClienteRequest {
         this.password = password;
     }
 
-    public String getMorada() {
+    public Endereco getMorada() {
         return morada;
     }
 
-    public void setMorada(String morada) {
+    public void setMorada(Endereco morada) {
         this.morada = morada;
     }
 }

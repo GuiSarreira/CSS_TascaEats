@@ -112,7 +112,7 @@ public class EntregaService {
             throw new IllegalStateException("Pedido já tem entrega atribuída.");
         }
 
-        String zona = pedido.getRestaurante().getCidade();
+        String zona = pedido.getRestaurante().getMorada().getCidade();
         List<Entregador> entregadores = entregadorRepository.findEntregadoresDisponiveisPorZona(zona);
 
         if (entregadores.isEmpty()) {

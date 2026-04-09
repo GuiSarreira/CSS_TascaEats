@@ -41,21 +41,21 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Long> 
      * @param cidade O nome da cidade para filtrar os resultados.
      * @return Lista de restaurantes localizados na cidade fornecida.
      */
-    List<Restaurante> findByCidade(String cidade);
+    List<Restaurante> findByMoradaCidade(String cidade);
 
     /**
      * Procura todos os restaurantes que estão atualmente abertos numa determinada cidade.
      * @param cidade O nome da cidade para filtrar a pesquisa.
      * @return Lista de restaurantes abertos (aberto = true) na cidade especificada.
      */
-    List<Restaurante> findByCidadeAndAbertoTrue(String cidade);
+    List<Restaurante> findByMoradaCidadeAndAbertoTrue(String cidade);
 
     /**
      * Procura restaurantes por cidade de forma flexível, ignorando maiúsculas/minúsculas.
      * @param cidade O nome da cidade (ex: "PORTO", "porto" ou "Porto").
      * @return Lista de restaurantes encontrados na cidade.
      */
-    List<Restaurante> findByCidadeIgnoreCase(String cidade);
+    List<Restaurante> findByMoradaCidadeIgnoreCase(String cidade);
 
     /**
      * Query de negócio — Restaurantes com maior volume de vendas.

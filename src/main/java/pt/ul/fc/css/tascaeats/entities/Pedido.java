@@ -64,8 +64,8 @@ public class Pedido {
     /**
      * Morada de entrega fornecida pelo cliente para este pedido específico.
      */
-    @Column(nullable = false)
-    private String enderecoEntrega;
+    @Embedded
+    private Endereco enderecoEntrega;
 
     /**
      * Estado atual do pedido no seu ciclo de vida.
@@ -139,7 +139,7 @@ public class Pedido {
      * @param enderecoEntrega a morada de entrega para este pedido; não pode ser
      *                        {@code null}
      */
-    public Pedido(Cliente cliente, Restaurante restaurante, String enderecoEntrega) {
+    public Pedido(Cliente cliente, Restaurante restaurante, Endereco enderecoEntrega) {
         this.cliente = cliente;
         this.restaurante = restaurante;
         this.enderecoEntrega = enderecoEntrega;
@@ -226,11 +226,11 @@ public class Pedido {
         return precoTotal;
     }
 
-    public String getEnderecoEntrega() {
+    public Endereco getEnderecoEntrega() {
         return enderecoEntrega;
     }
 
-    public void setEnderecoEntrega(String enderecoEntrega) {
+    public void setEnderecoEntrega(Endereco enderecoEntrega) {
         this.enderecoEntrega = enderecoEntrega;
     }
 

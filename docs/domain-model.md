@@ -12,13 +12,18 @@ classDiagram
         String nome
         String email
         String password
-        String telemovel
-        UserTypes type
-        LocalDateTime registoData
+        LocalDateTime dataRegisto
+    }
+
+    class Endereco {
+        <<Embeddable>>
+        String rua
+        String codigoPostal
+        String cidade
     }
 
     class Cliente {
-        String morada
+        Endereco morada
     }
 
     class Admin {
@@ -33,8 +38,7 @@ classDiagram
         Long id
         String nome
         String nif
-        String morada
-        String cidade
+        Endereco morada
         boolean aberto
     }
 
@@ -51,7 +55,7 @@ classDiagram
         Long id
         LocalDateTime dataHora
         Double precoTotal
-        String enderecoEntrega
+        Endereco enderecoEntrega
         PedidoStatus status
         Long version
     }
@@ -63,7 +67,6 @@ classDiagram
     }
 
     class Pagamento {
-        <<Abstract>>
         Long id
         Double preco
         LocalDateTime dataPagamento
@@ -105,13 +108,6 @@ classDiagram
         FAILED
     }
 
-    class UserTypes {
-        <<Enumeration>>
-        CLIENTE
-        ADMIN
-        ENTREGADOR
-    }
-
     User <|-- Cliente : JOINED
     User <|-- Admin : JOINED
     User <|-- Entregador : JOINED
@@ -123,6 +119,10 @@ classDiagram
     Cliente "1" --> "*" Pedido : faz
     Admin "1" --> "*" Restaurante : gere
     Entregador "1" --> "*" Entrega : faz
+
+    Cliente ..> Endereco : embedded
+    Restaurante ..> Endereco : embedded
+    Pedido ..> Endereco : embedded
 
     Restaurante "1" --> "*" Produto : tem
     Pedido "*" --> "1" Restaurante : do
@@ -153,9 +153,10 @@ stateDiagram-v2
 ## Estratégias de Herança JPA
 
 | Hierarquia | Estratégia | Justificação |
-|-----------|------------|--------------|
+|-----------|------------|----------|
 | `User` → Cliente, Admin, Entregador | **JOINED** | Subtipos com atributos distintos; queries frequentes por subtipo; melhor normalização |
 | `Pagamento` → Multibanco, MBWay, Dinheiro | **SINGLE_TABLE** | Poucos campos diferenciadores; queries polimórficas frequentes; melhor performance |
+| `Endereco` em Cliente, Restaurante, Pedido | **@Embedded** | Value object reutilizável; sem tabela própria; colunas ficam inline na tabela dona |
 
 ## Relações Principais
 
@@ -177,3 +178,4 @@ stateDiagram-v2
 - **Optimistic locking** em `Pedido`: campo `@Version` para controlo de concorrência
 - **`precoCompra`** em `ProdutoPedido`: captura o preço no momento da compra (imutável)
 - **`disponivel`** em `Entregador`: controla disponibilidade para novas entregas
+- **`Endereco`** é um `@Embeddable`: as suas colunas ficam inline nas tabelas `cliente`, `restaurante` e `pedido` — sem tabela própria, sem JOIN, sem chave estrangeira

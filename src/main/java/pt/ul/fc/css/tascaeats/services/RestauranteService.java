@@ -44,7 +44,7 @@ public class RestauranteService {
      * @throws IllegalArgumentException se já existir um restaurante com o mesmo NIF
      */
     @Transactional
-    public Restaurante criarRestaurante(String nome, String morada, String cidade, String nif, Long adminId) {
+    public Restaurante criarRestaurante(String nome, Endereco morada, String nif, Long adminId) {
         User user = userRepository.findById(adminId)
             .orElseThrow(() -> new RuntimeException("Utilizador não encontrado: id=" + adminId));
 
@@ -56,7 +56,7 @@ public class RestauranteService {
             throw new IllegalArgumentException("Já existe um restaurante registado com este NIF.");
         }
 
-        Restaurante restaurante = new Restaurante(nome, morada, cidade, nif);
+        Restaurante restaurante = new Restaurante(nome, morada, nif);
         restaurante.setAdmin((Admin) user);
 
         return restauranteRepository.save(restaurante);
@@ -101,7 +101,7 @@ public class RestauranteService {
      * @return Lista de restaurantes localizados na cidade.
      */
     public List<Restaurante> buscarPorCidade(String cidade) {
-        return restauranteRepository.findByCidadeIgnoreCase(cidade);
+        return restauranteRepository.findByMoradaCidadeIgnoreCase(cidade);
     }
 
     /**
@@ -128,7 +128,7 @@ public class RestauranteService {
      * @throws SecurityException se o utilizador não for o admin dono do restaurante
      */
     @Transactional
-    public Restaurante atualizarRestaurante(Long id, String nome, String morada, String cidade, Long adminId) {
+    public Restaurante atualizarRestaurante(Long id, String nome, Endereco morada, Long adminId) {
         Restaurante restauranteExistente = restauranteRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Restaurante não encontrado com ID: " + id));
 
@@ -139,7 +139,6 @@ public class RestauranteService {
         // O NIF nunca deve ser alterado após o registo
         restauranteExistente.setNome(nome);
         restauranteExistente.setMorada(morada);
-        restauranteExistente.setCidade(cidade);
 
         return restauranteRepository.save(restauranteExistente);
     }

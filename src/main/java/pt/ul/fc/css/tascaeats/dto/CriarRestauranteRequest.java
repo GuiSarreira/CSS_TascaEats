@@ -1,5 +1,7 @@
 package pt.ul.fc.css.tascaeats.dto;
 
+import pt.ul.fc.css.tascaeats.entities.Endereco;
+
 /**
  * DTO de request para o endpoint {@code POST /api/restaurantes}.
  *
@@ -15,11 +17,8 @@ public class CriarRestauranteRequest {
     /** NIF do restaurante (único na plataforma). */
     private String nif;
 
-    /** Morada do restaurante. */
-    private String morada;
-
-    /** Cidade onde o restaurante está localizado. */
-    private String cidade;
+    /** Morada do restaurante (rua, código postal e cidade). */
+    private Endereco morada;
 
     /** ID do administrador que cria o restaurante. */
     private Long adminId;
@@ -44,20 +43,12 @@ public class CriarRestauranteRequest {
         this.nif = nif;
     }
 
-    public String getMorada() {
+    public Endereco getMorada() {
         return morada;
     }
 
-    public void setMorada(String morada) {
+    public void setMorada(Endereco morada) {
         this.morada = morada;
-    }
-
-    public String getCidade() {
-        return cidade;
-    }
-
-    public void setCidade(String cidade) {
-        this.cidade = cidade;
     }
 
     public Long getAdminId() {

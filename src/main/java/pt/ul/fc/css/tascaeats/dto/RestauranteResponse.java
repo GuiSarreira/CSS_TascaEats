@@ -1,5 +1,6 @@
 package pt.ul.fc.css.tascaeats.dto;
 
+import pt.ul.fc.css.tascaeats.entities.Endereco;
 import pt.ul.fc.css.tascaeats.entities.Restaurante;
 
 /**
@@ -24,11 +25,8 @@ public class RestauranteResponse {
     /** NIF do restaurante. */
     private String nif;
 
-    /** Morada do restaurante. */
-    private String morada;
-
-    /** Cidade onde o restaurante está localizado. */
-    private String cidade;
+    /** Morada do restaurante (rua, código postal e cidade). */
+    private Endereco morada;
 
     /** Se o restaurante está atualmente aberto para receber pedidos. */
     private boolean aberto;
@@ -37,12 +35,11 @@ public class RestauranteResponse {
     public RestauranteResponse() {
     }
 
-    private RestauranteResponse(Long id, String nome, String nif, String morada, String cidade, boolean aberto) {
+    private RestauranteResponse(Long id, String nome, String nif, Endereco morada, boolean aberto) {
         this.id = id;
         this.nome = nome;
         this.nif = nif;
         this.morada = morada;
-        this.cidade = cidade;
         this.aberto = aberto;
     }
 
@@ -59,7 +56,6 @@ public class RestauranteResponse {
                 r.getNome(),
                 r.getNif(),
                 r.getMorada(),
-                r.getCidade(),
                 r.isAberto());
     }
 
@@ -75,12 +71,8 @@ public class RestauranteResponse {
         return nif;
     }
 
-    public String getMorada() {
+    public Endereco getMorada() {
         return morada;
-    }
-
-    public String getCidade() {
-        return cidade;
     }
 
     public boolean isAberto() {

@@ -19,8 +19,8 @@ import java.util.List;
 public class Cliente extends User {
 
     /** Morada principal do cliente, usada como sugestão de endereço de entrega. */
-    @Column(nullable = false)
-    private String morada;
+    @Embedded
+    private Endereco morada;
 
     /**
      * Pedidos efetuados por este cliente.
@@ -40,16 +40,16 @@ public class Cliente extends User {
      * @param password password em plain text
      * @param morada   morada principal do cliente
      */
-    public Cliente(String email, String nome, String password, String morada) {
+    public Cliente(String email, String nome, String password, Endereco morada) {
         super(email, nome, password);
         this.morada = morada;
     }
 
-    public String getMorada() {
+    public Endereco getMorada() {
         return morada;
     }
 
-    public void setMorada(String morada) {
+    public void setMorada(Endereco morada) {
         this.morada = morada;
     }
 
