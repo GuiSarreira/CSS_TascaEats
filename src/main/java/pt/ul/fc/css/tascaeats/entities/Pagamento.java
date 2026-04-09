@@ -31,7 +31,7 @@ import java.time.LocalDateTime;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "tipo_pagamento", discriminatorType = DiscriminatorType.STRING)
-public abstract class Pagamento {
+public class Pagamento {
 
     /**
      * Identificador único do pagamento, gerado automaticamente pela base de dados.

@@ -1,5 +1,6 @@
 package pt.ul.fc.css.tascaeats.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pt.ul.fc.css.tascaeats.dto.*;
@@ -23,10 +24,10 @@ public class EntregaController {
     /**
      * Atribui um entregador a um pedido pronto para entrega.
      * Se entregadorId for null, a atribuição é automática.
-     
+     *
      * @param pedidoId ID do pedido
-     * @param request DTO com o ID do entregador 
-     * @return A entrega criada
+     * @param request DTO com o ID do entregador
+     * @return A entrega criada com status 201 (Created)
      */
     @PostMapping("/pedidos/{pedidoId}/entregar")
     public ResponseEntity<EntregaResponse> atribuirEntregador(
@@ -38,7 +39,7 @@ public class EntregaController {
         } else {
             entrega = entregaService.atribuirEntregador(pedidoId, request.getEntregadorId());
         }
-        return ResponseEntity.ok(EntregaResponse.from(entrega));
+        return ResponseEntity.status(HttpStatus.CREATED).body(EntregaResponse.from(entrega));
     }
 
     /**

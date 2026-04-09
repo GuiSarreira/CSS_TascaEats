@@ -65,21 +65,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
        List<Pedido> findByStatus(PedidoStatus status);
 
        /**
-        * Query de negócio — Restaurantes com maior volume de vendas.
-        * Responde à query: "Quais os restaurantes com maior volume de vendas?"
-        *
-        * Agrega o {@code precoTotal} de todos os pedidos por restaurante
-        * e devolve os resultados por ordem decrescente de volume.
-        *
-        * @return lista de arrays {@code [nome_restaurante, totalVendas]} ordenada por
-        *         total decrescente
-        */
-       @Query("SELECT p.restaurante.nome, SUM(p.precoTotal) AS totalVendas " + "FROM Pedido p " +
-                     "WHERE p.status = pt.ul.fc.css.tascaeats.entities.PedidoStatus.DELIVERED " +
-                     "GROUP BY p.restaurante.id, p.restaurante.nome " + "ORDER BY totalVendas DESC")
-       List<Object[]> findRestaurantesPorVolumeVendas();
-
-       /**
         * Query de negócio — Média de pedidos por cliente por mês.
         * Responde à query: "Qual é a média de pedidos por cliente por mês?"
         *

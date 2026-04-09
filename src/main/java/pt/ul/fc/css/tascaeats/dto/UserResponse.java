@@ -1,7 +1,6 @@
 package pt.ul.fc.css.tascaeats.dto;
 
 import pt.ul.fc.css.tascaeats.entities.User;
-import pt.ul.fc.css.tascaeats.entities.UserTypes;
 
 /**
  * DTO de response para dados de utilizador.
@@ -23,8 +22,8 @@ public class UserResponse {
     /** Email do utilizador. */
     private String email;
 
-    /** Papel do utilizador na plataforma. */
-    private UserTypes role;
+    /** Papel do utilizador na plataforma (CLIENTE, ADMIN ou ENTREGADOR). */
+    private String role;
 
     /** Se a conta está ativa. */
     private boolean ativo;
@@ -33,7 +32,7 @@ public class UserResponse {
     public UserResponse() {
     }
 
-    private UserResponse(Long id, String nome, String email, UserTypes role, boolean ativo) {
+    private UserResponse(Long id, String nome, String email, String role, boolean ativo) {
         this.id = id;
         this.nome = nome;
         this.email = email;
@@ -48,11 +47,12 @@ public class UserResponse {
      * @return DTO preenchido com os campos do utilizador
      */
     public static UserResponse from(User user) {
+        String role = user.getClass().getSimpleName().toUpperCase();
         return new UserResponse(
                 user.getId(),
                 user.getNome(),
                 user.getEmail(),
-                user.getRole(),
+                role,
                 user.isAtivo());
     }
 
@@ -68,7 +68,7 @@ public class UserResponse {
         return email;
     }
 
-    public UserTypes getRole() {
+    public String getRole() {
         return role;
     }
 

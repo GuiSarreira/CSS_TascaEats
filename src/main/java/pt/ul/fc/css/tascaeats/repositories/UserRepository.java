@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pt.ul.fc.css.tascaeats.entities.User;
-import pt.ul.fc.css.tascaeats.entities.UserTypes;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,21 +37,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByAtivoTrue();
 
     /**
-     * Procura utilizadores pelo seu papel.
-     * Os papéis possíveis estão definidos em {@link pt.ul.fc.css.tascaeats.entities.UserTypes}.
-     * @param role O papel do utilizador a filtrar.
-     * @return Lista de utilizadores que possuem o papel especificado.
-     */
-    List<User> findByRole(UserTypes role);
 
-    /**
-     * Procura utilizadores ativos que possuem um determinado papel.
-     * @param role O papel do utilizador a filtrar.
-     * @return Lista de utilizadores ativos com o papel especificado.
-     */
-    List<User> findByRoleAndAtivoTrue(UserTypes role);
-
-    /**
      * Verifica se já existe um utilizador registado com o email fornecido.
      * Útil para validações antes de criar um novo utilizador.
      * @param email O email a verificar.

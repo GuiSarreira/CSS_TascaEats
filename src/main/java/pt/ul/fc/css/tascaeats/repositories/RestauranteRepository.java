@@ -1,6 +1,7 @@
 package pt.ul.fc.css.tascaeats.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import pt.ul.fc.css.tascaeats.entities.Restaurante;
 import java.util.List;
@@ -55,4 +56,20 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Long> 
      * @return Lista de restaurantes encontrados na cidade.
      */
     List<Restaurante> findByCidadeIgnoreCase(String cidade);
+
+    /**
+     * Query de negócio — Restaurantes com maior volume de vendas.
+     *
+     * Agrega o {@code precoTotal} de todos os pedidos por restaurante
+     * e devolve os resultados por ordem decrescente de volume.
+     *
+     * @return lista de arrays {@code [nome_restaurante, totalVendas]} ordenada por
+     *         total decrescente
+     */
+    @Query("SELECT p.restaurante.nome, SUM(p.precoTotal) AS totalVendas "
+        + "FROM Pedido p "
+        + "WHERE p.status = pt.ul.fc.css.tascaeats.entities.PedidoStatus.DELIVERED "
+        + "GROUP BY p.restaurante.id, p.restaurante.nome "
+        + "ORDER BY totalVendas DESC")
+    List<Object[]> findRestaurantesPorVolumeVendas();
 }

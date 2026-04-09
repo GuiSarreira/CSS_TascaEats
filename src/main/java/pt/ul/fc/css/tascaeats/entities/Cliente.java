@@ -41,7 +41,7 @@ public class Cliente extends User {
      * @param morada   morada principal do cliente
      */
     public Cliente(String email, String nome, String password, String morada) {
-        super(email, nome, password, UserTypes.CLIENTE);
+        super(email, nome, password);
         this.morada = morada;
     }
 

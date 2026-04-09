@@ -52,11 +52,6 @@ public abstract class User {
     @Column(nullable = false)
     private boolean ativo = true;
 
-    /** Papel do utilizador no sistema. Imutável após criação. */
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserTypes role;
-
     /** Construtor protegido exigido pelo JPA. */
     protected User() {}
 
@@ -67,13 +62,11 @@ public abstract class User {
      * @param email    endereço de email; deve ser único
      * @param nome     nome completo
      * @param password password em plain text
-     * @param role     papel no sistema
      */
-    public User(String email, String nome, String password, UserTypes role) {
+    public User(String email, String nome, String password) {
         this.email = email;
         this.nome = nome;
         this.password = password;
-        this.role = role;
         this.dataRegisto = LocalDateTime.now();
         this.ativo = true;
     }
@@ -129,11 +122,4 @@ public abstract class User {
         this.ativo = ativo;
     }
 
-    public UserTypes getRole() {
-        return role;
-    }
-
-    public void setRole(UserTypes role) {
-        this.role = role;
-    }
 }

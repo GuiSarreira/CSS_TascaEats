@@ -37,7 +37,7 @@ public class Admin extends User {
      * @param password password em plain text
      */
     public Admin(String email, String nome, String password) {
-        super(email, nome, password, UserTypes.ADMIN);
+        super(email, nome, password);
     }
 
     public List<Restaurante> getRestaurantes() {

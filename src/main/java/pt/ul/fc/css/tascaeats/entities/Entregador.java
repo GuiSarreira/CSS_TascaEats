@@ -55,7 +55,7 @@ public class Entregador extends User {
      * @param zonaAtuacao  zona geográfica de atuação
      */
     public Entregador(String email, String nome, String password, String veiculo, String zonaAtuacao) {
-        super(email, nome, password, UserTypes.ENTREGADOR);
+        super(email, nome, password);
         this.veiculo = veiculo;
         this.zonaAtuacao = zonaAtuacao;
         this.disponivel = true;
