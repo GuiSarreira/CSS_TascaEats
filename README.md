@@ -9,6 +9,21 @@
 |------|--------|-------|
 | TODO | TODO   | TODO  |
 
+## Testes Unitários
+Para correr os testes unitários, na pasta raiz do projeto:
+
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-24"
+& "$env:ComSpec" /c "mvnw.cmd test"
+```
+
+Para correr os testes com verificação de cobertura (≥80%):
+
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-24"
+& "$env:ComSpec" /c "mvnw.cmd verify"
+```
+
 ## Vídeos Demonstrativos
 
 - [ ] Link para vídeo(s): TODO
