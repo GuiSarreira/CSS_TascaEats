@@ -24,9 +24,10 @@ $env:JAVA_HOME = "C:\Program Files\Java\jdk-24"
 & "$env:ComSpec" /c "mvnw.cmd verify"
 ```
 
-## Vídeos Demonstrativos
-
-- [ ] Link para vídeo(s): TODO
+## Vídeo 
+O vídeo está no repositório.
+Também pode ser acedido através do link:
+- Link para vídeo: TODO
 
 ---
 

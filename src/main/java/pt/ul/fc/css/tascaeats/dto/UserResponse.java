@@ -1,6 +1,6 @@
 package pt.ul.fc.css.tascaeats.dto;
 
-import pt.ul.fc.css.tascaeats.entities.User;
+import pt.ul.fc.css.tascaeats.entities.*;
 
 /**
  * DTO de response para dados de utilizador.
@@ -10,6 +10,9 @@ import pt.ul.fc.css.tascaeats.entities.User;
  * {@code GET /api/users}).
  *
  * Não expõe a password nem campos internos como {@code dataRegisto}.
+ * Campos específicos de subtipo (morada para Cliente; veiculo/zonaAtuacao
+ * para Entregador) são incluídos apenas quando aplicável — os restantes
+ * ficam {@code null} e são omitidos pelo serializador JSON.
  */
 public class UserResponse {
 
@@ -28,32 +31,42 @@ public class UserResponse {
     /** Se a conta está ativa. */
     private boolean ativo;
 
+    /** Morada principal — presente apenas para utilizadores do tipo CLIENTE. */
+    private Endereco morada;
+
+    /** Tipo de veículo — presente apenas para utilizadores do tipo ENTREGADOR. */
+    private String veiculo;
+
+    /** Zona geográfica de atuação — presente apenas para utilizadores do tipo ENTREGADOR. */
+    private String zonaAtuacao;
+
     /** Construtor vazio para uso interno. */
     public UserResponse() {
     }
 
-    private UserResponse(Long id, String nome, String email, String role, boolean ativo) {
-        this.id = id;
-        this.nome = nome;
-        this.email = email;
-        this.role = role;
-        this.ativo = ativo;
-    }
-
     /**
      * Cria um {@code UserResponse} a partir de uma entidade {@link User}.
+     * Preenche automaticamente os campos específicos do subtipo concreto.
      *
      * @param user entidade de utilizador
      * @return DTO preenchido com os campos do utilizador
      */
     public static UserResponse from(User user) {
-        String role = user.getClass().getSimpleName().toUpperCase();
-        return new UserResponse(
-                user.getId(),
-                user.getNome(),
-                user.getEmail(),
-                role,
-                user.isAtivo());
+        UserResponse r = new UserResponse();
+        r.id = user.getId();
+        r.nome = user.getNome();
+        r.email = user.getEmail();
+        r.role = user.getClass().getSimpleName().toUpperCase();
+        r.ativo = user.isAtivo();
+
+        if (user instanceof Cliente c) {
+            r.morada = c.getMorada();
+        } else if (user instanceof Entregador e) {
+            r.veiculo = e.getVeiculo();
+            r.zonaAtuacao = e.getZonaAtuacao();
+        }
+
+        return r;
     }
 
     public Long getId() {
@@ -75,4 +88,17 @@ public class UserResponse {
     public boolean isAtivo() {
         return ativo;
     }
+
+    public Endereco getMorada() {
+        return morada;
+    }
+
+    public String getVeiculo() {
+        return veiculo;
+    }
+
+    public String getZonaAtuacao() {
+        return zonaAtuacao;
+    }
 }
+

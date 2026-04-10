@@ -11,7 +11,8 @@ import java.util.List;
 
 /**
  * Controller REST para gestão de Produtos, aninhado ao recurso de Restaurante.
- * Utiliza DTOs para garantir o desacoplamento entre a API e a camada de persistência.
+ * Utiliza DTOs para garantir o desacoplamento entre a API e a camada de
+ * persistência.
  */
 @RestController
 @RequestMapping("/api/restaurantes/{restauranteId}/produtos")
@@ -27,22 +28,22 @@ public class ProdutoController {
      * Cria um novo produto no menu de um restaurante.
      *
      * @param restauranteId ID do restaurante pai.
-     * @param request DTO com os dados do novo produto.
+     * @param request       DTO com os dados do novo produto.
      * @return ProdutoResponse com os dados do produto criado e status 201.
      */
     @PostMapping
-    public ResponseEntity<ProdutoResponse> criar(@PathVariable Long restauranteId, @Valid @RequestBody CriarProdutoRequest request) {
-        
+    public ResponseEntity<ProdutoResponse> criar(@PathVariable Long restauranteId,
+            @Valid @RequestBody CriarProdutoRequest request) {
+
         Produto produtoParaCriar = new Produto(
-            request.getNome(),
-            request.getDescricao(),
-            request.getPreco(),
-            null
-        );
+                request.getNome(),
+                request.getDescricao(),
+                request.getPreco(),
+                null);
         produtoParaCriar.setDisponivel(request.isDisponivel());
 
         Produto novoProduto = produtoService.criarProduto(restauranteId, produtoParaCriar);
-        
+
         return ResponseEntity.status(HttpStatus.CREATED).body(ProdutoResponse.from(novoProduto));
     }
 
@@ -58,7 +59,7 @@ public class ProdutoController {
                 .stream()
                 .map(ProdutoResponse::from)
                 .toList();
-                
+
         return ResponseEntity.ok(menu);
     }
 
@@ -69,7 +70,7 @@ public class ProdutoController {
      * @return ProdutoResponse correspondente.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ProdutoResponse> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<ProdutoResponse> buscarPorId(@PathVariable Long restauranteId, @PathVariable Long id) {
         Produto produto = produtoService.buscarPorId(id);
         return ResponseEntity.ok(ProdutoResponse.from(produto));
     }
@@ -77,30 +78,31 @@ public class ProdutoController {
     /**
      * Atualiza os dados de um produto.
      *
-     * @param id ID do produto a editar.
+     * @param id      ID do produto a editar.
      * @param request DTO com os novos dados.
      * @return ProdutoResponse atualizado.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ProdutoResponse> atualizar(@PathVariable Long id, @RequestBody CriarProdutoRequest request) {
+    public ResponseEntity<ProdutoResponse> atualizar(@PathVariable Long restauranteId, @PathVariable Long id,
+            @RequestBody CriarProdutoRequest request) {
         Produto produtoAtualizado = produtoService.atualizarProduto(
-            id,
-            request.getNome(),
-            request.getDescricao(),
-            request.getPreco()
-        );
+                id,
+                request.getNome(),
+                request.getDescricao(),
+                request.getPreco());
         return ResponseEntity.ok(ProdutoResponse.from(produtoAtualizado));
     }
 
     /**
      * Altera a disponibilidade de um produto sem o remover do menu.
      *
-     * @param id ID do produto.
+     * @param id         ID do produto.
      * @param disponivel Novo estado de disponibilidade.
      * @return 204 No Content.
      */
     @PatchMapping("/{id}/disponibilidade")
-    public ResponseEntity<Void> alternarDisponibilidade(@PathVariable Long id, @RequestParam boolean disponivel) {
+    public ResponseEntity<Void> alternarDisponibilidade(@PathVariable Long restauranteId, @PathVariable Long id,
+            @RequestParam boolean disponivel) {
         produtoService.alternarDisponibilidade(id, disponivel);
         return ResponseEntity.noContent().build();
     }
@@ -112,7 +114,7 @@ public class ProdutoController {
      * @return 204 No Content.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id) {
+    public ResponseEntity<Void> remover(@PathVariable Long restauranteId, @PathVariable Long id) {
         produtoService.removerProduto(id);
         return ResponseEntity.noContent().build();
     }

@@ -38,4 +38,12 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
      * @return Lista de produtos com preço inferior ou igual ao valor especificado.
      */
     List<Produto> findByPrecoLessThanEqualAndEliminadoFalse(Double maxPreco);
+
+    /**
+     * Verifica se já existe um produto com o mesmo nome (case-insensitive) associado a um restaurante específico e que não foi eliminado.
+     * @param nome O nome do produto a verificar.
+     * @param restauranteId O identificador único do restaurante.
+     * @return {@code true} se existir um produto com o mesmo nome e restaurante, {@code false} caso contrário.
+     */
+    boolean existsByNomeIgnoreCaseAndRestauranteIdAndEliminadoFalse(String nome, Long restauranteId);
 }

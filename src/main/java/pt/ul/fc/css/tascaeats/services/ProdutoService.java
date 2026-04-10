@@ -39,6 +39,10 @@ public class ProdutoService {
         Restaurante restaurante = restauranteRepository.findById(restauranteId)
             .orElseThrow(() -> new RuntimeException("Restaurante não encontrado."));
 
+        if (produtoRepository.existsByNomeIgnoreCaseAndRestauranteIdAndEliminadoFalse(produto.getNome(), restauranteId)) {
+            throw new RuntimeException("Já existe um produto com o nome '" + produto.getNome() + "' neste restaurante.");
+        }
+
         produto.setRestaurante(restaurante);
         return produtoRepository.save(produto);
     }
