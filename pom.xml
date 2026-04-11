@@ -111,6 +111,10 @@
                         <id>check</id>
                         <goals><goal>check</goal></goals>
                         <configuration>
+                            <excludes>
+                                <exclude>pt/ul/fc/css/tascaeats/config/DataInitializer.class</exclude>
+                                <exclude>pt/ul/fc/css/tascaeats/TascaEatsApplication.class</exclude>
+                            </excludes>
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>

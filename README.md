@@ -9,20 +9,34 @@
 |------|--------|-------|
 | TODO | TODO   | TODO  |
 
-## Testes Unitários
+## Testes
+Ver os resultado dos testes em separado do docker compose.
 Para correr os testes unitários, na pasta raiz do projeto:
 
+**Linux / macOS:**
+```bash
+./mvnw test
+```
+
+**Windows (PowerShell):**
 ```powershell
-$env:JAVA_HOME = "C:\Program Files\Java\jdk-24"
-& "$env:ComSpec" /c "mvnw.cmd test"
+.\mvnw.cmd test
 ```
 
 Para correr os testes com verificação de cobertura (≥80%):
 
-```powershell
-$env:JAVA_HOME = "C:\Program Files\Java\jdk-24"
-& "$env:ComSpec" /c "mvnw.cmd verify"
+**Linux / macOS:**
+```bash
+./mvnw verify
 ```
+
+**Windows (PowerShell):**
+```powershell
+.\mvnw.cmd verify
+```
+
+## Swagger
+- http://localhost:8080/swagger-ui/index.html
 
 ## Vídeo 
 O vídeo está no repositório.
