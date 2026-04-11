@@ -5,12 +5,13 @@ import java.time.LocalDateTime;
 
 /**
  * Classe que representa a entrega física de um {@link Pedido} ao cliente.
-
- * Uma {@code Entrega} é criada quando um {@link Entregador} disponível é atribuído
+ * 
+ * Uma {@code Entrega} é criada quando um {@link Entregador} disponível é
+ * atribuído
  * a um pedido em estado {@code READY}. No momento de criação, o entregador fica
  * {@code disponivel = false} até concluir ou cancelar a entrega.
  * Ciclo de vida
- *   ATRIBUIDA - A_CAMINHO - CONCLUIDA ou CANCELADA
+ * ATRIBUIDA - A_CAMINHO - CONCLUIDA ou CANCELADA
  */
 @Entity
 public class Entrega {
@@ -31,7 +32,8 @@ public class Entrega {
     private Pedido pedido;
 
     /**
-     * Entregador responsável por esta entrega. Lado N da relação N:1 com {@link Entregador}.
+     * Entregador responsável por esta entrega. Lado N da relação N:1 com
+     * {@link Entregador}.
      * A chave estrangeira {@code entregador_id} fica nesta tabela.
      */
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,9 +42,10 @@ public class Entrega {
 
     /**
      * Hora em que o entregador recolheu o pedido no restaurante.
-     * Definida no construtor como o instante de criação da entrega.
+     * Definida em {@link #iniciarEntrega()} — {@code null} enquanto a entrega
+     * estiver no estado {@code ATRIBUIDA}.
      */
-    @Column(nullable = false)
+    @Column
     private LocalDateTime horaRetirada;
 
     /**
@@ -61,39 +64,48 @@ public class Entrega {
     /**
      * Construtor protegido exigido pelo JPA.
      */
-    protected Entrega() {}
+    protected Entrega() {
+    }
 
     /**
      * Cria uma nova entrega no estado {@link EntregaStatus#ATRIBUIDA}.
      *
      * Regista o instante atual como {@code horaRetirada}.
      *
-     * @param pedido      o pedido a entregar; não pode ser {@code null}
-     * @param entregador  o entregador atribuído; deve estar {@code disponivel = true}
+     * @param pedido     o pedido a entregar; não pode ser {@code null}
+     * @param entregador o entregador atribuído; deve estar
+     *                   {@code disponivel = true}
      */
     public Entrega(Pedido pedido, Entregador entregador) {
         this.pedido = pedido;
         this.entregador = entregador;
-        this.horaRetirada = LocalDateTime.now();
+        this.horaRetirada = null;
         this.status = EntregaStatus.ATRIBUIDA;
     }
 
     /**
      * Inicia a entrega, transitando para {@link EntregaStatus#A_CAMINHO}.
      * Indica que o entregador já recolheu o pedido e está a caminho do cliente.
-     * @throws IllegalStateException se a entrega não estiver no estado {@code ATRIBUIDA}
+     * 
+     * @throws IllegalStateException se a entrega não estiver no estado
+     *                               {@code ATRIBUIDA}
      */
     public void iniciarEntrega() {
         if (this.status != EntregaStatus.ATRIBUIDA) {
             throw new IllegalStateException("Só é possível iniciar entrega no estado ATRIBUIDA");
         }
+        this.horaRetirada = LocalDateTime.now();
         this.status = EntregaStatus.A_CAMINHO;
     }
 
     /**
-     * Conclui a entrega com sucesso, transitando para {@link EntregaStatus#CONCLUIDA}.
-     * Regista o instante atual em {@code horaEntrega} e marca o entregador como disponível.
-     * @throws IllegalStateException se a entrega não estiver no estado {@code A_CAMINHO}
+     * Conclui a entrega com sucesso, transitando para
+     * {@link EntregaStatus#CONCLUIDA}.
+     * Regista o instante atual em {@code horaEntrega} e marca o entregador como
+     * disponível.
+     * 
+     * @throws IllegalStateException se a entrega não estiver no estado
+     *                               {@code A_CAMINHO}
      */
     public void concluir() {
         if (this.status != EntregaStatus.A_CAMINHO) {
@@ -107,7 +119,9 @@ public class Entrega {
     /**
      * Cancela a entrega, transitando para {@link EntregaStatus#CANCELADA}.
      * Marca o entregador como disponível para novas entregas.
-     * @throws IllegalStateException se a entrega não estiver no estado {@code ATRIBUIDA}
+     * 
+     * @throws IllegalStateException se a entrega não estiver no estado
+     *                               {@code ATRIBUIDA}
      */
     public void cancelar() {
         if (this.status != EntregaStatus.ATRIBUIDA) {

@@ -90,7 +90,8 @@ class EntityDomainTest {
     @Test
     void pedido_AvancarEstado_EmDELIVERED_ThrowsIllegalStateException() {
         // Avançar até DELIVERED
-        for (int i = 0; i < 5; i++) pedido.avancarEstado();
+        for (int i = 0; i < 5; i++)
+            pedido.avancarEstado();
 
         assertThatThrownBy(pedido::avancarEstado)
                 .isInstanceOf(IllegalStateException.class);
@@ -138,7 +139,7 @@ class EntityDomainTest {
     void entrega_EstadoInicialATRIBUIDA() {
         Entrega entrega = new Entrega(pedido, entregador);
         assertThat(entrega.getStatus()).isEqualTo(EntregaStatus.ATRIBUIDA);
-        assertThat(entrega.getHoraRetirada()).isNotNull();
+        assertThat(entrega.getHoraRetirada()).isNull(); // ainda não foi recolhido
         assertThat(entrega.getHoraEntrega()).isNull();
         assertThat(entrega.getPedido()).isEqualTo(pedido);
         assertThat(entrega.getEntregador()).isEqualTo(entregador);
@@ -149,6 +150,7 @@ class EntityDomainTest {
         Entrega entrega = new Entrega(pedido, entregador);
         entrega.iniciarEntrega();
         assertThat(entrega.getStatus()).isEqualTo(EntregaStatus.A_CAMINHO);
+        assertThat(entrega.getHoraRetirada()).isNotNull(); // preenchida ao iniciar
     }
 
     @Test
