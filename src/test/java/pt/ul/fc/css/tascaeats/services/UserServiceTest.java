@@ -184,7 +184,7 @@ class UserServiceTest {
         Endereco novaMorada = new Endereco("Rua Nova, 9", "2000-009", "Braga");
         userService.atualizarUser(1L, null, null, novaMorada);
 
-        assertThat(cliente.getMorada().getCidade()).isEqualTo("Braga");
+        assertThat(cliente.getMoradas()).anyMatch(m -> m.getCidade().equals("Braga"));
     }
 
     // ─── removerUser ─────────────────────────────────────────────────────────
@@ -201,7 +201,7 @@ class UserServiceTest {
 
     @Test
     void removerUser_Cliente_ComPedidosAtivos_ThrowsIllegalStateException() {
-        Pedido pedidoAtivo = new Pedido(cliente, new Restaurante("R", endereco, "111"), endereco);
+        Pedido pedidoAtivo = new Pedido(cliente, endereco);
         // Status por defeito é CREATED — ativo
         cliente.setPedidos(List.of(pedidoAtivo));
         when(userRepository.findById(1L)).thenReturn(Optional.of(cliente));
@@ -215,7 +215,7 @@ class UserServiceTest {
     void removerUser_EntregadorComEntregasAtivas_ThrowsIllegalStateException() {
         Entregador entregadorSpy = spy(entregador);
         Entrega entregaAtiva = new Entrega(
-                new Pedido(cliente, new Restaurante("R", endereco, "222"), endereco),
+                new Pedido(cliente, endereco),
                 entregadorSpy);
         doReturn(List.of(entregaAtiva)).when(entregadorSpy).getEntregas();
         when(userRepository.findById(2L)).thenReturn(Optional.of(entregadorSpy));

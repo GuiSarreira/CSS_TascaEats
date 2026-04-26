@@ -58,12 +58,6 @@ public class Restaurante {
     @JoinColumn(name = "admin_id", nullable = false)
     private Admin admin;
 
-    /**
-     * Pedidos recebidos por este restaurante.
-     * Lado inverso da relação — o dono é {@link Pedido#getRestaurante()}.
-     */
-    @OneToMany(mappedBy = "restaurante")
-    private List<Pedido> pedidos = new ArrayList<>();
 
     /** Construtor protegido exigido pelo JPA.*/
     protected Restaurante() {
@@ -92,20 +86,6 @@ public class Restaurante {
     public void addMenuItem(Produto item) {
         this.menu.add(item);
         item.setRestaurante(this);
-    }
-
-    /**
-     * Adiciona um pedido a este restaurante, mantendo a consistência bidirecional.
-     *
-     * @param pedido o pedido a associar
-     */
-    public void addPedido(Pedido pedido) {
-        this.pedidos.add(pedido);
-        pedido.setRestaurante(this);
-    }
-
-    public List<Pedido> getPedidos() {
-        return pedidos;
     }
 
     public Long getId() {

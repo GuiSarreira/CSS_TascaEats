@@ -39,23 +39,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
        List<Pedido> findByClienteIdAndStatus(Long clienteId, PedidoStatus status);
 
        /**
-        * Lista todos os pedidos recebidos por um restaurante.
-        *
-        * @param restauranteId o identificador único do restaurante
-        * @return lista de pedidos do restaurante, por ordem cronológica decrescente
-        */
-       List<Pedido> findByRestauranteIdOrderByDataHoraDesc(Long restauranteId);
-
-       /**
-        * Lista pedidos de um restaurante com um determinado estado.
-        *
-        * @param restauranteId o identificador do restaurante
-        * @param status        o estado a filtrar
-        * @return lista de pedidos do restaurante naquele estado
-        */
-       List<Pedido> findByRestauranteIdAndStatus(Long restauranteId, PedidoStatus status);
-
-       /**
         * Lista todos os pedidos com um determinado estado.
         *
         * @param status o estado a filtrar (ex: {@link PedidoStatus#READY} para
@@ -89,4 +72,33 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
                      "AND p.status NOT IN (pt.ul.fc.css.tascaeats.entities.PedidoStatus.DELIVERED, " +
                      "pt.ul.fc.css.tascaeats.entities.PedidoStatus.CANCELLED)")
        boolean existsPedidoAtivoByClienteId(@Param("clienteId") Long clienteId);
+
+       /**
+        * Lista pedidos de um cliente com filtros opcionais de estado e período.
+        *
+        * @param clienteId o identificador do cliente
+        * @param status    o estado a filtrar (pode ser null para sem filtro)
+        * @param dataMin   data/hora mínima (pode ser null para sem filtro)
+        * @param dataMax   data/hora máxima (pode ser null para sem filtro)
+        * @return lista de pedidos que satisfazem os critérios, ordenada por data decrescente
+        */
+       @Query("SELECT p FROM Pedido p WHERE p.cliente.id = :clienteId " +
+              "AND (:status IS NULL OR p.status = :status) " +
+              "AND (:dataMin IS NULL OR p.dataHora >= :dataMin) " +
+              "AND (:dataMax IS NULL OR p.dataHora <= :dataMax) " +
+              "ORDER BY p.dataHora DESC")
+       List<Pedido> findPedidosComFiltros(@Param("clienteId") Long clienteId,
+                                          @Param("status") PedidoStatus status,
+                                          @Param("dataMin") java.time.LocalDateTime dataMin,
+                                          @Param("dataMax") java.time.LocalDateTime dataMax);
+
+       /**
+        * Lista pedidos no estado {@code READY} que ainda não têm entrega atribuída.
+        * Utilizado para atribuição automática de entregadores.
+        *
+        * @return lista de pedidos prontos para entrega mas sem entregador
+        */
+       @Query("SELECT p FROM Pedido p WHERE p.status = pt.ul.fc.css.tascaeats.entities.PedidoStatus.READY " +
+              "AND p.entrega IS NULL ORDER BY p.dataHora ASC")
+       List<Pedido> findPedidosReadyWithoutEntrega();
 }

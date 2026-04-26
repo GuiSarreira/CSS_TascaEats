@@ -157,7 +157,7 @@ public class UserService {
         if (novaPassword != null && !novaPassword.isBlank())
             user.setPassword(novaPassword);
         if (user instanceof Cliente && novaMorada != null) {
-            ((Cliente) user).setMorada(novaMorada);
+            ((Cliente) user).adicionarMorada(novaMorada);
         }
         return userRepository.save(user);
     }
@@ -189,7 +189,8 @@ public class UserService {
 
         if (user instanceof Entregador) {
             boolean temEntregasAtivas = ((Entregador) user).getEntregas().stream()
-                    .anyMatch(e -> e.getStatus() == EntregaStatus.ATRIBUIDA || e.getStatus() == EntregaStatus.A_CAMINHO);
+                    .anyMatch(
+                            e -> e.getStatus() == EntregaStatus.ATRIBUIDA || e.getStatus() == EntregaStatus.A_CAMINHO);
             if (temEntregasAtivas) {
                 throw new IllegalStateException("Não é possível remover entregador com entregas ativas.");
             }

@@ -10,7 +10,7 @@ Cada um trabalha numa **feature completa**: entidade → service → repository 
 
 ---
 
-## Pessoa 1 — Feature: Avaliações + Autenticação + Base (Auth User gRPC)
+## Ze — Feature: Avaliações + Autenticação + Base (Auth User gRPC)
 
 ### Semana 1: Modelo + Serviço + Repositório
 
@@ -85,7 +85,7 @@ Cada um trabalha numa **feature completa**: entidade → service → repository 
 
 ---
 
-## Pessoa 2 — Feature: Menus Partilhados + Filtros Avançados
+## Rafa — Feature: Menus Partilhados + Filtros Avançados
 
 ### Semana 1: Modelo + Serviço + Repositório
 
@@ -190,7 +190,7 @@ Cada um trabalha numa **feature completa**: entidade → service → repository 
 
 ---
 
-## Pessoa 3 — Feature: Pedidos Multi-Restaurante + Entrega Automática + Pagamentos
+## Eu — Feature: Pedidos Multi-Restaurante + Entrega Automática + Pagamentos
 
 ### Semana 1: Modelo + Serviço + Repositório
 

@@ -91,14 +91,6 @@ public class Pedido {
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    /**
-     * Restaurante ao qual o pedido foi feito. Lado N da relação N:1 com
-     * {@link Restaurante}.
-     * A chave estrangeira {@code restaurante_id} fica na tabela {@code pedido}.
-     */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "restaurante_id", nullable = false)
-    private Restaurante restaurante;
 
     /**
      * Lista dos itens que compõem este pedido.
@@ -139,9 +131,8 @@ public class Pedido {
      * @param enderecoEntrega a morada de entrega para este pedido; não pode ser
      *                        {@code null}
      */
-    public Pedido(Cliente cliente, Restaurante restaurante, Endereco enderecoEntrega) {
+    public Pedido(Cliente cliente, Endereco enderecoEntrega) {
         this.cliente = cliente;
-        this.restaurante = restaurante;
         this.enderecoEntrega = enderecoEntrega;
         this.dataHora = LocalDateTime.now();
         this.status = PedidoStatus.CREATED;
@@ -252,14 +243,6 @@ public class Pedido {
 
     public void setCliente(Cliente cliente) {
         this.cliente = cliente;
-    }
-
-    public Restaurante getRestaurante() {
-        return restaurante;
-    }
-
-    public void setRestaurante(Restaurante restaurante) {
-        this.restaurante = restaurante;
     }
 
     public List<ProdutoPedido> getProdutosPedido() {

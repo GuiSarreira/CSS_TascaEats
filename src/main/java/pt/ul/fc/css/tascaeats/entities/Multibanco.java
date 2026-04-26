@@ -18,11 +18,8 @@ import jakarta.persistence.*;
 @DiscriminatorValue("MULTIBANCO")
 public class Multibanco extends Pagamento {
 
-    /**
-     * Referência Multibanco fornecida ao cliente para efetuar o pagamento.
-     */
-    @Column(name = "referencia")
     private String referencia;
+    private String bandeira;
 
     /**
      * Construtor protegido exigido pelo JPA.
@@ -37,27 +34,27 @@ public class Multibanco extends Pagamento {
      *                   {@code null}
      * @param preco      o montante a pagar em euros
      * @param referencia a referência Multibanco gerada para este pagamento
+     * @param bandeira   a bandeira do cartão (ex: "Visa", "Mastercard")
      */
-    public Multibanco(Pedido pedido, Double preco, String referencia) {
+    public Multibanco(Pedido pedido, Double preco, String referencia, String bandeira) {
         super(pedido, preco);
         this.referencia = referencia;
+        this.bandeira = bandeira;
     }
 
-    /**
-     * Devolve a referência Multibanco associada a este pagamento.
-     *
-     * @return referência Multibanco
-     */
     public String getReferencia() {
         return referencia;
     }
 
-    /**
-     * Define a referência Multibanco deste pagamento.
-     *
-     * @param referencia nova referência Multibanco
-     */
     public void setReferencia(String referencia) {
         this.referencia = referencia;
+    }
+
+    public String getBandeira() {
+        return bandeira;
+    }
+
+    public void setBandeira(String bandeira) {
+        this.bandeira = bandeira;
     }
 }

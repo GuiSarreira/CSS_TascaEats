@@ -24,7 +24,7 @@ class EntityDomainTest {
         cliente = new Cliente("c@test.com", "Ana", "pass", endereco);
         restaurante = new Restaurante("Funchal Sabores", endereco, "333444555");
         restaurante.setAberto(true);
-        pedido = new Pedido(cliente, restaurante, endereco);
+        pedido = new Pedido(cliente, endereco);
         entregador = new Entregador("e@test.com", "Bruno", "pass", "carro", "Funchal");
     }
 
@@ -44,7 +44,6 @@ class EntityDomainTest {
         assertThat(pedido.getStatus()).isEqualTo(PedidoStatus.CREATED);
         assertThat(pedido.getPrecoTotal()).isEqualTo(0.0);
         assertThat(pedido.getCliente()).isEqualTo(cliente);
-        assertThat(pedido.getRestaurante()).isEqualTo(restaurante);
         assertThat(pedido.getEnderecoEntrega()).isEqualTo(endereco);
         assertThat(pedido.getDataHora()).isNotNull();
     }
@@ -188,15 +187,16 @@ class EntityDomainTest {
 
     @Test
     void pagamento_Multibanco_EstadoInicialPENDING() {
-        Pagamento pg = new Multibanco(pedido, 20.0, "123 456 789");
+        Pagamento pg = new Multibanco(pedido, 20.0, "123 456 789", "Visa");
         assertThat(pg.getStatus()).isEqualTo(PagamentoStatus.PENDING);
         assertThat(pg.getPreco()).isEqualTo(20.0);
         assertThat(pg.isCompleto()).isFalse();
+        assertThat(((Multibanco) pg).getBandeira()).isEqualTo("Visa");
     }
 
     @Test
     void pagamento_Processar_PENDINGparaCOMPLETED() {
-        Pagamento pg = new Multibanco(pedido, 20.0, "ref");
+        Pagamento pg = new Multibanco(pedido, 20.0, "ref", "Visa");
         pg.processar();
 
         assertThat(pg.getStatus()).isEqualTo(PagamentoStatus.COMPLETED);
@@ -214,7 +214,7 @@ class EntityDomainTest {
 
     @Test
     void pagamento_Processar_NaoPENDING_ThrowsIllegalStateException() {
-        Pagamento pg = new Multibanco(pedido, 20.0, "ref");
+        Pagamento pg = new Multibanco(pedido, 20.0, "ref", "Visa");
         pg.processar(); // COMPLETED
 
         assertThatThrownBy(pg::processar)
@@ -351,7 +351,7 @@ class EntityDomainTest {
 
     @Test
     void cliente_GetMorada_Correto() {
-        assertThat(cliente.getMorada()).isEqualTo(endereco);
+        assertThat(cliente.getMoradas()).contains(endereco);
     }
 
     @Test
@@ -389,8 +389,9 @@ class EntityDomainTest {
 
     @Test
     void multibanco_GettersCorretos() {
-        Multibanco mb = new Multibanco(pedido, 30.0, "923 222 111");
+        Multibanco mb = new Multibanco(pedido, 30.0, "923 222 111", "MasterCard");
         assertThat(mb.getReferencia()).isEqualTo("923 222 111");
+        assertThat(mb.getBandeira()).isEqualTo("MasterCard");
 
         mb.setReferencia("ABC-999");
         assertThat(mb.getReferencia()).isEqualTo("ABC-999");
@@ -408,8 +409,9 @@ class EntityDomainTest {
 
     @Test
     void dinheiro_CriacaoEProcessamento() {
-        Dinheiro din = new Dinheiro(pedido, 8.0);
+        Dinheiro din = new Dinheiro(pedido, 8.0, 2.5);
         assertThat(din.getStatus()).isEqualTo(PagamentoStatus.PENDING);
+        assertThat(din.getTroco()).isEqualTo(2.5);
         din.processar();
         assertThat(din.getStatus()).isEqualTo(PagamentoStatus.COMPLETED);
     }

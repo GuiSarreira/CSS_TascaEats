@@ -22,6 +22,8 @@ import jakarta.persistence.*;
 @DiscriminatorValue("DINHEIRO")
 public class Dinheiro extends Pagamento {
 
+    private Double troco;
+
     /**
      * Construtor protegido exigido pelo JPA.
      */
@@ -33,8 +35,18 @@ public class Dinheiro extends Pagamento {
      *
      * @param pedido o pedido que este pagamento liquida; não pode ser {@code null}
      * @param preco  o montante a pagar em euros
+     * @param troco  o troco a devolver ao cliente
      */
-    public Dinheiro(Pedido pedido, Double preco) {
+    public Dinheiro(Pedido pedido, Double preco, Double troco) {
         super(pedido, preco);
+        this.troco = troco;
+    }
+
+    public Double getTroco() {
+        return troco;
+    }
+
+    public void setTroco(Double troco) {
+        this.troco = troco;
     }
 }

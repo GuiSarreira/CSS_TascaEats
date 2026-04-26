@@ -6,6 +6,7 @@ import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.repositories.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Serviço responsável pela gestão da lógica de negócio de Entregas.
@@ -93,14 +94,14 @@ public class EntregaService {
      * à cidade do restaurante associado ao pedido.
      *
      * @param pedidoId ID do pedido a entregar
-     * @return a entrega criada e persistida com estado {@code ATRIBUIDA}
-     * @throws RuntimeException      se o pedido não for encontrado ou não houver
-     *                               entregadores disponíveis na zona
+     * @return um {@link Optional} contendo a entrega criada, ou vazio se não houver
+     *         entregadores disponíveis na zona
+     * @throws RuntimeException      se o pedido não for encontrado
      * @throws IllegalStateException se o pedido não estiver {@code READY} ou já
      *                               tiver entrega atribuída
      */
     @Transactional
-    public Entrega atribuirEntregadorAutomatico(Long pedidoId) {
+    public Optional<Entrega> atribuirEntregadorAutomatico(Long pedidoId) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado: " + pedidoId));
 
@@ -112,11 +113,11 @@ public class EntregaService {
             throw new IllegalStateException("Pedido já tem entrega atribuída.");
         }
 
-        String zona = pedido.getRestaurante().getMorada().getCidade();
+        String zona = pedido.getEnderecoEntrega().getCidade();
         List<Entregador> entregadores = entregadorRepository.findEntregadoresDisponiveisPorZona(zona);
 
         if (entregadores.isEmpty()) {
-            throw new RuntimeException("Não há entregadores disponíveis na zona: " + zona);
+            return Optional.empty();
         }
 
         Entregador entregador = entregadores.get(0);
@@ -126,7 +127,7 @@ public class EntregaService {
 
         entregadorRepository.save(entregador);
         pedidoRepository.save(pedido);
-        return entregaRepository.save(entrega);
+        return Optional.of(entregaRepository.save(entrega));
     }
 
     /**

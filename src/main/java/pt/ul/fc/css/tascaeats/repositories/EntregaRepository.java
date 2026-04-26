@@ -108,4 +108,31 @@ public interface EntregaRepository extends JpaRepository<Entrega, Long> {
      * @return true se já existir uma entrega para o pedido, false caso contrário.
      */
     boolean existsByPedidoId(Long pedidoId);
+
+    /**
+     * Lista entregas com um estado específico cujo entregador está disponível.
+     *
+     * @param status  o estado das entregas a filtrar
+     * @param disponivel {@code true} se o entregador esta disponível
+     * @return lista de entregas que satisfazem os critérios
+     */
+    @Query("SELECT e FROM Entrega e WHERE e.status = :status AND e.entregador.disponivel = :disponivel")
+    List<Entrega> findByStatusAndEntregadorDisponivel(@Param("status") EntregaStatus status,
+                                                       @Param("disponivel") Boolean disponivel);
+
+    /**
+     * Lista entregas com filtros opcionais por restaurante (via pedido) e entregador.
+     *
+     * @param restauranteId o identificador do restaurante (pode ser null para sem filtro)
+     * @param entregadorId  o identificador do entregador (pode ser null para sem filtro)
+     * @return lista de entregas que satisfazem os critérios
+     */
+    @Query("SELECT e FROM Entrega e " +
+           "WHERE (:restauranteId IS NULL OR e.pedido.id IN " +
+           "  (SELECT DISTINCT pp.pedido.id FROM ProdutoPedido pp " +
+           "   WHERE pp.produto.restaurante.id = :restauranteId)) " +
+           "AND (:entregadorId IS NULL OR e.entregador.id = :entregadorId) " +
+           "ORDER BY e.pedido.dataHora DESC")
+    List<Entrega> findEntregasComFiltros(@Param("restauranteId") Long restauranteId,
+                                         @Param("entregadorId") Long entregadorId);
 }

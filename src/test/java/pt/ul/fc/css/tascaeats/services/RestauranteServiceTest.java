@@ -192,17 +192,6 @@ class RestauranteServiceTest {
     }
 
     @Test
-    void removerRestaurante_ComPedidos_ThrowsIllegalStateException() {
-        Restaurante restauranteSpy = spy(restaurante);
-        Pedido pedido = new Pedido(new Cliente("c@c.com", "C", "p", endereco), restauranteSpy, endereco);
-        doReturn(List.of(pedido)).when(restauranteSpy).getPedidos();
-        when(restauranteRepository.findById(10L)).thenReturn(Optional.of(restauranteSpy));
-
-        assertThatThrownBy(() -> restauranteService.removerRestaurante(10L, 1L))
-                .isInstanceOf(IllegalStateException.class);
-    }
-
-    @Test
     void buscarPorNome_ReturnsList() {
         when(restauranteRepository.findByNomeContainingIgnoreCase("Tasq")).thenReturn(List.of(restaurante));
 

@@ -32,15 +32,12 @@ class PagamentoServiceTest {
 
     private Pedido pedido;
     private Cliente cliente;
-    private Restaurante restaurante;
 
     @BeforeEach
     void setUp() {
         Endereco endereco = new Endereco("Rua X", "1000-001", "Lisboa");
         cliente = new Cliente("c@test.com", "Cliente", "pass", endereco);
-        restaurante = new Restaurante("Tasca", endereco, "987654321");
-        restaurante.setAberto(true);
-        pedido = new Pedido(cliente, restaurante, endereco);
+        pedido = new Pedido(cliente, endereco);
 
         when(pedidoRepository.findById(1L)).thenReturn(Optional.of(pedido));
         when(pagamentoRepository.existsByPedidoId(1L)).thenReturn(false);
@@ -52,7 +49,7 @@ class PagamentoServiceTest {
 
     @Test
     void processarPagamento_Multibanco_Sucesso() {
-        Pagamento pag = pagamentoService.processarPagamento(1L, "MULTIBANCO", "123 456 789");
+        Pagamento pag = pagamentoService.processarPagamento(1L, "MULTIBANCO", "123 456 789", "Visa", null);
 
         assertThat(pag).isInstanceOf(Multibanco.class);
         assertThat(pag.getStatus()).isEqualTo(PagamentoStatus.COMPLETED);
@@ -63,7 +60,7 @@ class PagamentoServiceTest {
 
     @Test
     void processarPagamento_MBWay_Sucesso() {
-        Pagamento pag = pagamentoService.processarPagamento(1L, "MBWAY", "912345678");
+        Pagamento pag = pagamentoService.processarPagamento(1L, "MBWAY", "912345678", null, null);
 
         assertThat(pag).isInstanceOf(MBWay.class);
         assertThat(pag.getStatus()).isEqualTo(PagamentoStatus.COMPLETED);
@@ -71,8 +68,7 @@ class PagamentoServiceTest {
 
     @Test
     void processarPagamento_Dinheiro_Sucesso() {
-        Pagamento pag = pagamentoService.processarPagamento(1L, "DINHEIRO", null);
-
+        Pagamento pag = pagamentoService.processarPagamento(1L, "DINHEIRO", null, null, 5.0);
         assertThat(pag).isInstanceOf(Dinheiro.class);
         assertThat(pag.getStatus()).isEqualTo(PagamentoStatus.COMPLETED);
     }
@@ -81,7 +77,7 @@ class PagamentoServiceTest {
     void processarPagamento_PedidoNaoCREATED_ThrowsIllegalStateException() {
         pedido.avancarEstado(); // CREATED → PAID
 
-        assertThatThrownBy(() -> pagamentoService.processarPagamento(1L, "DINHEIRO", null))
+        assertThatThrownBy(() -> pagamentoService.processarPagamento(1L, "DINHEIRO", null, null, null))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("CREATED");
     }
@@ -90,14 +86,14 @@ class PagamentoServiceTest {
     void processarPagamento_JaTemPagamento_ThrowsIllegalStateException() {
         when(pagamentoRepository.existsByPedidoId(1L)).thenReturn(true);
 
-        assertThatThrownBy(() -> pagamentoService.processarPagamento(1L, "DINHEIRO", null))
+        assertThatThrownBy(() -> pagamentoService.processarPagamento(1L, "DINHEIRO", null, null, null))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("já tem um pagamento");
     }
 
     @Test
     void processarPagamento_TipoInvalido_ThrowsIllegalArgumentException() {
-        assertThatThrownBy(() -> pagamentoService.processarPagamento(1L, "BITCOIN", null))
+        assertThatThrownBy(() -> pagamentoService.processarPagamento(1L, "BITCOIN", null, null, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Tipo de pagamento inválido");
     }
@@ -106,14 +102,14 @@ class PagamentoServiceTest {
     void processarPagamento_PedidoNaoEncontrado_ThrowsRuntimeException() {
         when(pedidoRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> pagamentoService.processarPagamento(99L, "DINHEIRO", null))
+        assertThatThrownBy(() -> pagamentoService.processarPagamento(99L, "DINHEIRO", null, null, null))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Pedido não encontrado");
     }
 
     @Test
     void buscarPorPedido_Existente_ReturnsOptionalComPagamento() {
-        Pagamento pag = new Dinheiro(pedido, 15.0);
+        Pagamento pag = new Dinheiro(pedido, 15.0, null);
         when(pagamentoRepository.findByPedidoId(1L)).thenReturn(Optional.of(pag));
 
         Optional<Pagamento> resultado = pagamentoService.buscarPorPedido(1L);

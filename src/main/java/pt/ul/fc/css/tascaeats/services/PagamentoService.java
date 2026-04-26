@@ -61,7 +61,7 @@ public class PagamentoService {
      * @throws IllegalArgumentException se o tipo de pagamento for inválido
      */
     @Transactional
-    public Pagamento processarPagamento(Long pedidoId, String tipoPagamento, String dadosExtra) {
+    public Pagamento processarPagamento(Long pedidoId, String tipoPagamento, String dadosExtra, String bandeira, Double troco) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado: id=" + pedidoId));
 
@@ -74,7 +74,7 @@ public class PagamentoService {
             throw new IllegalStateException("Este pedido já tem um pagamento associado.");
         }
 
-        Pagamento pagamento = criarPagamento(pedido, tipoPagamento, dadosExtra);
+        Pagamento pagamento = criarPagamento(pedido, tipoPagamento, dadosExtra, bandeira, troco);
         pagamento.processar(); // PENDING → COMPLETED
         pedido.avancarEstado(); // CREATED → PAID
 
@@ -93,11 +93,11 @@ public class PagamentoService {
      * @return instância concreta de {@link Pagamento}
      * @throws IllegalArgumentException se o tipo não for reconhecido
      */
-    private Pagamento criarPagamento(Pedido pedido, String tipoPagamento, String dadosExtra) {
+    private Pagamento criarPagamento(Pedido pedido, String tipoPagamento, String dadosExtra, String bandeira, Double troco) {
         return switch (tipoPagamento.toUpperCase()) {
-            case "MULTIBANCO" -> new Multibanco(pedido, pedido.getPrecoTotal(), dadosExtra);
+            case "MULTIBANCO" -> new Multibanco(pedido, pedido.getPrecoTotal(), dadosExtra, bandeira);
             case "MBWAY" -> new MBWay(pedido, pedido.getPrecoTotal(), dadosExtra);
-            case "DINHEIRO" -> new Dinheiro(pedido, pedido.getPrecoTotal());
+            case "DINHEIRO" -> new Dinheiro(pedido, pedido.getPrecoTotal(), troco);
             default -> throw new IllegalArgumentException("Tipo de pagamento inválido: " + tipoPagamento
                     + ". Valores aceites: MULTIBANCO, MBWAY, DINHEIRO.");
         };

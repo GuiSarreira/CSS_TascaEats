@@ -81,4 +81,12 @@ public interface EntregadorRepository extends JpaRepository<Entregador, Long> {
      */
     @Query("SELECT e FROM Entregador e WHERE SIZE(e.entregas) = 0")
     List<Entregador> findEntregadoresSemEntregas();
+
+    /**
+     * Retorna o primeiro entregador disponível (ativo e com disponivel = true).
+     * Útil para atribuição automática rápida.
+     *
+     * @return um Optional contendo um entregador disponível, ou vazio se nenhum estiver disponível
+     */
+    Optional<Entregador> findFirstByDisponivelTrue();
 }

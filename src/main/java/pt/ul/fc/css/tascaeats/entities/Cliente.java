@@ -2,6 +2,7 @@ package pt.ul.fc.css.tascaeats.entities;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,9 +19,10 @@ import java.util.List;
 @PrimaryKeyJoinColumn(name = "user_id")
 public class Cliente extends User {
 
-    /** Morada principal do cliente, usada como sugestão de endereço de entrega. */
-    @Embedded
-    private Endereco morada;
+    /** Lista de moradas do cliente, usadas como sugestão de endereço de entrega. */
+    @ElementCollection
+    @CollectionTable(name = "cliente_moradas", joinColumns = @JoinColumn(name = "cliente_id"))
+    private List<Endereco> moradas = new ArrayList<>();
 
     /**
      * Pedidos efetuados por este cliente.
@@ -33,6 +35,17 @@ public class Cliente extends User {
     protected Cliente() {}
 
     /**
+     * Cria um novo cliente sem morada.
+     *
+     * @param email    endereço de email; deve ser único
+     * @param nome     nome completo
+     * @param password password em plain text
+     */
+    public Cliente(String email, String nome, String password) {
+        super(email, nome, password);
+    }
+
+    /**
      * Cria um novo cliente.
      *
      * @param email    endereço de email; deve ser único
@@ -42,15 +55,19 @@ public class Cliente extends User {
      */
     public Cliente(String email, String nome, String password, Endereco morada) {
         super(email, nome, password);
-        this.morada = morada;
+        this.moradas.add(morada);
     }
 
-    public Endereco getMorada() {
-        return morada;
+    public List<Endereco> getMoradas() {
+        return Collections.unmodifiableList(moradas);
     }
 
-    public void setMorada(Endereco morada) {
-        this.morada = morada;
+    public void adicionarMorada(Endereco morada) {
+        this.moradas.add(morada);
+    }
+
+    public void removerMorada(Endereco morada) {
+        this.moradas.remove(morada);
     }
 
     public List<Pedido> getPedidos() {

@@ -163,10 +163,6 @@ public class RestauranteService {
             throw new SecurityException("Não tem permissão para remover este restaurante.");
         }
 
-        if (!restaurante.getPedidos().isEmpty()) {
-            throw new IllegalStateException("Não é possível remover um restaurante que já processou pedidos. Considere desativá-lo.");
-        }
-
         restauranteRepository.delete(restaurante);
     }
 

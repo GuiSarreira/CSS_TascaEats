@@ -40,10 +40,8 @@ class EntregaServiceTest {
     void setUp() {
         Endereco endereco = new Endereco("Rua Y", "2000-002", "Porto");
         Cliente cliente = new Cliente("c@test.com", "Cliente", "pass", endereco);
-        Restaurante restaurante = new Restaurante("Tasca", endereco, "111222333");
-        restaurante.setAberto(true);
 
-        pedido = new Pedido(cliente, restaurante, endereco);
+        pedido = new Pedido(cliente, endereco);
         pedido.setStatus(PedidoStatus.READY);
 
         entregador = new Entregador("e@test.com", "João Mota", "pass", "moto", "Porto");
