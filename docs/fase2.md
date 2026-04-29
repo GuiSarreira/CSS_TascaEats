@@ -396,48 +396,51 @@ O modelo atualizado deve permitir responder a:
 > **Legenda:** ✅ concluído e com commit · **C** ficheiros alterados sem commit · `[ ]` não iniciado
 
 ### Fase A — Revisão do Modelo de Domínio
-- **C** Criar entidade `Avaliacao`
-- **C** Criar entidade `Menu` (N:N com Produto, N:1 com Restaurante — FK `menu_id` em `Restaurante`)
+- ✅ Criar entidade `Avaliacao`
+- ✅ Criar entidade `Menu` (N:N com Produto, N:1 com Restaurante — FK `menu_id` em `Restaurante`)
 - ✅ Atualizar `Cliente.morada` → `Cliente.moradas` (@ElementCollection<Endereco>)
-- **C** Adicionar `tipoCozinha`, `horarioAbertura`, `horarioFecho` ao `Restaurante`
-- **C** Adicionar `categoria` ao `Produto`
+- ✅ Adicionar `tipoCozinha`, `horarioAbertura`, `horarioFecho` ao `Restaurante`
+- ✅ Adicionar `categoria` ao `Produto`
 - ✅ Adicionar `bandeira` ao `Multibanco`
 - ✅ Adicionar `troco` ao `Dinheiro`
 - ✅ Remover/tornar opcional relação `Pedido → Restaurante` (pedido multi-restaurante)
-- **C** Atualizar `Pedido` para aceitar morada de lista do cliente ou nova
+- ✅ Atualizar `Pedido` para aceitar morada de lista do cliente ou nova
 - ✅ Validar schema gerado pelo Hibernate
 
 ### Fase B — Repositórios e Filtros
-- **C** Criar `AvaliacaoRepository`
-- **C** Criar `MenuRepository`
-- **C** Implementar filtros de utilizador (nome, tipo, nº pedidos, nº entregas) — Specifications ou queries custom
-- **C** Implementar filtros de restaurante (nome, nº pedidos, nº avaliações, morada, cozinha, horário, preço médio)
-- **C** Implementar filtros de produto (nome, preço, categoria, disponibilidade, popularidade)
-- **C** Implementar filtros de menu (nome, nº produtos, preço médio)
+- ✅ Criar `AvaliacaoRepository`
+- ✅ Criar `MenuRepository`
+- [ ] Implementar filtros de utilizador (nome, tipo, nº pedidos, nº entregas) — Specifications ou queries custom
+- ✅ Implementar filtros de restaurante (nome, nº pedidos, nº avaliações, morada, cozinha, horário, preço médio) — `RestauranteSpecifications` (7 filtros)
+- [ ] Implementar filtros de produto (nome, preço, categoria, disponibilidade, popularidade) — `ProdutoSpecifications` não criado
+- ✅ Implementar filtros de menu (nome, nº produtos, preço médio) — `MenuSpecifications` (3 filtros)
 
 ### Fase C — Serviços (lógica de negócio)
-- **C** `AvaliacaoService` — criar avaliação (validar que cliente tem pedido concluído)
-- **C** `MenuService` — CRUD de menus, associar a restaurantes, gerir produtos no menu
-- **C** Atualizar `PedidoService` — pedido multi-restaurante, morada flexível
+- ✅ `AvaliacaoService` — criar avaliação (validar que cliente tem pedido concluído, pedido-based uniqueness)
+- ✅ `MenuService` — CRUD de menus, associar a restaurantes, gerir produtos no menu
+- ✅ Atualizar `PedidoService` — pedido multi-restaurante, morada flexível
 - ✅ Atualizar `EntregaService` — atribuição automática de entregador
 - ✅ Atualizar `PagamentoService` — novos campos (bandeira, troco)
-- **C** Atualizar serviços existentes com suporte a filtros
+- ✅ Atualizar `RestauranteService` com `listarRestaurantesComFiltros` (7 filtros)
+- ✅ Atualizar `MenuService` com `listarMenusComFiltros` (3 filtros)
 
 ### Fase D — Controllers REST (atualização)
-- [ ] `AvaliacaoController` — endpoints REST
-- **C** `MenuController` — CRUD + associação a restaurantes
-- **C** Atualizar `UserController`, `RestauranteController`, `ProdutoController` com filtros
-- **C** Atualizar `PedidoController` — pedido multi-restaurante
-- **C** Atualizar DTOs (Request/Response) para novas entidades e campos
+- [ ] `AvaliacaoController` — endpoints REST (não criado)
+- ✅ `MenuController` — CRUD + associação a restaurantes (8 endpoints)
+- ✅ Atualizar `RestauranteController` com filtros (nome, tipoCozinha, horario, preço, avaliações, cidade, minPedidos)
+- [ ] Atualizar `UserController` com filtros (nome, tipo, nº pedidos, nº entregas)
+- [ ] Atualizar `ProdutoController` com filtros avançados (categoria, disponibilidade, popularidade)
+- ✅ Atualizar `PedidoController` — pedido multi-restaurante
+- ✅ Atualizar DTOs (MenuRequest, MenuResponse, RestauranteResponse, etc.)
 
 ### Fase E — Interface Web (Thymeleaf)
 - [ ] Criar template base (`layout.html`) com navbar e estilos
 - [ ] Página de login (`login.html`)
-- [ ] Listagem/busca de restaurantes com filtros
+- [ ] Listagem/busca de restaurantes com filtros (`WebRestauranteController`)
 - [ ] Listagem/busca de produtos com filtros
 - [ ] Ver/editar utilizadores
 - [ ] Ver estado de pedidos, cancelar pedido
-- **C** Criar controllers web (`@Controller` que retornam views, não JSON)
+- ✅ `WebMenuController` — CRUD de menus via Thymeleaf (listar, criar, editar, detalhe, associar restaurante)
 - [ ] Testar toda a navegação no browser
 
 ### Fase F — gRPC Server
@@ -464,12 +467,12 @@ O modelo atualizado deve permitir responder a:
 - [ ] Ficheiros FXML para cada ecrã
 
 ### Fase H — Testes
-- **C** Atualizar testes existentes (modelo alterado)
-- **C** Testes unitários para novos serviços (Avaliacao, Menu)
-- **C** Testes para filtros
+- ✅ Atualizar testes existentes (modelo alterado — Menu N:1, Avaliacao)
+- ✅ Testes unitários para novos serviços (AvaliacaoService, MenuService)
+- ✅ Testes para filtros (MenuSpecifications, RestauranteSpecifications)
 - ✅ Testes para atribuição automática de entregador
-- **C** Testes para pedido multi-restaurante
-- [ ] Manter cobertura ≥ 80%
+- ✅ Testes para pedido multi-restaurante
+- ✅ 204 testes, 0 falhas (29/04/2026)
 
 ### Fase I — Docker + Finalização
 - [ ] Atualizar `docker-compose.yml` (porta gRPC, JavaFX se aplicável)
