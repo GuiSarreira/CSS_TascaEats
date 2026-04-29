@@ -2,7 +2,6 @@ package pt.ul.fc.css.tascaeats.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,12 +55,15 @@ public class Produto {
     private boolean eliminado = false;
 
     /**
-     * Restaurante ao qual este produto pertence. Lado N da relação N:1.
-     * A chave estrangeira {@code restaurante_id} fica nesta tabela.
+     * Menus aos quais este produto pertence. Lado inverso da relação N:N com {@link Menu}.
+     * O dono é {@link Menu#getProdutos()}.
      */
-    @ManyToOne
-    @JoinColumn(name = "restaurante_id", nullable = false)
-    private Restaurante restaurante;
+    @ManyToMany(mappedBy = "produtos")
+    private List<Menu> menus = new ArrayList<>();
+
+    /** Categoria do produto (ex: Entrada, Prato Principal, Sobremesa). */
+    @Column
+    private String categoria;
 
     /**
      * Referências deste produto em itens de pedidos.
@@ -75,18 +77,37 @@ public class Produto {
     }
 
     /**
-     * Cria um novo produto, disponível e não eliminado por defeito.
+     * Cria um novo produto com categoria, disponível e não eliminado por defeito.
      *
-     * @param nome        nome do produto
-     * @param descricao   descrição
-     * @param preco       preço unitário em euros; deve ser maior que zero
-     * @param restaurante restaurante ao qual o produto pertence
+     * @param nome      nome do produto
+     * @param descricao descrição
+     * @param preco     preço unitário em euros; deve ser maior que zero
+     * @param categoria categoria do produto (ex: Entrada, Prato Principal)
      */
-    public Produto(String nome, String descricao, Double preco, Restaurante restaurante) {
+    public Produto(String nome, String descricao, Double preco, String categoria) {
         this.nome = nome;
         this.descricao = descricao;
         this.preco = preco;
-        this.restaurante = restaurante;
+        this.categoria = categoria;
+        this.disponivel = true;
+        this.eliminado = false;
+    }
+
+    /**
+     * Cria um novo produto associado a menus e com categoria, disponível e não eliminado por defeito.
+     *
+     * @param nome      nome do produto
+     * @param descricao descrição
+     * @param preco     preço unitário em euros; deve ser maior que zero
+     * @param menus     menus aos quais este produto pertence (pode ser vazia)
+     * @param categoria categoria do produto (ex: Entrada, Prato Principal)
+     */
+    public Produto(String nome, String descricao, Double preco, List<Menu> menus, String categoria) {
+        this.nome = nome;
+        this.descricao = descricao;
+        this.preco = preco;
+        this.menus = menus != null ? new ArrayList<>(menus) : new ArrayList<>();
+        this.categoria = categoria;
         this.disponivel = true;
         this.eliminado = false;
     }
@@ -145,19 +166,27 @@ public class Produto {
         this.eliminado = eliminado;
     }
 
-    public Restaurante getRestaurante() {
-        return restaurante;
-    }
-
-    public void setRestaurante(Restaurante restaurante) {
-        this.restaurante = restaurante;
-    }
-
     public List<ProdutoPedido> getItensPedido() {
         return itensPedido;
     }
 
     public void setItensPedido(List<ProdutoPedido> itensPedido) {
         this.itensPedido = itensPedido;
+    }
+
+    public List<Menu> getMenus() {
+        return menus;
+    }
+
+    public void setMenus(List<Menu> menus) {
+        this.menus = menus;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 }

@@ -13,6 +13,7 @@ import pt.ul.fc.css.tascaeats.repositories.RestauranteRepository;
 import pt.ul.fc.css.tascaeats.repositories.UserRepository;
 
 import java.lang.reflect.Field;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +43,8 @@ class RestauranteServiceTest {
         admin = new Admin("admin@test.com", "Dono Admin", "pass");
         setId(admin, 1L);
 
-        restaurante = new Restaurante("O Tasqueiro", endereco, "987654321");
+        restaurante = new Restaurante("O Tasqueiro", endereco, "987654321",
+                "Portuguesa", LocalTime.of(12, 0), LocalTime.of(22, 0));
         restaurante.setAdmin(admin);
         setId(restaurante, 10L);
     }
@@ -73,7 +75,8 @@ class RestauranteServiceTest {
         when(restauranteRepository.findByNif("987654321")).thenReturn(Optional.empty());
         when(restauranteRepository.save(any())).thenReturn(restaurante);
 
-        Restaurante resultado = restauranteService.criarRestaurante("O Tasqueiro", endereco, "987654321", 1L);
+        Restaurante resultado = restauranteService.criarRestaurante("O Tasqueiro", endereco, "987654321",
+                "Portuguesa", LocalTime.of(12, 0), LocalTime.of(22, 0), 1L);
 
         assertThat(resultado.getNome()).isEqualTo("O Tasqueiro");
         verify(restauranteRepository).save(any(Restaurante.class));
@@ -83,7 +86,7 @@ class RestauranteServiceTest {
     void criarRestaurante_AdminNaoEncontrado_ThrowsRuntimeException() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> restauranteService.criarRestaurante("X", endereco, "111", 99L))
+        assertThatThrownBy(() -> restauranteService.criarRestaurante("X", endereco, "111", null, null, null, 99L))
                 .isInstanceOf(RuntimeException.class);
     }
 
@@ -92,7 +95,7 @@ class RestauranteServiceTest {
         Cliente cliente = new Cliente("c@c.com", "Cliente", "pass", endereco);
         when(userRepository.findById(2L)).thenReturn(Optional.of(cliente));
 
-        assertThatThrownBy(() -> restauranteService.criarRestaurante("X", endereco, "222", 2L))
+        assertThatThrownBy(() -> restauranteService.criarRestaurante("X", endereco, "222", null, null, null, 2L))
                 .isInstanceOf(SecurityException.class);
     }
 
@@ -101,7 +104,8 @@ class RestauranteServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(admin));
         when(restauranteRepository.findByNif("987654321")).thenReturn(Optional.of(restaurante));
 
-        assertThatThrownBy(() -> restauranteService.criarRestaurante("Outro", endereco, "987654321", 1L))
+        assertThatThrownBy(
+                () -> restauranteService.criarRestaurante("Outro", endereco, "987654321", null, null, null, 1L))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("NIF");
     }
@@ -191,6 +195,8 @@ class RestauranteServiceTest {
                 .isInstanceOf(SecurityException.class);
     }
 
+    // ─── buscarPorNome, buscarPorNif, buscarPorCidade, listarTodos ────────────
+
     @Test
     void buscarPorNome_ReturnsList() {
         when(restauranteRepository.findByNomeContainingIgnoreCase("Tasq")).thenReturn(List.of(restaurante));
@@ -206,7 +212,6 @@ class RestauranteServiceTest {
 
         assertThat(restauranteService.buscarPorNif("987654321")).isPresent();
     }
-    // ─── buscarPorCidade e listarTodos ────────────────────────────────────────
 
     @Test
     void buscarPorCidade_ReturnsList() {

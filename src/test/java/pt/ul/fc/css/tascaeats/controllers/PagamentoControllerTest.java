@@ -40,16 +40,15 @@ class PagamentoControllerTest {
     void setUp() {
         endereco = new Endereco("Rua F, 6", "6000-006", "Évora");
         Cliente cliente = new Cliente("c@test.com", "Ana", "pass", endereco);
-        Restaurante restaurante = new Restaurante("Évora Grill", endereco, "777888999");
-        pedido = new Pedido(cliente, restaurante, endereco);
-        pagamento = new Multibanco(pedido, 25.0, "123456789");
+        pedido = new Pedido(cliente, endereco);
+        pagamento = new Multibanco(pedido, 25.0, "123456789", "Visa");
     }
 
     // ─── POST /api/pedidos/{id}/pagamento ─────────────────────────────────────
 
     @Test
     void processarPagamento_Sucesso_Returns200() throws Exception {
-        when(pagamentoService.processarPagamento(eq(1L), any(), any())).thenReturn(pagamento);
+        when(pagamentoService.processarPagamento(eq(1L), any(), any(), any(), any())).thenReturn(pagamento);
 
         PagamentoRequest request = new PagamentoRequest();
         request.setTipoPagamento("MULTIBANCO");
@@ -65,7 +64,7 @@ class PagamentoControllerTest {
 
     @Test
     void processarPagamento_PedidoNaoCREATED_Returns422() throws Exception {
-        when(pagamentoService.processarPagamento(eq(1L), any(), any()))
+        when(pagamentoService.processarPagamento(eq(1L), any(), any(), any(), any()))
                 .thenThrow(new IllegalStateException("Pedido não está no estado CREATED"));
 
         PagamentoRequest request = new PagamentoRequest();

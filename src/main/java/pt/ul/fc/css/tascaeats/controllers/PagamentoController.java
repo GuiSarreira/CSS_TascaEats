@@ -31,7 +31,9 @@ public class PagamentoController {
         Pagamento pagamento = pagamentoService.processarPagamento(
                 pedidoId,
                 request.getTipoPagamento(),
-                request.getDadosExtra()
+                request.getDadosExtra(),
+                request.getBandeira(),
+                request.getTroco()
         );
         return ResponseEntity.ok(PagamentoResponse.from(pagamento));
     }

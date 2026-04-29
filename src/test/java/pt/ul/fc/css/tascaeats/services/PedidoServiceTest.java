@@ -11,6 +11,8 @@ import org.mockito.quality.Strictness;
 import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.repositories.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -43,7 +45,13 @@ class PedidoServiceTest {
         cliente = new Cliente("cliente@test.com", "Ana Silva", "pass", endereco);
         restaurante = new Restaurante("Tasca Boa", endereco, "123456789");
         restaurante.setAberto(true);
-        produto = new Produto("Pizza", "Margherita", 10.0, restaurante);
+        // Ligar produto → menu → restaurante para que PedidoService encontre o
+        // restaurante
+        Menu menu = new Menu("Menu", "desc", new ArrayList<>(), new ArrayList<>());
+        restaurante.setMenu(menu);
+        menu.getRestaurantes().add(restaurante);
+        produto = new Produto("Pizza", "Margherita", 10.0, new ArrayList<>(List.of(menu)), null);
+        menu.getProdutos().add(produto);
 
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
         when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));

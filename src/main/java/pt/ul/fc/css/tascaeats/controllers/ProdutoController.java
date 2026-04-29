@@ -39,7 +39,8 @@ public class ProdutoController {
                 request.getNome(),
                 request.getDescricao(),
                 request.getPreco(),
-                null);
+                new java.util.ArrayList<>(),
+                request.getCategoria());
         produtoParaCriar.setDisponivel(request.isDisponivel());
 
         Produto novoProduto = produtoService.criarProduto(restauranteId, produtoParaCriar);

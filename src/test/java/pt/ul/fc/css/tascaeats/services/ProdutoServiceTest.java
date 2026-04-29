@@ -11,7 +11,9 @@ import org.mockito.quality.Strictness;
 import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.repositories.ProdutoRepository;
 import pt.ul.fc.css.tascaeats.repositories.RestauranteRepository;
+import pt.ul.fc.css.tascaeats.repositories.MenuRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +29,8 @@ class ProdutoServiceTest {
     private ProdutoRepository produtoRepository;
     @Mock
     private RestauranteRepository restauranteRepository;
+    @Mock
+    private MenuRepository menuRepository;
 
     @InjectMocks
     private ProdutoService produtoService;
@@ -39,7 +43,7 @@ class ProdutoServiceTest {
     void setUp() {
         endereco = new Endereco("Rua C, 3", "3000-003", "Coimbra");
         restaurante = new Restaurante("Tasca Coimbra", endereco, "111222333");
-        produto = new Produto("Bacalhau", "Bacalhau à Bras", 12.5, restaurante);
+        produto = new Produto("Bacalhau", "Bacalhau à Bras", 12.5, "Prato Principal");
     }
 
     // ─── criarProduto ─────────────────────────────────────────────────────────
@@ -49,7 +53,7 @@ class ProdutoServiceTest {
         when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restaurante));
         when(produtoRepository.save(any())).thenReturn(produto);
 
-        Produto novo = new Produto("Bacalhau", "Bacalhau à Bras", 12.5, null);
+        Produto novo = new Produto("Bacalhau", "Bacalhau à Bras", 12.5, "Prato Principal");
         Produto resultado = produtoService.criarProduto(1L, novo);
 
         assertThat(resultado.getNome()).isEqualTo("Bacalhau");
@@ -60,7 +64,7 @@ class ProdutoServiceTest {
     void criarProduto_RestauranteNaoEncontrado_ThrowsRuntimeException() {
         when(restauranteRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> produtoService.criarProduto(99L, new Produto("X", "Y", 5.0, null)))
+        assertThatThrownBy(() -> produtoService.criarProduto(99L, new Produto("X", "Y", 5.0, (String) null)))
                 .isInstanceOf(RuntimeException.class);
     }
 
@@ -138,7 +142,9 @@ class ProdutoServiceTest {
 
     @Test
     void listarMenuDoRestaurante_ReturnsList() {
-        when(produtoRepository.findByRestauranteIdAndEliminadoFalse(1L)).thenReturn(List.of(produto));
+        Menu menu = new Menu("M", "D", new ArrayList<>(List.of(produto)), new ArrayList<>());
+        restaurante.setMenu(menu);
+        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restaurante));
 
         List<Produto> resultado = produtoService.listarMenuDoRestaurante(1L);
 

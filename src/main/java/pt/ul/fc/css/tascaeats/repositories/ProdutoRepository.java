@@ -19,31 +19,7 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     List<Produto> findByNomeContainingIgnoreCase(String nome);
 
     /**
-     * Procura todos os produtos associados a um restaurante que não foram marcados como eliminados.
-     * @param restauranteId O identificador único do restaurante.
-     * @return Lista de produtos ativos (não eliminados) do restaurante.
+     * Procura todos os produtos que não foram eliminados logicamente.
      */
-    List<Produto> findByRestauranteIdAndEliminadoFalse(Long restauranteId);
-
-    /**
-     * Procura o menu atual de um restaurante (produtos disponíveis para venda imediata).
-     * @param restauranteId O identificador único do restaurante.
-     * @return Lista de produtos que estão marcados como disponíveis e não eliminados.
-     */
-    List<Produto> findByRestauranteIdAndDisponivelTrueAndEliminadoFalse(Long restauranteId);
-
-    /**
-     * Procura produtos com base num limite de preço, ignorando produtos eliminados.
-     * @param maxPreco O valor máximo do preço do produto.
-     * @return Lista de produtos com preço inferior ou igual ao valor especificado.
-     */
-    List<Produto> findByPrecoLessThanEqualAndEliminadoFalse(Double maxPreco);
-
-    /**
-     * Verifica se já existe um produto com o mesmo nome (case-insensitive) associado a um restaurante específico e que não foi eliminado.
-     * @param nome O nome do produto a verificar.
-     * @param restauranteId O identificador único do restaurante.
-     * @return {@code true} se existir um produto com o mesmo nome e restaurante, {@code false} caso contrário.
-     */
-    boolean existsByNomeIgnoreCaseAndRestauranteIdAndEliminadoFalse(String nome, Long restauranteId);
+    List<Produto> findByEliminadoFalse();
 }

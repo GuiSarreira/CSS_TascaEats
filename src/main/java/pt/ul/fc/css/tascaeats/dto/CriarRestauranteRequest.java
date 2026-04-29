@@ -1,5 +1,6 @@
 package pt.ul.fc.css.tascaeats.dto;
 
+import java.time.LocalTime;
 import pt.ul.fc.css.tascaeats.entities.Endereco;
 
 /**
@@ -19,6 +20,15 @@ public class CriarRestauranteRequest {
 
     /** Morada do restaurante (rua, código postal e cidade). */
     private Endereco morada;
+
+    /** Tipo de cozinha (ex: Portuguesa, Italiana). */
+    private String tipoCozinha;
+
+    /** Horário de abertura do restaurante. */
+    private LocalTime horarioAbertura;
+
+    /** Horário de fecho do restaurante. */
+    private LocalTime horarioFecho;
 
     /** ID do administrador que cria o restaurante. */
     private Long adminId;
@@ -49,6 +59,30 @@ public class CriarRestauranteRequest {
 
     public void setMorada(Endereco morada) {
         this.morada = morada;
+    }
+
+    public String getTipoCozinha() {
+        return tipoCozinha;
+    }
+
+    public void setTipoCozinha(String tipoCozinha) {
+        this.tipoCozinha = tipoCozinha;
+    }
+
+    public LocalTime getHorarioAbertura() {
+        return horarioAbertura;
+    }
+
+    public void setHorarioAbertura(LocalTime horarioAbertura) {
+        this.horarioAbertura = horarioAbertura;
+    }
+
+    public LocalTime getHorarioFecho() {
+        return horarioFecho;
+    }
+
+    public void setHorarioFecho(LocalTime horarioFecho) {
+        this.horarioFecho = horarioFecho;
     }
 
     public Long getAdminId() {

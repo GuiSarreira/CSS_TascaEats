@@ -13,6 +13,8 @@ import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.exceptions.GlobalExceptionHandler;
 import pt.ul.fc.css.tascaeats.services.EntregaService;
 
+import java.util.Optional;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -36,8 +38,7 @@ class EntregaControllerTest {
     void setUp() {
         Endereco endereco = new Endereco("Rua G, 7", "7000-007", "Faro");
         Cliente cliente = new Cliente("c@test.com", "Rui", "pass", endereco);
-        Restaurante restaurante = new Restaurante("Faro Mar", endereco, "000111222");
-        Pedido pedido = new Pedido(cliente, restaurante, endereco);
+        Pedido pedido = new Pedido(cliente, endereco);
         Entregador entregador = new Entregador("e@test.com", "Nuno", "pass", "bicicleta", "Faro");
         entrega = new Entrega(pedido, entregador);
     }
@@ -61,7 +62,7 @@ class EntregaControllerTest {
 
     @Test
     void atribuirEntregador_Automatico_Returns201() throws Exception {
-        when(entregaService.atribuirEntregadorAutomatico(1L)).thenReturn(entrega);
+        when(entregaService.atribuirEntregadorAutomatico(1L)).thenReturn(Optional.of(entrega));
 
         AtribuirEntregadorRequest request = new AtribuirEntregadorRequest();
         request.setEntregadorId(null);

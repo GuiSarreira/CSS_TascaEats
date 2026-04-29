@@ -29,6 +29,12 @@ public class CriarProdutoRequest {
      */
     private boolean disponivel = true;
 
+    /** Categoria do produto (ex: Entrada, Prato Principal, Sobremesa). */
+    private String categoria;
+
+    /** IDs de menus a associar ao produto (opcional). */
+    private java.util.List<Long> menuIds;
+
     /** Construtor vazio exigido para deserialização do JSON. */
     public CriarProdutoRequest() {
     }
@@ -63,5 +69,21 @@ public class CriarProdutoRequest {
 
     public void setDisponivel(boolean disponivel) {
         this.disponivel = disponivel;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
+
+    public java.util.List<Long> getMenuIds() {
+        return menuIds;
+    }
+
+    public void setMenuIds(java.util.List<Long> menuIds) {
+        this.menuIds = menuIds;
     }
 }

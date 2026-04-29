@@ -4,6 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.services.*;
+import java.time.LocalTime;
 
 /**
  * Preenche a base de dados com dados iniciais quando a aplicação arranca.
@@ -17,8 +18,8 @@ public class DataInitializer implements CommandLineRunner {
     private final ProdutoService produtoService;
 
     public DataInitializer(UserService userService,
-                           RestauranteService restauranteService,
-                           ProdutoService produtoService) {
+            RestauranteService restauranteService,
+            ProdutoService produtoService) {
         this.userService = userService;
         this.restauranteService = restauranteService;
         this.produtoService = produtoService;
@@ -44,20 +45,23 @@ public class DataInitializer implements CommandLineRunner {
                     "Tasca Lisboa",
                     new Endereco("Av. da Liberdade, 100", "1250-096", "Lisboa"),
                     "123456789",
+                    "Portuguesa",
+                    LocalTime.of(11, 0),
+                    LocalTime.of(23, 0),
                     admin.getId());
 
             restauranteService.alterarEstadoAbertura(restaurante.getId(), true);
 
             // ── Produtos no menu ──────────────────────────────────────────
-            Produto prego = new Produto("Prego no Pão", "Carne de vitela grelhada", 5.50, null);
+            Produto prego = new Produto("Prego no Pão", "Carne de vitela grelhada", 5.50, "Prato Principal");
             prego.setDisponivel(true);
             produtoService.criarProduto(restaurante.getId(), prego);
 
-            Produto sopa = new Produto("Sopa do Dia", "Caldo verde com broa", 2.50, null);
+            Produto sopa = new Produto("Sopa do Dia", "Caldo verde com broa", 2.50, "Entrada");
             sopa.setDisponivel(true);
             produtoService.criarProduto(restaurante.getId(), sopa);
 
-            Produto peixe = new Produto("Bacalhau à Brás", "Com batata palha e ovos", 9.50, null);
+            Produto peixe = new Produto("Bacalhau à Brás", "Com batata palha e ovos", 9.50, "Prato Principal");
             peixe.setDisponivel(true);
             produtoService.criarProduto(restaurante.getId(), peixe);
 
@@ -65,7 +69,8 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println("\u001B[36m  Admin     → id=" + admin.getId() + "  email=admin@tascaeats.pt\u001B[0m");
             System.out.println("\u001B[36m  Cliente   → email=ana@tascaeats.pt\u001B[0m");
             System.out.println("\u001B[36m  Entregador→ email=bruno@tascaeats.pt\u001B[0m");
-            System.out.println("\u001B[36m  Restaurante → id=" + restaurante.getId() + "  nome=Tasca Lisboa (ABERTO)\u001B[0m");
+            System.out.println(
+                    "\u001B[36m  Restaurante → id=" + restaurante.getId() + "  nome=Tasca Lisboa (ABERTO)\u001B[0m");
 
         } catch (Exception e) {
             System.out.println("\u001B[31m[DataInitializer] Erro ao carregar dados: " + e.getMessage() + "\u001B[0m");

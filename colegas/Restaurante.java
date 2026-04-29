@@ -14,14 +14,17 @@ import java.util.List;
  * está {@code aberto = true}.
  *
  * Regras de negócio
- *   - O NIF deve ser único em toda a plataforma.
- *   - Apenas o admin dono do restaurante pode editá-lo.
- *   - Não é possível criar pedidos a restaurantes com {@code aberto = false}.
+ * - O NIF deve ser único em toda a plataforma.
+ * - Apenas o admin dono do restaurante pode editá-lo.
+ * - Não é possível criar pedidos a restaurantes com {@code aberto = false}.
  */
 @Entity
 public class Restaurante {
 
-    /** Identificador único do restaurante, gerado automaticamente pela base de dados. */
+    /**
+     * Identificador único do restaurante, gerado automaticamente pela base de
+     * dados.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,7 +34,9 @@ public class Restaurante {
     @Column(nullable = false)
     private String nome;
 
-    /** Número de Identificação Fiscal do restaurante. Único em toda a plataforma. */
+    /**
+     * Número de Identificação Fiscal do restaurante. Único em toda a plataforma.
+     */
     @NotNull(message = "O NIF é obrigatório")
     @Column(unique = true, nullable = false)
     private String nif;
@@ -56,12 +61,21 @@ public class Restaurante {
     private LocalTime horarioFecho;
 
     /**
-     * Menu deste restaurante. Vários restaurantes podem partilhar o mesmo menu.
-     * Lado N da relação N:1 com {@link Menu} — a FK {@code menu_id} fica nesta tabela.
+     * Menu exclusivo deste restaurante.
+     * Relação 1:1 com {@link Menu}. Em cascata: ao eliminar o restaurante,
+     * o seu menu também é eliminado ({@code orphanRemoval = true}).
+     */
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "menu_exclusivo_id")
+    private Menu menu;
+
+    /**
+     * Menu partilhado associado a este restaurante.
+     * Lado inverso da relação 1:N — o dono é {@link Menu#getRestaurantes()}.
      */
     @ManyToOne
     @JoinColumn(name = "menu_id")
-    private Menu menu;
+    private Menu menuPartilhado;
 
     /**
      * Avaliações recebidas por este restaurante.
@@ -71,15 +85,15 @@ public class Restaurante {
     private List<Avaliacao> avaliacoes = new ArrayList<>();
 
     /**
-     * Administrador dono deste restaurante. Lado N da relação N:1 com {@link Admin}.
+     * Administrador dono deste restaurante. Lado N da relação N:1 com
+     * {@link Admin}.
      * A chave estrangeira {@code admin_id} fica nesta tabela.
      */
     @ManyToOne
     @JoinColumn(name = "admin_id", nullable = false)
     private Admin admin;
 
-
-    /** Construtor protegido exigido pelo JPA.*/
+    /** Construtor protegido exigido pelo JPA. */
     protected Restaurante() {
     }
 
@@ -98,7 +112,8 @@ public class Restaurante {
     }
 
     /**
-     * Cria um novo restaurante com informação de horários e tipo de cozinha, fechado por defeito.
+     * Cria um novo restaurante com informação de horários e tipo de cozinha,
+     * fechado por defeito.
      *
      * @param nome            nome do restaurante
      * @param morada          morada física
@@ -119,8 +134,8 @@ public class Restaurante {
     }
 
     /**
-     * Adiciona um produto ao menu deste restaurante.
-     * Se o menu ainda não estiver definido, o método não tem efeito.
+     * Adiciona um produto ao menu exclusivo deste restaurante.
+     * Se o menu ainda não existir, cria um novo.
      *
      * @param item o produto a adicionar
      */
@@ -166,6 +181,14 @@ public class Restaurante {
         this.morada = morada;
     }
 
+    public Menu getMenu() {
+        return menu;
+    }
+
+    public void setMenu(Menu menu) {
+        this.menu = menu;
+    }
+
     public Admin getAdmin() {
         return admin;
     }
@@ -198,13 +221,14 @@ public class Restaurante {
         this.horarioFecho = horarioFecho;
     }
 
-    public Menu getMenu() {
-        return menu;
+    public Menu getMenuPartilhado() {
+        return menuPartilhado;
     }
 
-    public void setMenu(Menu menu) {
-        this.menu = menu;
+    public void setMenuPartilhado(Menu menuPartilhado) {
+        this.menuPartilhado = menuPartilhado;
     }
+
     public List<Avaliacao> getAvaliacoes() {
         return avaliacoes;
     }

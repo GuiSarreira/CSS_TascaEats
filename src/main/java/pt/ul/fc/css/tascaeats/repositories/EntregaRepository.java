@@ -14,125 +14,147 @@ import java.util.Optional;
 /**
  * Repositório para gestão da persistência de objetos do tipo Entrega.
  * Fornece métodos para consulta de entregas por estado, entregador,
- * e validação de regras de negócio como "entregador não pode ter duas entregas ativas".
+ * e validação de regras de negócio como "entregador não pode ter duas entregas
+ * ativas".
  */
 @Repository
 public interface EntregaRepository extends JpaRepository<Entrega, Long> {
 
-    /**
-     * Procura uma entrega pelo ID do pedido associado.
-     * Como a relação é 1:1, no máximo uma entrega será retornada.
-     * @param pedidoId O identificador único do pedido.
-     * @return Um Optional contendo a entrega correspondente, ou vazio se não existir.
-     */
-    Optional<Entrega> findByPedidoId(Long pedidoId);
+       /**
+        * Procura uma entrega pelo ID do pedido associado.
+        * Como a relação é 1:1, no máximo uma entrega será retornada.
+        * 
+        * @param pedidoId O identificador único do pedido.
+        * @return Um Optional contendo a entrega correspondente, ou vazio se não
+        *         existir.
+        */
+       Optional<Entrega> findByPedidoId(Long pedidoId);
 
-    /**
-     * Lista todas as entregas realizadas por um determinado entregador.
-     * @param entregador O entregador cujas entregas se pretendem listar.
-     * @return Lista de entregas associadas ao entregador.
-     */
-    List<Entrega> findByEntregador(Entregador entregador);
+       /**
+        * Lista todas as entregas realizadas por um determinado entregador.
+        * 
+        * @param entregador O entregador cujas entregas se pretendem listar.
+        * @return Lista de entregas associadas ao entregador.
+        */
+       List<Entrega> findByEntregador(Entregador entregador);
 
-    /**
-     * Lista entregas com um determinado estado.
-     * Estados possíveis: {@link EntregaStatus#ATRIBUIDA}, {@link EntregaStatus#A_CAMINHO},
-     * {@link EntregaStatus#CONCLUIDA}, {@link EntregaStatus#CANCELADA}.
-     * @param status O estado das entregas a filtrar.
-     * @return Lista de entregas no estado especificado.
-     */
-    List<Entrega> findByStatus(EntregaStatus status);
+       /**
+        * Lista entregas com um determinado estado.
+        * Estados possíveis: {@link EntregaStatus#ATRIBUIDA},
+        * {@link EntregaStatus#A_CAMINHO},
+        * {@link EntregaStatus#CONCLUIDA}, {@link EntregaStatus#CANCELADA}.
+        * 
+        * @param status O estado das entregas a filtrar.
+        * @return Lista de entregas no estado especificado.
+        */
+       List<Entrega> findByStatus(EntregaStatus status);
 
-    /**
-     * Lista entregas de um entregador com um determinado estado.
-     * @param entregador O entregador a filtrar.
-     * @param status     O estado das entregas a filtrar.
-     * @return Lista de entregas que satisfazem ambos os critérios.
-     */
-    List<Entrega> findByEntregadorAndStatus(Entregador entregador, EntregaStatus status);
+       /**
+        * Lista entregas de um entregador com um determinado estado.
+        * 
+        * @param entregador O entregador a filtrar.
+        * @param status     O estado das entregas a filtrar.
+        * @return Lista de entregas que satisfazem ambos os critérios.
+        */
+       List<Entrega> findByEntregadorAndStatus(Entregador entregador, EntregaStatus status);
 
-    /**
-     * Lista entregas de um entregador cujo estado esteja numa lista de valores.
-     * Útil para verificar se um entregador tem entregas ativas (ATRIBUIDA ou A_CAMINHO).
-     * @param entregador O entregador a filtrar.
-     * @param statuses   Lista de estados a considerar.
-     * @return Lista de entregas que satisfazem os critérios.
-     */
-    @Query("SELECT e FROM Entrega e WHERE e.entregador = :entregador AND e.status IN :statuses")
-    List<Entrega> findByEntregadorAndStatusIn(@Param("entregador") Entregador entregador,
-                                               @Param("statuses") List<EntregaStatus> statuses);
+       /**
+        * Lista entregas de um entregador cujo estado esteja numa lista de valores.
+        * Útil para verificar se um entregador tem entregas ativas (ATRIBUIDA ou
+        * A_CAMINHO).
+        * 
+        * @param entregador O entregador a filtrar.
+        * @param statuses   Lista de estados a considerar.
+        * @return Lista de entregas que satisfazem os critérios.
+        */
+       @Query("SELECT e FROM Entrega e WHERE e.entregador = :entregador AND e.status IN :statuses")
+       List<Entrega> findByEntregadorAndStatusIn(@Param("entregador") Entregador entregador,
+                     @Param("statuses") List<EntregaStatus> statuses);
 
-    /**
-     * Verifica se um entregador tem entregas ativas (ATRIBUIDA ou A_CAMINHO).
-     * Regra de negócio: um entregador não pode ter duas entregas ativas ao mesmo tempo.
-     * @param entregadorId O identificador do entregador.
-     * @return Lista de entregas ativas do entregador (deve ter no máximo 1 para ser válido).
-     */
-    @Query("SELECT e FROM Entrega e WHERE e.entregador.id = :entregadorId " +
-           "AND e.status IN (pt.ul.fc.css.tascaeats.entities.EntregaStatus.ATRIBUIDA, " +
-           "pt.ul.fc.css.tascaeats.entities.EntregaStatus.A_CAMINHO)")
-    List<Entrega> findEntregasAtivasByEntregadorId(@Param("entregadorId") Long entregadorId);
+       /**
+        * Verifica se um entregador tem entregas ativas (ATRIBUIDA ou A_CAMINHO).
+        * Regra de negócio: um entregador não pode ter duas entregas ativas ao mesmo
+        * tempo.
+        * 
+        * @param entregadorId O identificador do entregador.
+        * @return Lista de entregas ativas do entregador (deve ter no máximo 1 para ser
+        *         válido).
+        */
+       @Query("SELECT e FROM Entrega e WHERE e.entregador.id = :entregadorId " +
+                     "AND e.status IN (pt.ul.fc.css.tascaeats.entities.EntregaStatus.ATRIBUIDA, " +
+                     "pt.ul.fc.css.tascaeats.entities.EntregaStatus.A_CAMINHO)")
+       List<Entrega> findEntregasAtivasByEntregadorId(@Param("entregadorId") Long entregadorId);
 
-    /**
-     * Ranking de entregadores pelo número de entregas concluídas.
-     * Query de negócio para responder a: "Qual o entregador com mais entregas?"
-     * @return Lista de arrays contendo [Entregador, totalEntregas] ordenada por total decrescente.
-     */
-    @Query("SELECT e.entregador, COUNT(e) AS totalEntregas FROM Entrega e " +
-           "WHERE e.status = pt.ul.fc.css.tascaeats.entities.EntregaStatus.CONCLUIDA " +
-           "GROUP BY e.entregador ORDER BY totalEntregas DESC")
-    List<Object[]> findEntregadoresPorNumeroEntregas();
+       /**
+        * Ranking de entregadores pelo número de entregas concluídas.
+        * Query de negócio para responder a: "Qual o entregador com mais entregas?"
+        * 
+        * @return Lista de arrays contendo [Entregador, totalEntregas] ordenada por
+        *         total decrescente.
+        */
+       @Query("SELECT e.entregador, COUNT(e) AS totalEntregas FROM Entrega e " +
+                     "WHERE e.status = pt.ul.fc.css.tascaeats.entities.EntregaStatus.CONCLUIDA " +
+                     "GROUP BY e.entregador ORDER BY totalEntregas DESC")
+       List<Object[]> findEntregadoresPorNumeroEntregas();
 
-    /**
-     * Conta quantas entregas concluídas um entregador realizou.
-     * @param entregadorId O identificador do entregador.
-     * @return Número total de entregas concluídas pelo entregador.
-     */
-    @Query("SELECT COUNT(e) FROM Entrega e WHERE e.entregador.id = :entregadorId " +
-           "AND e.status = pt.ul.fc.css.tascaeats.entities.EntregaStatus.CONCLUIDA")
-    Long countEntregasConcluidasByEntregadorId(@Param("entregadorId") Long entregadorId);
+       /**
+        * Conta quantas entregas concluídas um entregador realizou.
+        * 
+        * @param entregadorId O identificador do entregador.
+        * @return Número total de entregas concluídas pelo entregador.
+        */
+       @Query("SELECT COUNT(e) FROM Entrega e WHERE e.entregador.id = :entregadorId " +
+                     "AND e.status = pt.ul.fc.css.tascaeats.entities.EntregaStatus.CONCLUIDA")
+       Long countEntregasConcluidasByEntregadorId(@Param("entregadorId") Long entregadorId);
 
-    /**
-     * Lista entregas concluídas dentro de um período de tempo.
-     * @param inicio Data/hora de início do período.
-     * @param fim    Data/hora de fim do período.
-     * @return Lista de entregas concluídas no período especificado.
-     */
-    @Query("SELECT e FROM Entrega e WHERE e.horaEntrega BETWEEN :inicio AND :fim")
-    List<Entrega> findEntregasByPeriodo(@Param("inicio") LocalDateTime inicio,
-                                        @Param("fim") LocalDateTime fim);
+       /**
+        * Lista entregas concluídas dentro de um período de tempo.
+        * 
+        * @param inicio Data/hora de início do período.
+        * @param fim    Data/hora de fim do período.
+        * @return Lista de entregas concluídas no período especificado.
+        */
+       @Query("SELECT e FROM Entrega e WHERE e.horaEntrega BETWEEN :inicio AND :fim")
+       List<Entrega> findEntregasByPeriodo(@Param("inicio") LocalDateTime inicio,
+                     @Param("fim") LocalDateTime fim);
 
-    /**
-     * Verifica se já existe uma entrega associada a um determinado pedido.
-     * @param pedidoId O identificador do pedido.
-     * @return true se já existir uma entrega para o pedido, false caso contrário.
-     */
-    boolean existsByPedidoId(Long pedidoId);
+       /**
+        * Verifica se já existe uma entrega associada a um determinado pedido.
+        * 
+        * @param pedidoId O identificador do pedido.
+        * @return true se já existir uma entrega para o pedido, false caso contrário.
+        */
+       boolean existsByPedidoId(Long pedidoId);
 
-    /**
-     * Lista entregas com um estado específico cujo entregador está disponível.
-     *
-     * @param status  o estado das entregas a filtrar
-     * @param disponivel {@code true} se o entregador esta disponível
-     * @return lista de entregas que satisfazem os critérios
-     */
-    @Query("SELECT e FROM Entrega e WHERE e.status = :status AND e.entregador.disponivel = :disponivel")
-    List<Entrega> findByStatusAndEntregadorDisponivel(@Param("status") EntregaStatus status,
-                                                       @Param("disponivel") Boolean disponivel);
+       /**
+        * Lista entregas com um estado específico cujo entregador está disponível.
+        *
+        * @param status     o estado das entregas a filtrar
+        * @param disponivel {@code true} se o entregador esta disponível
+        * @return lista de entregas que satisfazem os critérios
+        */
+       @Query("SELECT e FROM Entrega e WHERE e.status = :status AND e.entregador.disponivel = :disponivel")
+       List<Entrega> findByStatusAndEntregadorDisponivel(@Param("status") EntregaStatus status,
+                     @Param("disponivel") Boolean disponivel);
 
-    /**
-     * Lista entregas com filtros opcionais por restaurante (via pedido) e entregador.
-     *
-     * @param restauranteId o identificador do restaurante (pode ser null para sem filtro)
-     * @param entregadorId  o identificador do entregador (pode ser null para sem filtro)
-     * @return lista de entregas que satisfazem os critérios
-     */
-    @Query("SELECT e FROM Entrega e " +
-           "WHERE (:restauranteId IS NULL OR e.pedido.id IN " +
-           "  (SELECT DISTINCT pp.pedido.id FROM ProdutoPedido pp " +
-           "   WHERE pp.produto.restaurante.id = :restauranteId)) " +
-           "AND (:entregadorId IS NULL OR e.entregador.id = :entregadorId) " +
-           "ORDER BY e.pedido.dataHora DESC")
-    List<Entrega> findEntregasComFiltros(@Param("restauranteId") Long restauranteId,
-                                         @Param("entregadorId") Long entregadorId);
+       /**
+        * Lista entregas com filtros opcionais por restaurante (via pedido) e
+        * entregador.
+        *
+        * @param restauranteId o identificador do restaurante (pode ser null para sem
+        *                      filtro)
+        * @param entregadorId  o identificador do entregador (pode ser null para sem
+        *                      filtro)
+        * @return lista de entregas que satisfazem os critérios
+        */
+       @Query("SELECT e FROM Entrega e " +
+                     "WHERE (:restauranteId IS NULL OR e.pedido.id IN " +
+                     "  (SELECT DISTINCT pp.pedido.id FROM ProdutoPedido pp " +
+                     "   JOIN pp.produto.menus m " +
+                     "   JOIN m.restaurantes r " +
+                     "   WHERE r.id = :restauranteId)) " +
+                     "AND (:entregadorId IS NULL OR e.entregador.id = :entregadorId) " +
+                     "ORDER BY e.pedido.dataHora DESC")
+       List<Entrega> findEntregasComFiltros(@Param("restauranteId") Long restauranteId,
+                     @Param("entregadorId") Long entregadorId);
 }

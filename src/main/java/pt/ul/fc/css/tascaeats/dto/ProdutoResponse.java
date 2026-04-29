@@ -16,9 +16,6 @@ public class ProdutoResponse {
     /** ID do produto. */
     private Long id;
 
-    /** ID do restaurante a que o produto pertence. */
-    private Long restauranteId;
-
     /** Nome do produto. */
     private String nome;
 
@@ -31,18 +28,21 @@ public class ProdutoResponse {
     /** Se o produto está disponível para encomenda ({@code false} = esgotado). */
     private boolean disponivel;
 
+    /** Categoria do produto (ex: Entrada, Prato Principal). */
+    private String categoria;
+
     /** Construtor vazio para uso interno. */
     public ProdutoResponse() {
     }
 
-    private ProdutoResponse(Long id, Long restauranteId, String nome, String descricao, Double preco,
-            boolean disponivel) {
+    private ProdutoResponse(Long id, String nome, String descricao, Double preco,
+            boolean disponivel, String categoria) {
         this.id = id;
-        this.restauranteId = restauranteId;
         this.nome = nome;
         this.descricao = descricao;
         this.preco = preco;
         this.disponivel = disponivel;
+        this.categoria = categoria;
     }
 
     /**
@@ -54,19 +54,15 @@ public class ProdutoResponse {
     public static ProdutoResponse from(Produto p) {
         return new ProdutoResponse(
                 p.getId(),
-                p.getRestaurante().getId(),
                 p.getNome(),
                 p.getDescricao(),
                 p.getPreco(),
-                p.isDisponivel());
+                p.isDisponivel(),
+                p.getCategoria());
     }
 
     public Long getId() {
         return id;
-    }
-
-    public Long getRestauranteId() {
-        return restauranteId;
     }
 
     public String getNome() {
@@ -83,5 +79,9 @@ public class ProdutoResponse {
 
     public boolean isDisponivel() {
         return disponivel;
+    }
+
+    public String getCategoria() {
+        return categoria;
     }
 }

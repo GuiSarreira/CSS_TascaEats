@@ -40,12 +40,6 @@ public class PedidoResponse {
     /** Nome do cliente que efetuou o pedido. */
     private String clienteNome;
 
-    /** ID do restaurante ao qual o pedido foi feito. */
-    private Long restauranteId;
-
-    /** Nome do restaurante ao qual o pedido foi feito. */
-    private String restauranteNome;
-
     /** Lista de itens que compõem o pedido. */
     private List<ItemPedidoResponse> itens;
 
@@ -55,7 +49,7 @@ public class PedidoResponse {
 
     private PedidoResponse(Long id, LocalDateTime dataHora, Double precoTotal, Endereco enderecoEntrega,
             PedidoStatus status, Long clienteId, String clienteNome,
-            Long restauranteId, String restauranteNome, List<ItemPedidoResponse> itens) {
+            List<ItemPedidoResponse> itens) {
         this.id = id;
         this.dataHora = dataHora;
         this.precoTotal = precoTotal;
@@ -63,8 +57,6 @@ public class PedidoResponse {
         this.status = status;
         this.clienteId = clienteId;
         this.clienteNome = clienteNome;
-        this.restauranteId = restauranteId;
-        this.restauranteNome = restauranteNome;
         this.itens = itens;
     }
 
@@ -87,8 +79,6 @@ public class PedidoResponse {
                 p.getStatus(),
                 p.getCliente().getId(),
                 p.getCliente().getNome(),
-                p.getRestaurante().getId(),
-                p.getRestaurante().getNome(),
                 itens);
     }
 
@@ -118,14 +108,6 @@ public class PedidoResponse {
 
     public String getClienteNome() {
         return clienteNome;
-    }
-
-    public Long getRestauranteId() {
-        return restauranteId;
-    }
-
-    public String getRestauranteNome() {
-        return restauranteNome;
     }
 
     public List<ItemPedidoResponse> getItens() {

@@ -3,11 +3,11 @@ package pt.ul.fc.css.tascaeats.dto;
 /**
  * DTO de request para o endpoint {@code POST /api/pedidos/{id}/pagamento}.
  *
- * Contém o tipo de pagamento e, quando aplicável, um dado específico
+ * Contém o tipo de pagamento e, quando aplicável, dados específicos
  * do método escolhido:
- * - {@code MULTIBANCO} — {@code dadosExtra} com a referência Multibanco>
+ * - {@code MULTIBANCO} — {@code dadosExtra} com a referência Multibanco, {@code bandeira} com "Visa"/"Mastercard"
  * - {@code MBWAY} — {@code dadosExtra} com o número de telemóvel
- * - {@code DINHEIRO} — {@code dadosExtra} pode ser {@code null}
+ * - {@code DINHEIRO} — {@code troco} com o valor do troco
  *
  * Exemplos de JSON:
  * 
@@ -31,6 +31,10 @@ public class PagamentoRequest {
      */
     private String dadosExtra;
 
+    private String bandeira;
+
+    private Double troco;
+
     /** Construtor vazio exigido para deserialização do JSON. */
     public PagamentoRequest() {
     }
@@ -49,5 +53,21 @@ public class PagamentoRequest {
 
     public void setDadosExtra(String dadosExtra) {
         this.dadosExtra = dadosExtra;
+    }
+
+    public String getBandeira() {
+        return bandeira;
+    }
+
+    public void setBandeira(String bandeira) {
+        this.bandeira = bandeira;
+    }
+
+    public Double getTroco() {
+        return troco;
+    }
+
+    public void setTroco(Double troco) {
+        this.troco = troco;
     }
 }

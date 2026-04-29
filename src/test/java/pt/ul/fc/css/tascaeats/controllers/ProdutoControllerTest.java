@@ -13,6 +13,7 @@ import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.exceptions.GlobalExceptionHandler;
 import pt.ul.fc.css.tascaeats.services.ProdutoService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -41,7 +42,7 @@ class ProdutoControllerTest {
     void setUp() {
         endereco = new Endereco("Rua E, 5", "5000-005", "Braga");
         restaurante = new Restaurante("Braga Grill", endereco, "444555666");
-        produto = new Produto("Francesinha", "Com molho especial", 8.5, restaurante);
+        produto = new Produto("Francesinha", "Com molho especial", 8.5, "Prato Principal");
         produto.setDisponivel(true);
     }
 

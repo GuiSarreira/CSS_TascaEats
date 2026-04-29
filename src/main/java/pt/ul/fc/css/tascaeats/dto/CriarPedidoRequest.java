@@ -28,9 +28,6 @@ public class CriarPedidoRequest {
     /** ID do cliente que efetua o pedido. */
     private Long clienteId;
 
-    /** ID do restaurante ao qual o pedido é dirigido. */
-    private Long restauranteId;
-
     /** Morada de entrega para este pedido específico. */
     private Endereco enderecoEntrega;
 
@@ -50,14 +47,6 @@ public class CriarPedidoRequest {
 
     public void setClienteId(Long clienteId) {
         this.clienteId = clienteId;
-    }
-
-    public Long getRestauranteId() {
-        return restauranteId;
-    }
-
-    public void setRestauranteId(Long restauranteId) {
-        this.restauranteId = restauranteId;
     }
 
     public Endereco getEnderecoEntrega() {

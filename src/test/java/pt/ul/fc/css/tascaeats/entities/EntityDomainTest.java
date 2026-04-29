@@ -3,6 +3,9 @@ package pt.ul.fc.css.tascaeats.entities;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.*;
 
 /**
@@ -123,7 +126,7 @@ class EntityDomainTest {
 
     @Test
     void pedido_AdicionarProduto_RecalculaTotal() {
-        Produto produto = new Produto("Prego", "No Pão", 5.0, restaurante);
+        Produto produto = new Produto("Prego", "No Pão", 5.0, "Prato Principal");
         ProdutoPedido item = new ProdutoPedido(produto, 2);
 
         pedido.adicionarProduto(item);
@@ -240,7 +243,7 @@ class EntityDomainTest {
 
     @Test
     void produto_DeleteLogicamente_SetaEliminado() {
-        Produto produto = new Produto("Sopa", "Do dia", 3.5, restaurante);
+        Produto produto = new Produto("Sopa", "Do dia", 3.5, "Entrada");
         assertThat(produto.isEliminado()).isFalse();
         assertThat(produto.isDisponivel()).isTrue();
 
@@ -261,11 +264,14 @@ class EntityDomainTest {
 
     @Test
     void restaurante_AddMenuItem_AdicionaProdutoAoMenu() {
-        Produto produto = new Produto("Bolo", "De mel", 2.5, null);
-        restaurante.addMenuItem(produto);
+        Produto produto = new Produto("Bolo", "De mel", 2.5, "Sobremesa");
+        Menu menu = new Menu("Menu Teste", "desc", new ArrayList<>(), new ArrayList<>());
+        restaurante.setMenu(menu);
+        menu.getProdutos().add(produto);
+        produto.getMenus().add(menu);
 
-        assertThat(restaurante.getMenu()).contains(produto);
-        assertThat(produto.getRestaurante()).isEqualTo(restaurante);
+        assertThat(restaurante.getMenu().getProdutos()).contains(produto);
+        assertThat(produto.getMenus()).contains(menu);
     }
 
     // ─── Entregador ───────────────────────────────────────────────────────────
@@ -365,7 +371,7 @@ class EntityDomainTest {
 
     @Test
     void produtoPedido_GettersCorretos() {
-        Produto produto = new Produto("Risotto", "Cogumelos", 9.5, restaurante);
+        Produto produto = new Produto("Risotto", "Cogumelos", 9.5, "Prato Principal");
         ProdutoPedido item = new ProdutoPedido(produto, 3);
 
         assertThat(item.getQuantity()).isEqualTo(3);
@@ -375,7 +381,7 @@ class EntityDomainTest {
 
     @Test
     void produtoPedido_Setters_AtualizamValores() {
-        Produto produto = new Produto("Sopa", "do Dia", 3.0, restaurante);
+        Produto produto = new Produto("Sopa", "do Dia", 3.0, "Entrada");
         ProdutoPedido item = new ProdutoPedido(produto, 1);
 
         item.setQuantity(5);

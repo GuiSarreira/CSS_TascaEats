@@ -35,7 +35,9 @@ public class EntregaController {
             @RequestBody AtribuirEntregadorRequest request) {
         Entrega entrega;
         if (request.getEntregadorId() == null) {
-            entrega = entregaService.atribuirEntregadorAutomatico(pedidoId);
+            entrega = entregaService.atribuirEntregadorAutomatico(pedidoId)
+                    .orElseThrow(() -> new RuntimeException(
+                            "Não há entregadores disponíveis para atribuição automática na zona do pedido."));
         } else {
             entrega = entregaService.atribuirEntregador(pedidoId, request.getEntregadorId());
         }

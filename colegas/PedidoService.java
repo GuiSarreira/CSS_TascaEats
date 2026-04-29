@@ -27,6 +27,7 @@ public class PedidoService {
     private final PedidoRepository pedidoRepository;
     private final ClienteRepository clienteRepository;
     private final ProdutoRepository produtoRepository;
+    private final RestauranteRepository restauranteRepository;
 
     /**
      * Construtor para injeção de dependências dos repositórios necessários.
@@ -34,12 +35,14 @@ public class PedidoService {
      * @param pedidoRepository      repositório de pedidos
      * @param clienteRepository     repositório de clientes
      * @param produtoRepository     repositório de produtos
+     * @param restauranteRepository repositório de restaurantes
      */
     public PedidoService(PedidoRepository pedidoRepository, ClienteRepository clienteRepository,
-            ProdutoRepository produtoRepository) {
+            ProdutoRepository produtoRepository, RestauranteRepository restauranteRepository) {
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
         this.produtoRepository = produtoRepository;
+        this.restauranteRepository = restauranteRepository;
     }
 
     /**
@@ -85,14 +88,14 @@ public class PedidoService {
             if (!produto.isDisponivel()) {
                 throw new IllegalStateException("O produto '" + produto.getNome() + "' está esgotado.");
             }
-            Restaurante restauranteCheck = produto.getMenus().stream()
-                    .flatMap(m -> m.getRestaurantes().stream())
-                    .findFirst()
-                    .orElse(null);
-            if (restauranteCheck != null && !restauranteCheck.isAberto()) {
+
+            // Procurar o restaurante que tem este produto no seu menu
+            Restaurante restaurante = findRestauranteDoProduto(produto);
+            if (restaurante != null && !restaurante.isAberto()) {
                 throw new IllegalStateException(
-                        "O restaurante '" + restauranteCheck.getNome() + "' está fechado.");
+                        "O restaurante '" + restaurante.getNome() + "' está fechado.");
             }
+
             if (entry.getValue() <= 0) {
                 throw new IllegalArgumentException(
                         "A quantidade do produto '" + produto.getNome() + "' deve ser maior que zero.");
@@ -102,6 +105,20 @@ public class PedidoService {
         }
 
         return pedidoRepository.save(pedido);
+    }
+
+    /**
+     * Procura o restaurante que contém o produto no seu catálogo (menu).
+     *
+     * @param produto o produto a procurar
+     * @return o restaurante dono do produto, ou {@code null} se não encontrado
+     */
+    private Restaurante findRestauranteDoProduto(Produto produto) {
+        List<Restaurante> restaurantes = restauranteRepository.findAll();
+        return restaurantes.stream()
+                .filter(r -> r.getMenu() != null && r.getMenu().getProdutos().contains(produto))
+                .findFirst()
+                .orElse(null);
     }
 
     /**

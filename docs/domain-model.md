@@ -6,6 +6,10 @@
 classDiagram
     direction TB
 
+    %% ═══════════════════════════════════════
+    %% HIERARQUIA DE UTILIZADORES
+    %% ═══════════════════════════════════════
+
     class User {
         <<Abstract>>
         Long id
@@ -15,7 +19,16 @@ classDiagram
         LocalDateTime dataRegisto
         boolean ativo
     }
-
+    class Cliente {
+        List~Endereco~ moradas
+    }
+    class Admin {
+    }
+    class Entregador {
+        String veiculo
+        String zonaAtuacao
+        boolean disponivel
+    }
     class Endereco {
         <<Embeddable>>
         String rua
@@ -23,18 +36,14 @@ classDiagram
         String cidade
     }
 
-    class Cliente {
-        List~Endereco~ moradas
-    }
+    User <|-- Cliente : JOINED
+    User <|-- Admin : JOINED
+    User <|-- Entregador : JOINED
+    Cliente ..> Endereco : @ElementCollection moradas
 
-    class Admin {
-    }
-
-    class Entregador {
-        String veiculo
-        String zonaAtuacao
-        boolean disponivel
-    }
+    %% ═══════════════════════════════════════
+    %% CATÁLOGO: RESTAURANTE → MENU → PRODUTO
+    %% ═══════════════════════════════════════
 
     class Restaurante {
         Long id
@@ -46,13 +55,11 @@ classDiagram
         LocalTime horarioAbertura
         LocalTime horarioFecho
     }
-
     class Menu {
         Long id
         String nome
         String descricao
     }
-
     class Produto {
         Long id
         String nome
@@ -62,6 +69,23 @@ classDiagram
         boolean eliminado
         String categoria
     }
+    class Avaliacao {
+        Long id
+        int nota
+        String comentario
+        LocalDateTime dataAvaliacao
+    }
+
+    Admin "1" --> "*" Restaurante : gere
+    Restaurante ..> Endereco : embedded
+    Restaurante "*" --> "1" Menu : tem
+    Menu "*" --> "*" Produto : contém
+    Restaurante "1" --> "*" Avaliacao : recebe
+    Cliente "1" --> "*" Avaliacao : avalia
+
+    %% ═══════════════════════════════════════
+    %% PEDIDO E ITENS
+    %% ═══════════════════════════════════════
 
     class Pedido {
         Long id
@@ -71,12 +95,21 @@ classDiagram
         PedidoStatus status
         Long version
     }
-
     class ProdutoPedido {
         Long id
         int quantity
         Double precoCompra
     }
+
+    Cliente "1" --> "*" Pedido : faz
+    Pedido ..> Endereco : embedded
+    Pedido "1" --> "*" ProdutoPedido : contém
+    ProdutoPedido "*" --> "1" Produto : referencia
+    Pedido "1" --> "0..1" Avaliacao : avaliado em
+
+    %% ═══════════════════════════════════════
+    %% PAGAMENTO
+    %% ═══════════════════════════════════════
 
     class Pagamento {
         <<Abstract>>
@@ -85,19 +118,25 @@ classDiagram
         LocalDateTime dataPagamento
         PagamentoStatus status
     }
-
     class Multibanco {
         String referencia
         String bandeira
     }
-
     class MBWay {
         String telemovel
     }
-
     class Dinheiro {
         Double troco
     }
+
+    Pagamento <|-- Multibanco : SINGLE_TABLE
+    Pagamento <|-- MBWay : SINGLE_TABLE
+    Pagamento <|-- Dinheiro : SINGLE_TABLE
+    Pedido "1" --> "0..1" Pagamento : pago por
+
+    %% ═══════════════════════════════════════
+    %% ENTREGA
+    %% ═══════════════════════════════════════
 
     class Entrega {
         Long id
@@ -106,12 +145,12 @@ classDiagram
         EntregaStatus status
     }
 
-    class Avaliacao {
-        Long id
-        int nota
-        String comentario
-        LocalDateTime dataAvaliacao
-    }
+    Pedido "1" --> "0..1" Entrega : entregue por
+    Entrega "*" --> "1" Entregador : atribuída a
+
+    %% ═══════════════════════════════════════
+    %% ENUMERAÇÕES
+    %% ═══════════════════════════════════════
 
     class PedidoStatus {
         <<Enumeration>>
@@ -123,14 +162,12 @@ classDiagram
         DELIVERED
         CANCELLED
     }
-
     class PagamentoStatus {
         <<Enumeration>>
         PENDING
         COMPLETED
         FAILED
     }
-
     class EntregaStatus {
         <<Enumeration>>
         ATRIBUIDA
@@ -138,37 +175,6 @@ classDiagram
         CONCLUIDA
         CANCELADA
     }
-
-    User <|-- Cliente : JOINED
-    User <|-- Admin : JOINED
-    User <|-- Entregador : JOINED
-
-    Pagamento <|-- Multibanco : SINGLE_TABLE
-    Pagamento <|-- MBWay : SINGLE_TABLE
-    Pagamento <|-- Dinheiro : SINGLE_TABLE
-
-    Cliente ..> Endereco : @ElementCollection moradas
-    Cliente "1" --> "*" Pedido : faz
-    Cliente "1" --> "*" Avaliacao : avalia
-    Admin "1" --> "*" Restaurante : gere
-    Entregador "1" --> "*" Entrega : faz
-
-    Restaurante ..> Endereco : embedded
-    Pedido ..> Endereco : embedded
-
-    Restaurante "1" --> "*" Produto : tem
-    Restaurante "*" --> "*" Menu : usa
-    Restaurante "1" --> "*" Avaliacao : recebe
-
-    Menu "*" --> "*" Produto : contem
-
-    Pedido "1" --> "*" ProdutoPedido : contem
-    Pedido "1" --> "0..1" Pagamento : pago por
-    Pedido "1" --> "0..1" Entrega : entregue por
-    Pedido "1" --> "0..1" Avaliacao : avaliado em
-
-    ProdutoPedido "*" --> "1" Produto : referencia
-    Entrega "*" --> "1" Entregador : atribuida a
 ```
 
 ## Fluxo de Estados do Pedido
@@ -200,6 +206,17 @@ stateDiagram-v2
     CANCELADA --> [*]
 ```
 
+## Notas de Design
+
+| Decisão | Justificação |
+|---------|-------------|
+| `Produto.disponivel` é por restaurante | Cada produto pode pertencer a vários menus e restaurantes via relação N:N. A disponibilidade é um atributo do produto, verificado no contexto do restaurante que o serve. |
+| Popularidade de produto por restaurante | A popularidade (nº vezes pedido) é contabilizada nos `ProdutoPedido` que referenciam o produto; pode ser filtrada por restaurante via os menus desse restaurante. |
+| Restaurante com 1 menu | Cada restaurante tem exatamente um menu (N:1). Um menu pode ser partilhado por vários restaurantes (franchising). Não existe histórico de menus anteriores. |
+| `Multibanco.bandeira` | Refere-se ao provedor do serviço de cartão: Mastercard, Visa, American Express, etc. |
+| Filtros com controlo de acesso | Os filtros respeitam os casos de uso. Exemplo: só o administrador pode pesquisar e filtrar Clientes. |
+| Produtos pertencem a Menus (não a Restaurante diretamente) | `Produto` não tem `restaurante_id`. O acesso ao catálogo de um restaurante é feito via `Restaurante → menu → produtos`. Quando um produto é adicionado via `criarProduto(restauranteId, ...)`, o serviço encontra (ou cria) o menu do restaurante e aí adiciona o produto. |
+
 ## Estratégias de Herança JPA
 
 | Hierarquia | Estratégia | Justificação |
@@ -218,8 +235,7 @@ stateDiagram-v2
 | Cliente | Avaliacao | 1:N | Cliente faz várias avaliações |
 | Admin | Restaurante | 1:N | Admin gere vários restaurantes |
 | Entregador | Entrega | 1:N | Entregador faz várias entregas |
-| Restaurante | Produto | 1:N | Restaurante tem vários produtos |
-| Restaurante | Menu | N:N | Restaurante usa vários menus; menu partilhado por vários restaurantes |
+| Restaurante | Menu | N:1 | Restaurante tem exatamente um menu; o mesmo menu pode ser partilhado por vários restaurantes (franchising); FK `menu_id` na tabela `restaurante` |
 | Restaurante | Avaliacao | 1:N | Restaurante recebe várias avaliações |
 | Menu | Produto | N:N | Menu contém vários produtos; produto pode estar em vários menus |
 | Pedido | ProdutoPedido | 1:N | Pedido contém vários items (possivelmente de restaurantes diferentes) |
@@ -238,7 +254,7 @@ stateDiagram-v2
 | `Produto` + campo | `categoria` (ENTRADA, PRATO_PRINCIPAL, SOBREMESA, BEBIDA, …) |
 | `Multibanco` + campo | `bandeira` (bandeira do cartão — "Visa", "Mastercard", …) |
 | `Dinheiro` + campo | `troco` (Double — valor do troco devolvido) |
-| Nova entidade `Menu` | N:N com Produto e Restaurante — menus partilhados entre restaurantes (franchising) |
+| Nova entidade `Menu` | N:N com Produto; N:1 com Restaurante — menus partilhados entre restaurantes (franchising) |
 | Nova entidade `Avaliacao` | Cliente avalia restaurante após pedido concluído (nota 1–5, comentário) |
 | Atribuição de entregador | Passa a ser **automática** — sistema atribui entregador disponível quando pedido fica READY |
 
@@ -251,7 +267,7 @@ stateDiagram-v2
 - **`Endereco`** é um `@Embeddable`: usado em `Restaurante` (morada), `Pedido` (endereço de entrega) e `Cliente.moradas` (`@ElementCollection`) — sem tabela própria enquanto embedded; para o `@ElementCollection` o JPA gera automaticamente a tabela `cliente_moradas`
 - **Pedido multi-restaurante**: um pedido pode conter `ProdutoPedido` de restaurantes diferentes; não existe relação direta `Pedido → Restaurante`
 - **Avaliação**: um cliente só pode avaliar um restaurante se tiver um pedido **DELIVERED** nesse restaurante; a avaliação está ligada ao pedido
-- **Menu partilhado**: modificar um produto de um menu partilhado reflete-se em todos os restaurantes que usam esse menu
+- **Menu partilhado**: modificar um produto de um menu partilhado reflete-se em todos os restaurantes que usam esse menu (vários restaurantes com o mesmo menu via relação N:1)
 - **Atribuição automática de entregador**: quando um pedido transita para READY, o sistema escolhe um entregador com `disponivel=true` (pode filtrar por `zonaAtuacao`)
 - **`horaRetirada`** em `Entrega`: definida em `iniciarEntrega()` (quando o entregador recolhe o pedido), não na atribuição
 - **`horaEntrega`** em `Entrega`: definida em `concluir()` (quando o entregador entrega ao cliente)

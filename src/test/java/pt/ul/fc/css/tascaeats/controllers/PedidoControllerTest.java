@@ -39,18 +39,17 @@ class PedidoControllerTest {
         Cliente cliente = new Cliente("c@test.com", "Ana Silva", "pass", endereco);
         Restaurante restaurante = new Restaurante("Tasca Boa", endereco, "123456789");
         restaurante.setAberto(true);
-        pedido = new Pedido(cliente, restaurante, endereco);
+        pedido = new Pedido(cliente, endereco);
     }
 
     // ─── POST /api/pedidos ────────────────────────────────────────────────────
 
     @Test
     void criar_Sucesso_Returns201() throws Exception {
-        when(pedidoService.criarPedido(any(), any(), any(), any())).thenReturn(pedido);
+        when(pedidoService.criarPedido(any(), any(), any())).thenReturn(pedido);
 
         CriarPedidoRequest request = new CriarPedidoRequest();
         request.setClienteId(1L);
-        request.setRestauranteId(1L);
         request.setEnderecoEntrega(endereco);
         request.setItens(Map.of(1L, 2));
 
@@ -63,12 +62,11 @@ class PedidoControllerTest {
 
     @Test
     void criar_RestauranteFechado_Returns422() throws Exception {
-        when(pedidoService.criarPedido(any(), any(), any(), any()))
+        when(pedidoService.criarPedido(any(), any(), any()))
                 .thenThrow(new IllegalStateException("o restaurante está fechado"));
 
         CriarPedidoRequest request = new CriarPedidoRequest();
         request.setClienteId(1L);
-        request.setRestauranteId(1L);
         request.setEnderecoEntrega(endereco);
         request.setItens(Map.of(1L, 1));
 
@@ -82,12 +80,11 @@ class PedidoControllerTest {
 
     @Test
     void criar_ClienteNaoEncontrado_Returns404() throws Exception {
-        when(pedidoService.criarPedido(any(), any(), any(), any()))
+        when(pedidoService.criarPedido(any(), any(), any()))
                 .thenThrow(new RuntimeException("Cliente não encontrado: id=99"));
 
         CriarPedidoRequest request = new CriarPedidoRequest();
         request.setClienteId(99L);
-        request.setRestauranteId(1L);
         request.setEnderecoEntrega(endereco);
         request.setItens(Map.of(1L, 1));
 

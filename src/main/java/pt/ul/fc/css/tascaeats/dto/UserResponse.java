@@ -1,6 +1,8 @@
 package pt.ul.fc.css.tascaeats.dto;
 
 import pt.ul.fc.css.tascaeats.entities.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DTO de response para dados de utilizador.
@@ -31,8 +33,8 @@ public class UserResponse {
     /** Se a conta está ativa. */
     private boolean ativo;
 
-    /** Morada principal — presente apenas para utilizadores do tipo CLIENTE. */
-    private Endereco morada;
+    /** Moradas do cliente — presente apenas para utilizadores do tipo CLIENTE. */
+    private List<Endereco> moradas;
 
     /** Tipo de veículo — presente apenas para utilizadores do tipo ENTREGADOR. */
     private String veiculo;
@@ -60,7 +62,7 @@ public class UserResponse {
         r.ativo = user.isAtivo();
 
         if (user instanceof Cliente c) {
-            r.morada = c.getMorada();
+            r.moradas = new ArrayList<>(c.getMoradas());
         } else if (user instanceof Entregador e) {
             r.veiculo = e.getVeiculo();
             r.zonaAtuacao = e.getZonaAtuacao();
@@ -89,8 +91,8 @@ public class UserResponse {
         return ativo;
     }
 
-    public Endereco getMorada() {
-        return morada;
+    public List<Endereco> getMoradas() {
+        return moradas;
     }
 
     public String getVeiculo() {

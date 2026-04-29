@@ -1,9 +1,12 @@
 package pt.ul.fc.css.tascaeats.services;
 
 import pt.ul.fc.css.tascaeats.repositories.*;
+import pt.ul.fc.css.tascaeats.repositories.specs.RestauranteSpecifications;
 import pt.ul.fc.css.tascaeats.entities.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,18 +36,21 @@ public class RestauranteService {
      *
      * Regra: apenas utilizadores do tipo {@link Admin} podem criar restaurantes.
      *
-     * @param nome    nome do restaurante
-     * @param morada  morada do restaurante
-     * @param cidade  cidade onde está localizado
-     * @param nif     NIF único do restaurante
-     * @param adminId ID do utilizador que cria o restaurante (deve ser Admin)
+     * @param nome            nome do restaurante
+     * @param morada          morada do restaurante
+     * @param nif             NIF único do restaurante
+     * @param tipoCozinha     tipo de cozinha (ex: Portuguesa, Italiana); pode ser {@code null}
+     * @param horarioAbertura horário de abertura; pode ser {@code null}
+     * @param horarioFecho    horário de fecho; pode ser {@code null}
+     * @param adminId         ID do utilizador que cria o restaurante (deve ser Admin)
      * @return o restaurante persistido
      * @throws RuntimeException         se o utilizador indicado por {@code adminId} não existir
      * @throws SecurityException        se o utilizador não for um administrador
      * @throws IllegalArgumentException se já existir um restaurante com o mesmo NIF
      */
     @Transactional
-    public Restaurante criarRestaurante(String nome, Endereco morada, String nif, Long adminId) {
+    public Restaurante criarRestaurante(String nome, Endereco morada, String nif,
+            String tipoCozinha, LocalTime horarioAbertura, LocalTime horarioFecho, Long adminId) {
         User user = userRepository.findById(adminId)
             .orElseThrow(() -> new RuntimeException("Utilizador não encontrado: id=" + adminId));
 
@@ -56,7 +62,7 @@ public class RestauranteService {
             throw new IllegalArgumentException("Já existe um restaurante registado com este NIF.");
         }
 
-        Restaurante restaurante = new Restaurante(nome, morada, nif);
+        Restaurante restaurante = new Restaurante(nome, morada, nif, tipoCozinha, horarioAbertura, horarioFecho);
         restaurante.setAdmin((Admin) user);
 
         return restauranteRepository.save(restaurante);
@@ -110,6 +116,23 @@ public class RestauranteService {
      */
     public List<Restaurante> listarTodos() {
         return restauranteRepository.findAll();
+    }
+
+    /**
+     * Procura restaurantes por tipo de cozinha.
+     * @param tipoCozinha tipo de cozinha a pesquisar (ex: "Portuguesa", "Italiana").
+     * @return Lista de restaurantes com o tipo de cozinha indicado.
+     */
+    public List<Restaurante> buscarPorTipoCozinha(String tipoCozinha) {
+        return restauranteRepository.findByTipoCozinhaIgnoreCase(tipoCozinha);
+    }
+
+    /**
+     * Lista todos os restaurantes que estão atualmente abertos.
+     * @return Lista de restaurantes abertos.
+     */
+    public List<Restaurante> listarAbertos() {
+        return restauranteRepository.findByAbertoTrue();
     }
 
     /**
@@ -175,5 +198,32 @@ public class RestauranteService {
     public Restaurante buscarPorId(Long id) {
         return restauranteRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Restaurante não encontrado."));
+    }
+
+    /**
+     * Lista restaurantes aplicando filtros dinâmicos.
+     *
+     * @param nome             parte do nome (opcional)
+     * @param tipoCozinha      tipo de cozinha exacto (opcional)
+     * @param horario          horário a que deve estar aberto (opcional)
+     * @param minPreco         preço médio mínimo dos produtos (opcional)
+     * @param maxPreco         preço médio máximo dos produtos (opcional)
+     * @param minAvaliacoes    número mínimo de avaliações (opcional)
+     * @param cidade           cidade da morada (opcional)
+     * @param minPedidos       número mínimo de pedidos realizados (opcional)
+     * @return lista de restaurantes que satisfazem todos os critérios
+     */
+    public List<Restaurante> listarRestaurantesComFiltros(String nome, String tipoCozinha,
+            LocalTime horario, Double minPreco, Double maxPreco, Integer minAvaliacoes,
+            String cidade, Integer minPedidos) {
+        Specification<Restaurante> spec = Specification
+                .where(RestauranteSpecifications.comNome(nome))
+                .and(RestauranteSpecifications.comTipoCozinha(tipoCozinha))
+                .and(RestauranteSpecifications.abertoNoHorario(horario))
+                .and(RestauranteSpecifications.precoMedioEntre(minPreco, maxPreco))
+                .and(RestauranteSpecifications.comMinimoAvaliacoes(minAvaliacoes))
+                .and(RestauranteSpecifications.comCidade(cidade))
+                .and(RestauranteSpecifications.comMinimoPedidos(minPedidos));
+        return restauranteRepository.findAll(spec);
     }
 }

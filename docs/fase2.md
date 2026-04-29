@@ -14,7 +14,7 @@
 | Pedido multi-restaurante      | Pedido → 1 Restaurante        | Pedido pode conter produtos de **vários** restaurantes |
 | Moradas do cliente            | 1 morada (Endereco embeddable)| **Várias** moradas; escolhe uma ao fazer pedido ou insere nova |
 | Atribuição de entregador      | Manual (POST)                 | **Automática** pelo sistema                |
-| Pagamento — Multibanco        | `referencia`                  | + `bandeira` (bandeira do cartão)          |
+| Pagamento — Multibanco        | `referencia`                  | + `bandeira` (provedor do serviço: Mastercard, Visa, American Express, …) |
 | Pagamento — Dinheiro          | Sem campos extra              | + `troco` (informação sobre troco)         |
 | Menus partilhados             | ❌ (produtos pertencem a 1 restaurante) | ✅ Menu partilhado entre restaurantes (franchising) |
 | Restaurante — tipo de cozinha | ❌                            | ✅ `tipoCozinha` (italiana, chinesa, etc.)|
@@ -45,8 +45,8 @@
 
 ### Menus Partilhados
 - Nova entidade `Menu` (nome, descrição, lista de produtos)
-- Um menu pode ser associado a **vários restaurantes** (N:N)
-- Um restaurante pode ter **vários menus**
+- Um menu pode ser associado a **vários restaurantes** (um menu, vários restaurantes — franchising)
+- Um restaurante tem **exatamente um menu** (N:1 — sem histórico de menus anteriores)
 - Modificar um produto de um menu partilhado **reflete-se em todos** os restaurantes que o usam
 
 ### Atribuição Automática de Entregador
@@ -98,6 +98,9 @@ Com base no enunciado: a interface web serve para **consultas**; a nativa para *
 ## 3. Filtros a Implementar
 
 ### 3.1 Filtros de Utilizador
+
+> **Controlo de acesso:** Só o **administrador** pode realizar a busca e filtrar Clientes (e outros utilizadores). Cada utilizador pode consultar o seu próprio perfil.
+
 | Filtro                | Tipo          | Notas               |
 |-----------------------|---------------|---------------------|
 | Nome                  | String (LIKE) |                     |
@@ -117,13 +120,16 @@ Com base no enunciado: a interface web serve para **consultas**; a nativa para *
 | Preço médio dos pratos   | Double (min/max)    | Calculado via AVG(produto.preco) |
 
 ### 3.3 Filtros de Produto
+
+> **Controlo de acesso:** A disponibilidade de um produto é verificada dentro de um restaurante específico. A popularidade é medida dentro de um determinado restaurante (não globalmente). Filtros de disponibilidade só visíveis para admins.
+
 | Filtro          | Tipo             | Notas                                 |
 |-----------------|------------------|---------------------------------------|
 | Nome            | String (LIKE)    |                                       |
 | Preço           | Double (min/max) |                                       |
 | Categoria       | String/Enum      | Novo campo                            |
-| Disponibilidade | boolean          | Só visível para admins e entregadores |
-| Popularidade (nº vezes pedido) | int (min/max) + intervalo de tempo | Requer COUNT em ProdutoPedido |
+| Disponibilidade | boolean          | Verificada por restaurante; só visível para admins |
+| Popularidade (nº vezes pedido) | int (min/max) + intervalo de tempo | Medida dentro de um restaurante específico; requer COUNT em ProdutoPedido |
 
 ### 3.4 Filtros de Menu
 | Filtro                   | Tipo             |
@@ -172,14 +178,17 @@ Com base no enunciado: a interface web serve para **consultas**; a nativa para *
 + horarioAbertura (LocalTime)
 + horarioFecho (LocalTime)
 + avaliacoes → 1:N com Avaliacao
-+ menus → N:N com Menu
++ menu → N:1 com Menu  (sem ligação direta a Produto)
+- menu → 1:N com Produto  (REMOVIDO — catálogo agora acessível via menus)
 ```
 
 #### Produto
 ```diff
 + categoria (String — ENTRADA, PRATO_PRINCIPAL, SOBREMESA, BEBIDA, ...)
-+ menus → N:N com Menu (lado inverso)
++ menus → N:N com Menu
+- restaurante → N:1 com Restaurante  (REMOVIDO — produto pertence a menus, não diretamente a restaurante)
 ```
+> **Nota:** `disponivel` e popularidade são atributos verificados no contexto do restaurante ao qual o produto pertence (via menus). O catálogo de um restaurante é o conjunto dos produtos dos seus menus.
 
 #### Pedido
 ```diff
@@ -190,7 +199,7 @@ Com base no enunciado: a interface web serve para **consultas**; a nativa para *
 
 #### Multibanco (extends Pagamento)
 ```diff
-+ bandeira (String — "Visa", "Mastercard", etc.)
++ bandeira (String — provedor do serviço de cartão: "Visa", "Mastercard", "American Express", etc.)
 ```
 
 #### Dinheiro (extends Pagamento)
@@ -208,8 +217,7 @@ User (JOINED)
   ├── Admin ──(1:N)──> Restaurante
   └── Entregador ──(1:N)──> Entrega
 
-Restaurante ──(1:N)──> Produto
-Restaurante ──(N:N)──> Menu ──(N:N)──> Produto
+Restaurante ──(N:1)──> Menu ──(N:N)──> Produto
 Restaurante ──(1:N)──> Avaliacao
 
 Pedido ──(1:N)──> ProdutoPedido ──(N:1)──> Produto
@@ -217,6 +225,7 @@ Pedido ──(1:1)──> Pagamento (SINGLE_TABLE: Multibanco, MBWay, Dinheiro)
 Pedido ──(1:1)──> Entrega
 Pedido ──(1:1)──> Avaliacao
 ```
+> Para encontrar o restaurante de um produto em `PedidoService`: `produto.getMenus() → menu.getRestaurantes() → restaurante.isAberto()`.
 
 ---
 
@@ -384,40 +393,42 @@ O modelo atualizado deve permitir responder a:
 
 ## 9. Plano de Implementação — Fases
 
+> **Legenda:** ✅ concluído e com commit · **C** ficheiros alterados sem commit · `[ ]` não iniciado
+
 ### Fase A — Revisão do Modelo de Domínio
-- [ ] Criar entidade `Avaliacao`
-- [ ] Criar entidade `Menu` (N:N com Produto e Restaurante)
-- [ ] Atualizar `Cliente.morada` → `Cliente.moradas` (@ElementCollection<Endereco>)
-- [ ] Adicionar `tipoCozinha`, `horarioAbertura`, `horarioFecho` ao `Restaurante`
-- [ ] Adicionar `categoria` ao `Produto`
-- [ ] Adicionar `bandeira` ao `Multibanco`
-- [ ] Adicionar `troco` ao `Dinheiro`
-- [ ] Remover/tornar opcional relação `Pedido → Restaurante` (pedido multi-restaurante)
-- [ ] Atualizar `Pedido` para aceitar morada de lista do cliente ou nova
-- [ ] Validar schema gerado pelo Hibernate
+- **C** Criar entidade `Avaliacao`
+- **C** Criar entidade `Menu` (N:N com Produto, N:1 com Restaurante — FK `menu_id` em `Restaurante`)
+- ✅ Atualizar `Cliente.morada` → `Cliente.moradas` (@ElementCollection<Endereco>)
+- **C** Adicionar `tipoCozinha`, `horarioAbertura`, `horarioFecho` ao `Restaurante`
+- **C** Adicionar `categoria` ao `Produto`
+- ✅ Adicionar `bandeira` ao `Multibanco`
+- ✅ Adicionar `troco` ao `Dinheiro`
+- ✅ Remover/tornar opcional relação `Pedido → Restaurante` (pedido multi-restaurante)
+- **C** Atualizar `Pedido` para aceitar morada de lista do cliente ou nova
+- ✅ Validar schema gerado pelo Hibernate
 
 ### Fase B — Repositórios e Filtros
-- [ ] Criar `AvaliacaoRepository`
-- [ ] Criar `MenuRepository`
-- [ ] Implementar filtros de utilizador (nome, tipo, nº pedidos, nº entregas) — Specifications ou queries custom
-- [ ] Implementar filtros de restaurante (nome, nº pedidos, nº avaliações, morada, cozinha, horário, preço médio)
-- [ ] Implementar filtros de produto (nome, preço, categoria, disponibilidade, popularidade)
-- [ ] Implementar filtros de menu (nome, nº produtos, preço médio)
+- **C** Criar `AvaliacaoRepository`
+- **C** Criar `MenuRepository`
+- **C** Implementar filtros de utilizador (nome, tipo, nº pedidos, nº entregas) — Specifications ou queries custom
+- **C** Implementar filtros de restaurante (nome, nº pedidos, nº avaliações, morada, cozinha, horário, preço médio)
+- **C** Implementar filtros de produto (nome, preço, categoria, disponibilidade, popularidade)
+- **C** Implementar filtros de menu (nome, nº produtos, preço médio)
 
 ### Fase C — Serviços (lógica de negócio)
-- [ ] `AvaliacaoService` — criar avaliação (validar que cliente tem pedido concluído)
-- [ ] `MenuService` — CRUD de menus, associar a restaurantes, gerir produtos no menu
-- [ ] Atualizar `PedidoService` — pedido multi-restaurante, morada flexível
-- [ ] Atualizar `EntregaService` — atribuição automática de entregador
-- [ ] Atualizar `PagamentoService` — novos campos (bandeira, troco)
-- [ ] Atualizar serviços existentes com suporte a filtros
+- **C** `AvaliacaoService` — criar avaliação (validar que cliente tem pedido concluído)
+- **C** `MenuService` — CRUD de menus, associar a restaurantes, gerir produtos no menu
+- **C** Atualizar `PedidoService` — pedido multi-restaurante, morada flexível
+- ✅ Atualizar `EntregaService` — atribuição automática de entregador
+- ✅ Atualizar `PagamentoService` — novos campos (bandeira, troco)
+- **C** Atualizar serviços existentes com suporte a filtros
 
 ### Fase D — Controllers REST (atualização)
 - [ ] `AvaliacaoController` — endpoints REST
-- [ ] `MenuController` — CRUD + associação a restaurantes
-- [ ] Atualizar `UserController`, `RestauranteController`, `ProdutoController` com filtros
-- [ ] Atualizar `PedidoController` — pedido multi-restaurante
-- [ ] Atualizar DTOs (Request/Response) para novas entidades e campos
+- **C** `MenuController` — CRUD + associação a restaurantes
+- **C** Atualizar `UserController`, `RestauranteController`, `ProdutoController` com filtros
+- **C** Atualizar `PedidoController` — pedido multi-restaurante
+- **C** Atualizar DTOs (Request/Response) para novas entidades e campos
 
 ### Fase E — Interface Web (Thymeleaf)
 - [ ] Criar template base (`layout.html`) com navbar e estilos
@@ -426,7 +437,7 @@ O modelo atualizado deve permitir responder a:
 - [ ] Listagem/busca de produtos com filtros
 - [ ] Ver/editar utilizadores
 - [ ] Ver estado de pedidos, cancelar pedido
-- [ ] Criar controllers web (`@Controller` que retornam views, não JSON)
+- **C** Criar controllers web (`@Controller` que retornam views, não JSON)
 - [ ] Testar toda a navegação no browser
 
 ### Fase F — gRPC Server
@@ -453,11 +464,11 @@ O modelo atualizado deve permitir responder a:
 - [ ] Ficheiros FXML para cada ecrã
 
 ### Fase H — Testes
-- [ ] Atualizar testes existentes (modelo alterado)
-- [ ] Testes unitários para novos serviços (Avaliacao, Menu)
-- [ ] Testes para filtros
-- [ ] Testes para atribuição automática de entregador
-- [ ] Testes para pedido multi-restaurante
+- **C** Atualizar testes existentes (modelo alterado)
+- **C** Testes unitários para novos serviços (Avaliacao, Menu)
+- **C** Testes para filtros
+- ✅ Testes para atribuição automática de entregador
+- **C** Testes para pedido multi-restaurante
 - [ ] Manter cobertura ≥ 80%
 
 ### Fase I — Docker + Finalização

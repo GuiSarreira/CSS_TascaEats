@@ -4,12 +4,12 @@ import pt.ul.fc.css.tascaeats.repositories.*;
 import pt.ul.fc.css.tascaeats.entities.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Serviço responsável pela gestão da lógica de negócio de Produtos.
- * Permite a gestão do menu dos restaurantes, incluindo criação, 
+ * Permite a gestão do menu dos restaurantes, incluindo criação,
  * atualização, disponibilidade e remoção lógica (soft-delete).
  */
 @Service
@@ -17,27 +17,24 @@ public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
     private final RestauranteRepository restauranteRepository;
-    private final MenuRepository menuRepository;
 
     /**
      * Construtor para injeção de dependências dos repositórios necessários.
-     *
-     * @param produtoRepository   repositório de produtos
-     * @param restauranteRepository repositório de restaurantes (necessário para validar acesso ao menu)
-     * @param menuRepository      repositório de menus (necessário para gestão de menus padrão)
+     * 
+     * @param produtoRepository     Repositório para persistência de produtos.
+     * @param restauranteRepository Repositório para consulta de restaurantes.
      */
-    public ProdutoService(ProdutoRepository produtoRepository,
-                          RestauranteRepository restauranteRepository,
-                          MenuRepository menuRepository) {
+    public ProdutoService(ProdutoRepository produtoRepository, RestauranteRepository restauranteRepository) {
         this.produtoRepository = produtoRepository;
         this.restauranteRepository = restauranteRepository;
-        this.menuRepository = menuRepository;
     }
 
     /**
-     * Cria um novo produto e associa-o a um restaurante existente.
-     * @param restauranteId Identificador único do restaurante proprietário do produto.
-     * @param produto Objeto produto contendo os dados a serem gravados.
+     * Cria um novo produto e associa-o ao catálogo de um restaurante existente.
+     * 
+     * @param restauranteId Identificador único do restaurante proprietário do
+     *                      produto.
+     * @param produto       Objeto produto contendo os dados a serem gravados.
      * @return O produto guardado com a associação ao restaurante estabelecida.
      * @throws RuntimeException Caso o restaurante indicado não seja encontrado.
      */
@@ -46,69 +43,57 @@ public class ProdutoService {
         Restaurante restaurante = restauranteRepository.findById(restauranteId)
                 .orElseThrow(() -> new RuntimeException("Restaurante não encontrado."));
 
-        // Verificar duplicados no menu do restaurante
-        boolean duplicado = restaurante.getMenu() != null &&
-                restaurante.getMenu().getProdutos().stream()
-                .anyMatch(p -> !p.isEliminado() && p.getNome().equalsIgnoreCase(produto.getNome()));
+        // Verificar duplicados no catálogo do restaurante
+        boolean duplicado = restaurante.getMenu() != null
+                && restaurante.getMenu().getProdutos().stream()
+                        .anyMatch(p -> !p.isEliminado() && p.getNome().equalsIgnoreCase(produto.getNome()));
         if (duplicado) {
             throw new RuntimeException(
                     "Já existe um produto com o nome '" + produto.getNome() + "' neste restaurante.");
         }
 
         Produto saved = produtoRepository.save(produto);
-
-        // Adicionar ao menu do restaurante; criar menu padrão se ainda não tiver nenhum
-        if (restaurante.getMenu() == null) {
-            Menu defaultMenu = new Menu(restaurante.getNome() + " - Menu", "Menu principal",
-                    new ArrayList<>(), new ArrayList<>());
-            defaultMenu.getProdutos().add(saved);
-            saved.getMenus().add(defaultMenu);
-            menuRepository.save(defaultMenu);
-            restaurante.setMenu(defaultMenu);
-            restauranteRepository.save(restaurante);
-        } else {
-            Menu menu = restaurante.getMenu();
-            menu.getProdutos().add(saved);
-            saved.getMenus().add(menu);
-            menuRepository.save(menu);
-        }
-
+        restaurante.addMenuItem(saved);
+        restauranteRepository.save(restaurante);
         return saved;
     }
 
     /**
      * Retorna o menu ativo do restaurante (apenas produtos não eliminados).
+     * 
      * @param restauranteId Identificador único do restaurante.
      * @return Lista de produtos ativos associados ao restaurante.
      */
     public List<Produto> listarMenuDoRestaurante(Long restauranteId) {
         Restaurante restaurante = restauranteRepository.findById(restauranteId)
                 .orElseThrow(() -> new RuntimeException("Restaurante não encontrado."));
-        Menu menu = restaurante.getMenu();
-        if (menu == null) return List.of();
-        return menu.getProdutos().stream()
+        if (restaurante.getMenu() == null) {
+            return Collections.emptyList();
+        }
+        return restaurante.getMenu().getProdutos().stream()
                 .filter(p -> !p.isEliminado())
                 .toList();
     }
 
     /**
      * Procura um produto específico pelo seu identificador técnico (ID).
+     * 
      * @param id Identificador único do produto.
      * @return O objeto Produto correspondente ao ID.
      * @throws RuntimeException Caso o produto não seja encontrado na base de dados.
      */
     public Produto buscarPorId(Long id) {
         return produtoRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
     }
 
     /**
      * Atualiza dados fundamentais do produto (nome, descrição e preço).
      *
-     * @param id      identificador único do produto a ser editado
-     * @param nome    novo nome do produto
+     * @param id        identificador único do produto a ser editado
+     * @param nome      novo nome do produto
      * @param descricao nova descrição do produto
-     * @param preco   novo preço unitário em euros
+     * @param preco     novo preço unitário em euros
      * @return o produto após a persistência das alterações
      * @throws RuntimeException se o produto não for encontrado
      */
@@ -125,8 +110,10 @@ public class ProdutoService {
 
     /**
      * Altera a disponibilidade de um produto (ex: marcar como esgotado).
-     * @param id Identificador único do produto.
-     * @param disponivel Estado de disponibilidade (true para disponível, false para esgotado).
+     * 
+     * @param id         Identificador único do produto.
+     * @param disponivel Estado de disponibilidade (true para disponível, false para
+     *                   esgotado).
      */
     @Transactional
     public void alternarDisponibilidade(Long id, boolean disponivel) {
@@ -137,12 +124,13 @@ public class ProdutoService {
     /**
      * Soft-Delete: Marca o produto como eliminado em vez de o apagar fisicamente.
      * Garante a manutenção do histórico de pedidos que referenciam este produto.
+     * 
      * @param id Identificador único do produto a ser removido logicamente.
      */
     @Transactional
     public void removerProduto(Long id) {
         Produto produto = buscarPorId(id);
-        
+
         if (produto.getItensPedido().isEmpty()) {
             produtoRepository.delete(produto);
         } else {
@@ -152,36 +140,41 @@ public class ProdutoService {
     }
 
     /**
-     * Procura produtos específicos dentro do menu de um restaurante através do nome.
+     * Procura produtos específicos dentro do menu de um restaurante através do
+     * nome.
+     * 
      * @param restauranteId Identificador único do restaurante para filtrar a busca.
-     * @param nome Sequência de caracteres a pesquisar no nome do produto.
-     * @return Lista de produtos que pertencem ao restaurante e satisfazem o critério de nome.
+     * @param nome          Sequência de caracteres a pesquisar no nome do produto.
+     * @return Lista de produtos que pertencem ao restaurante e satisfazem o
+     *         critério de nome.
      */
     public List<Produto> buscarNoMenu(Long restauranteId, String nome) {
         Restaurante restaurante = restauranteRepository.findById(restauranteId)
                 .orElseThrow(() -> new RuntimeException("Restaurante não encontrado."));
-        Menu menu = restaurante.getMenu();
-        if (menu == null) return List.of();
-        return menu.getProdutos().stream()
+        if (restaurante.getMenu() == null) {
+            return Collections.emptyList();
+        }
+        return restaurante.getMenu().getProdutos().stream()
                 .filter(p -> !p.isEliminado() && p.getNome().toLowerCase().contains(nome.toLowerCase()))
                 .toList();
     }
 
     /**
-     * Lista produtos do menu de um restaurante com preço até ao máximo indicado.
-     * Filtra apenas produtos ativos (não eliminados) e disponíveis até ao preço limite.
-     *
-     * @param restauranteId identificador único do restaurante
-     * @param precoMaximo   preço máximo em euros (produtos com preço <= precoMaximo)
-     * @return lista de produtos que satisfazem os critérios de preço
-     * @throws RuntimeException se o restaurante não for encontrado
+     * Lista produtos de um restaurante que cabem no orçamento definido pelo
+     * cliente.
+     * 
+     * @param restauranteId Identificador único do restaurante.
+     * @param precoMaximo   Valor de corte para o preço do produto.
+     * @return Lista de produtos ativos do restaurante com preço inferior ou igual
+     *         ao máximo.
      */
     public List<Produto> listarPorPreco(Long restauranteId, Double precoMaximo) {
         Restaurante restaurante = restauranteRepository.findById(restauranteId)
                 .orElseThrow(() -> new RuntimeException("Restaurante não encontrado."));
-        Menu menu = restaurante.getMenu();
-        if (menu == null) return List.of();
-        return menu.getProdutos().stream()
+        if (restaurante.getMenu() == null) {
+            return Collections.emptyList();
+        }
+        return restaurante.getMenu().getProdutos().stream()
                 .filter(p -> !p.isEliminado() && p.getPreco() <= precoMaximo)
                 .toList();
     }

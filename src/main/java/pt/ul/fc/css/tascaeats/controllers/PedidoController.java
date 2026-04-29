@@ -38,7 +38,6 @@ public class PedidoController {
     public ResponseEntity<PedidoResponse> criar(@RequestBody CriarPedidoRequest request) {
         Pedido novoPedido = pedidoService.criarPedido(
             request.getClienteId(),
-            request.getRestauranteId(),
             request.getEnderecoEntrega(),
             request.getItens()
         );

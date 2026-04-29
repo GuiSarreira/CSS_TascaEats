@@ -1,7 +1,7 @@
 package pt.ul.fc.css.tascaeats.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import pt.ul.fc.css.tascaeats.entities.Restaurante;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.Optional;
  * Fornece métodos para pesquisa baseada em identificadores únicos, localização e estado.
  */
 @Repository
-public interface RestauranteRepository extends JpaRepository<Restaurante, Long> {
+public interface RestauranteRepository extends JpaRepository<Restaurante, Long>, JpaSpecificationExecutor<Restaurante> {
 
     /**
      * Procura um restaurante pelo seu Número de Identificação Fiscal (NIF).
@@ -58,18 +58,15 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Long> 
     List<Restaurante> findByMoradaCidadeIgnoreCase(String cidade);
 
     /**
-     * Query de negócio — Restaurantes com maior volume de vendas.
-     *
-     * Agrega o {@code precoTotal} de todos os pedidos por restaurante
-     * e devolve os resultados por ordem decrescente de volume.
-     *
-     * @return lista de arrays {@code [nome_restaurante, totalVendas]} ordenada por
-     *         total decrescente
+     * Filtra restaurantes por tipo de cozinha, ignorando maiúsculas/minúsculas.
+     * @param tipoCozinha o tipo de cozinha a pesquisar (ex: "Portuguesa", "Italiana").
+     * @return lista de restaurantes com o tipo de cozinha indicado.
      */
-    @Query("SELECT p.restaurante.nome, SUM(p.precoTotal) AS totalVendas "
-        + "FROM Pedido p "
-        + "WHERE p.status = pt.ul.fc.css.tascaeats.entities.PedidoStatus.DELIVERED "
-        + "GROUP BY p.restaurante.id, p.restaurante.nome "
-        + "ORDER BY totalVendas DESC")
-    List<Object[]> findRestaurantesPorVolumeVendas();
+    List<Restaurante> findByTipoCozinhaIgnoreCase(String tipoCozinha);
+
+    /**
+     * Lista todos os restaurantes atualmente abertos.
+     * @return lista de restaurantes com {@code aberto = true}.
+     */
+    List<Restaurante> findByAbertoTrue();
 }

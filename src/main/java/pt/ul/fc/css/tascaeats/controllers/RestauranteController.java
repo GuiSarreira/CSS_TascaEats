@@ -35,6 +35,9 @@ public class RestauranteController {
             request.getNome(),
             request.getMorada(),
             request.getNif(),
+            request.getTipoCozinha(),
+            request.getHorarioAbertura(),
+            request.getHorarioFecho(),
             request.getAdminId()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(RestauranteResponse.from(novoRestaurante));
@@ -87,6 +90,54 @@ public class RestauranteController {
     @GetMapping("/cidade")
     public ResponseEntity<List<RestauranteResponse>> buscarPorCidade(@RequestParam String cidade) {
         List<RestauranteResponse> response = restauranteService.buscarPorCidade(cidade).stream()
+                .map(RestauranteResponse::from)
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Pesquisa restaurantes por tipo de cozinha.
+     *
+     * @param tipoCozinha Tipo de cozinha a pesquisar (ex: "Portuguesa", "Italiana").
+     * @return Lista de restaurantes com o tipo de cozinha indicado.
+     */
+    @GetMapping("/tipo-cozinha")
+    public ResponseEntity<List<RestauranteResponse>> buscarPorTipoCozinha(@RequestParam String tipoCozinha) {
+        List<RestauranteResponse> response = restauranteService.buscarPorTipoCozinha(tipoCozinha).stream()
+                .map(RestauranteResponse::from)
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Lista todos os restaurantes que estão atualmente abertos.
+     *
+     * @return Lista de restaurantes com estado aberto.
+     */
+    @GetMapping("/abertos")
+    public ResponseEntity<List<RestauranteResponse>> listarAbertos() {
+        List<RestauranteResponse> response = restauranteService.listarAbertos().stream()
+                .map(RestauranteResponse::from)
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Lista restaurantes aplicando filtros dinâmicos combinados.
+     */
+    @GetMapping("/filtros")
+    public ResponseEntity<List<RestauranteResponse>> listarComFiltros(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String tipoCozinha,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(pattern = "HH:mm") java.time.LocalTime horario,
+            @RequestParam(required = false) Double minPreco,
+            @RequestParam(required = false) Double maxPreco,
+            @RequestParam(required = false) Integer minAvaliacoes,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) Integer minPedidos) {
+        List<RestauranteResponse> response = restauranteService
+                .listarRestaurantesComFiltros(nome, tipoCozinha, horario, minPreco, maxPreco, minAvaliacoes, cidade, minPedidos)
+                .stream()
                 .map(RestauranteResponse::from)
                 .toList();
         return ResponseEntity.ok(response);

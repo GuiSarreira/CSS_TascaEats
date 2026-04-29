@@ -42,18 +42,19 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     List<Cliente> findClientesSemCompras();
 
     /**
-     * Devolve a morada do cliente com o maior número de pedidos.
-     * Query de negócio para responder a: "Qual é a morada do cliente com mais pedidos?"
+     * Devolve o cliente com o maior número de pedidos.
+     * Query de negócio para responder a: "Qual é o cliente com mais pedidos?"
      *
      * Deve ser chamado com {@code PageRequest.of(0, 1)} para obter apenas o primeiro resultado:
-     * clienteRepository.findMoradaClienteComMaisPedidos(PageRequest.of(0, 1))
-     *                  .stream().findFirst();
+     * clienteRepository.findClienteComMaisPedidos(PageRequest.of(0, 1))
+     *                  .stream().findFirst()
+     *                  .map(obj -> (Cliente) obj[0]);
      *
      * @param pageable use {@code PageRequest.of(0, 1)} para limitar ao top 1
-     * @return lista com no máximo um array {@code [morada, totalPedidos]}
+     * @return lista com no máximo um array {@code [Cliente, totalPedidos]}
      */
-    @Query("SELECT c.morada, COUNT(p.id) AS totalPedidos FROM Cliente c JOIN c.pedidos p GROUP BY c.id ORDER BY totalPedidos DESC")
-    List<Object[]> findMoradaClienteComMaisPedidos(Pageable pageable);
+    @Query("SELECT c, COUNT(p.id) AS totalPedidos FROM Cliente c JOIN c.pedidos p GROUP BY c.id ORDER BY totalPedidos DESC")
+    List<Object[]> findClienteComMaisPedidos(Pageable pageable);
 
     /**
      * Lista todos os clientes com o respetivo total de pedidos realizados.
