@@ -12,6 +12,7 @@ import pt.ul.fc.css.tascaeats.repositories.RestauranteRepository;
 import pt.ul.fc.css.tascaeats.repositories.specs.MenuSpecifications;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Serviço responsável pela gestão de menus partilhados.
@@ -189,5 +190,20 @@ public class MenuService {
                 .and(MenuSpecifications.precoMedioEntre(minPreco, maxPreco));
 
         return menuRepository.findAll(spec);
+    }
+
+    /**
+     * Query de negócio — devolve o restaurante mais popular de uma franquia (menu partilhado).
+     * Popularidade medida pelo número de avaliações recebidas.
+     *
+     * @param menuId ID do menu partilhado
+     * @return Optional com o restaurante mais popular, vazio se não houver avaliações
+     */
+    public Optional<Restaurante> restauranteMaisPopularDoMenu(Long menuId) {
+        List<Object[]> results = menuRepository.findRestauranteMaisPopularDoMenu(menuId);
+        if (results.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of((Restaurante) results.get(0)[0]);
     }
 }

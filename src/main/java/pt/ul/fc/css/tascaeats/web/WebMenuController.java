@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.controllers;
+package pt.ul.fc.css.tascaeats.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,8 +28,8 @@ public class WebMenuController {
     private final ProdutoRepository produtoRepository;
 
     public WebMenuController(MenuService menuService,
-                             RestauranteRepository restauranteRepository,
-                             ProdutoRepository produtoRepository) {
+            RestauranteRepository restauranteRepository,
+            ProdutoRepository produtoRepository) {
         this.menuService = menuService;
         this.restauranteRepository = restauranteRepository;
         this.produtoRepository = produtoRepository;
@@ -39,11 +39,11 @@ public class WebMenuController {
 
     @GetMapping
     public String listar(@RequestParam(required = false) String nome,
-                         @RequestParam(required = false) Integer minProdutos,
-                         @RequestParam(required = false) Integer maxProdutos,
-                         @RequestParam(required = false) Double minPreco,
-                         @RequestParam(required = false) Double maxPreco,
-                         Model model) {
+            @RequestParam(required = false) Integer minProdutos,
+            @RequestParam(required = false) Integer maxProdutos,
+            @RequestParam(required = false) Double minPreco,
+            @RequestParam(required = false) Double maxPreco,
+            Model model) {
 
         List<Menu> menus = menuService.listarMenusComFiltros(nome, minProdutos, maxProdutos, minPreco, maxPreco);
         model.addAttribute("menus", menus);
@@ -66,9 +66,9 @@ public class WebMenuController {
 
     @PostMapping
     public String criar(@RequestParam String nome,
-                        @RequestParam(required = false) String descricao,
-                        @RequestParam(required = false) List<Long> produtoIds,
-                        @RequestParam(required = false) List<Long> restauranteIds) {
+            @RequestParam(required = false) String descricao,
+            @RequestParam(required = false) List<Long> produtoIds,
+            @RequestParam(required = false) List<Long> restauranteIds) {
 
         List<Produto> produtos = resolverProdutos(produtoIds);
         List<Restaurante> restaurantes = resolverRestaurantes(restauranteIds);
@@ -90,10 +90,10 @@ public class WebMenuController {
 
     @PostMapping("/{id}")
     public String atualizar(@PathVariable Long id,
-                            @RequestParam String nome,
-                            @RequestParam(required = false) String descricao,
-                            @RequestParam(required = false) List<Long> produtoIds,
-                            @RequestParam(required = false) List<Long> restauranteIds) {
+            @RequestParam String nome,
+            @RequestParam(required = false) String descricao,
+            @RequestParam(required = false) List<Long> produtoIds,
+            @RequestParam(required = false) List<Long> restauranteIds) {
 
         List<Produto> produtos = resolverProdutos(produtoIds);
         List<Restaurante> restaurantes = resolverRestaurantes(restauranteIds);
@@ -116,14 +116,14 @@ public class WebMenuController {
 
     @PostMapping("/{id}/restaurantes/{restauranteId}")
     public String associarRestaurante(@PathVariable Long id,
-                                      @PathVariable Long restauranteId) {
+            @PathVariable Long restauranteId) {
         menuService.associarMenuRestaurante(id, restauranteId);
         return "redirect:/menus/" + id;
     }
 
     @PostMapping("/{id}/restaurantes/{restauranteId}/remover")
     public String desassociarRestaurante(@PathVariable Long id,
-                                         @PathVariable Long restauranteId) {
+            @PathVariable Long restauranteId) {
         menuService.removerMenuRestaurante(id, restauranteId);
         return "redirect:/menus/" + id;
     }

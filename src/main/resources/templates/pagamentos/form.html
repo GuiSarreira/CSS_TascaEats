@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pagamento</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-4" style="max-width: 540px">
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a th:href="@{/pedidos(clienteId=${clienteId})}">Pedidos</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a th:href="@{/pedidos/{id}(id=${pedido.id})}" th:text="'Pedido #' + ${pedido.id}"></a>
+                </li>
+                <li class="breadcrumb-item active">Pagamento</li>
+            </ol>
+        </nav>
+
+        <h2>Pagamento do Pedido <span th:text="'#' + ${pedido.id}"></span></h2>
+        <p class="text-muted">
+            Total a pagar:
+            <strong th:text="${#numbers.formatDecimal(pedido.precoTotal, 1, 2) + ' €'}"></strong>
+        </p>
+
+        <form th:action="@{/pagamentos}" method="post" id="pagamentoForm">
+            <input type="hidden" name="pedidoId" th:value="${pedido.id}">
+            <input type="hidden" name="clienteId" th:value="${clienteId}">
+
+            <!-- Tipo de pagamento -->
+            <div class="mb-4">
+                <label class="form-label fw-bold">Tipo de pagamento</label>
+                <div class="d-flex gap-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="tipoPagamento" id="mbway" value="MBWAY"
+                            onchange="showFields('MBWAY')" checked>
+                        <label class="form-check-label" for="mbway">MBWay</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="tipoPagamento" id="multibanco"
+                            value="MULTIBANCO" onchange="showFields('MULTIBANCO')">
+                        <label class="form-check-label" for="multibanco">Multibanco</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="tipoPagamento" id="dinheiro" value="DINHEIRO"
+                            onchange="showFields('DINHEIRO')">
+                        <label class="form-check-label" for="dinheiro">Dinheiro</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campos MBWay -->
+            <div id="fields-MBWAY">
+                <div class="mb-3">
+                    <label class="form-label">Número de telemóvel</label>
+                    <input type="tel" class="form-control" name="dadosExtra" placeholder="912 345 678"
+                        pattern="[0-9]{9}">
+                </div>
+            </div>
+
+            <!-- Campos Multibanco -->
+            <div id="fields-MULTIBANCO" style="display:none">
+                <div class="mb-3">
+                    <label class="form-label">Referência</label>
+                    <input type="text" class="form-control" name="dadosExtra" placeholder="123 456 789">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Provedor do cartão (bandeira)</label>
+                    <select class="form-select" name="bandeira">
+                        <option value="">— Selecionar —</option>
+                        <option value="Visa">Visa</option>
+                        <option value="Mastercard">Mastercard</option>
+                        <option value="American Express">American Express</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Campos Dinheiro -->
+            <div id="fields-DINHEIRO" style="display:none">
+                <div class="mb-3">
+                    <label class="form-label">Troco pretendido (€)</label>
+                    <input type="number" class="form-control" name="troco" step="0.01" min="0" placeholder="0.00">
+                    <div class="form-text">Deixe em branco se não necessitar de troco.</div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-success">Confirmar Pagamento</button>
+                <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function showFields(tipo) {
+            ['MBWAY', 'MULTIBANCO', 'DINHEIRO'].forEach(t => {
+                const el = document.getElementById('fields-' + t);
+                if (el) el.style.display = (t === tipo) ? 'block' : 'none';
+            });
+        }
+        // Inicializar com MBWay
+        showFields('MBWAY');
+    </script>
+</body>
+
+</html>

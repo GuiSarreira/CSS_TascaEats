@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${restaurante.nome} + ' — TascaEats'">Restaurante — TascaEats</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f5f5f5;
+            color: #333
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem 1rem
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            margin-bottom: .25rem
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin: 1.5rem 0 .75rem;
+            color: #444
+        }
+
+        a {
+            color: #1a73e8;
+            text-decoration: none
+        }
+
+        a:hover {
+            text-decoration: underline
+        }
+
+        .subtitle {
+            color: #777;
+            margin-bottom: 1.5rem
+        }
+
+        .card {
+            background: #fff;
+            padding: 1.25rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+            margin-bottom: 1.25rem
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .5rem .75rem
+        }
+
+        .info-grid dt {
+            font-size: .8rem;
+            color: #888;
+            font-weight: 600
+        }
+
+        .info-grid dd {
+            font-size: .95rem;
+            margin-bottom: .5rem
+        }
+
+        .badge {
+            display: inline-block;
+            padding: .2rem .6rem;
+            border-radius: 12px;
+            font-size: .8rem;
+            font-weight: 600
+        }
+
+        .badge-aberto {
+            background: #e6f4ea;
+            color: #1e8e3e
+        }
+
+        .badge-fechado {
+            background: #fce8e6;
+            color: #d93025
+        }
+
+        .stars {
+            color: #f9ab00;
+            font-size: 1.1rem
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th,
+        td {
+            padding: .6rem .75rem;
+            text-align: left
+        }
+
+        th {
+            font-size: .8rem;
+            color: #666;
+            border-bottom: 2px solid #eee
+        }
+
+        td {
+            border-bottom: 1px solid #f0f0f0;
+            font-size: .9rem
+        }
+
+        tr:last-child td {
+            border-bottom: none
+        }
+
+        .vazio {
+            color: #999;
+            font-style: italic;
+            padding: .5rem 0
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 1.25rem;
+            color: #1a73e8
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a class="back" th:href="@{/restaurantes}">← Voltar à lista</a>
+
+        <h1 th:text="${restaurante.nome}">Restaurante</h1>
+        <p class="subtitle">
+            <span class="badge" th:classappend="${restaurante.aberto ? 'badge-aberto' : 'badge-fechado'}"
+                th:text="${restaurante.aberto ? 'Aberto' : 'Fechado'}"></span>
+        </p>
+
+        <!-- Informações gerais -->
+        <div class="card">
+            <dl class="info-grid">
+                <dt>NIF</dt>
+                <dd th:text="${restaurante.nif}"></dd>
+                <dt>Tipo de Cozinha</dt>
+                <dd th:text="${restaurante.tipoCozinha != null ? restaurante.tipoCozinha : '—'}"></dd>
+                <dt>Morada</dt>
+                <dd
+                    th:text="${restaurante.morada != null ? restaurante.morada.rua + ', ' + restaurante.morada.codigoPostal + ' ' + restaurante.morada.cidade : '—'}">
+                </dd>
+                <dt>Horário</dt>
+                <dd
+                    th:text="${restaurante.horarioAbertura != null ? restaurante.horarioAbertura + ' – ' + restaurante.horarioFecho : '—'}">
+                </dd>
+                <dt>Avaliação Média</dt>
+                <dd>
+                    <span class="stars" th:text="${'★'.repeat(mediaAvaliacoes.intValue())}"></span>
+                    <span th:text="${#numbers.formatDecimal(mediaAvaliacoes, 1, 1)} + ' / 5'"></span>
+                </dd>
+            </dl>
+        </div>
+
+        <!-- Menu e Produtos -->
+        <h2>Menu &amp; Produtos</h2>
+        <div class="card">
+            <div th:if="${restaurante.menu != null}">
+                <p><strong th:text="${restaurante.menu.nome}"></strong>
+                    <span th:if="${restaurante.menu.descricao != null}"
+                        th:text="' — ' + ${restaurante.menu.descricao}"></span>
+                </p>
+            </div>
+            <table th:if="${!produtos.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Categoria</th>
+                        <th>Preço</th>
+                        <th>Disponível</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${produtos}">
+                        <td th:text="${p.nome}"></td>
+                        <td th:text="${p.categoria}"></td>
+                        <td th:text="${#numbers.formatDecimal(p.preco, 1, 2)} + ' €'"></td>
+                        <td th:text="${p.disponivel ? 'Sim' : 'Não'}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="vazio" th:if="${produtos.isEmpty()}">Nenhum produto no menu.</p>
+        </div>
+
+        <!-- Avaliações -->
+        <h2>Avaliações (<span th:text="${avaliacoes.size()}">0</span>)</h2>
+        <div class="card">
+            <table th:if="${!avaliacoes.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Nota</th>
+                        <th>Comentário</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="a : ${avaliacoes}">
+                        <td th:text="${'★'.repeat(a.nota)}"></td>
+                        <td th:text="${a.comentario != null ? a.comentario : '—'}"></td>
+                        <td th:text="${#temporals.format(a.dataAvaliacao, 'dd/MM/yyyy HH:mm')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="vazio" th:if="${avaliacoes.isEmpty()}">Ainda sem avaliações.</p>
+        </div>
+    </div>
+</body>
+
+</html>

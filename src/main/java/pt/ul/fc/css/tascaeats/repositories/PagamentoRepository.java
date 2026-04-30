@@ -64,4 +64,20 @@ public interface PagamentoRepository extends JpaRepository<Pagamento, Long> {
      * @return {@code true} se já existir um pagamento para o pedido
      */
     boolean existsByPedidoId(Long pedidoId);
+
+    /**
+     * Query de negócio — Média do troco nos pagamentos em numerário.
+     * Responde à query: "No caso de pagamento com numerário, qual é a média do troco?"
+     *
+     * Usa {@code TYPE(p)} para filtrar apenas instâncias {@code Dinheiro}
+     * sem aceder directamente à coluna discriminadora.
+     *
+     * @return média do valor de troco nos pagamentos em dinheiro concluídos,
+     *         ou {@code null} se não existirem pagamentos em dinheiro
+     */
+    @Query("SELECT AVG(d.troco) FROM Dinheiro d " +
+           "JOIN d.pedido p " +
+           "WHERE d.status = pt.ul.fc.css.tascaeats.entities.PagamentoStatus.COMPLETED " +
+           "AND d.troco IS NOT NULL")
+    Double findMediaTroco();
 }

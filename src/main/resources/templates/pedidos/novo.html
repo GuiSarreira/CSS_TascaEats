@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Novo Pedido</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-4">
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/pedidos(clienteId=${cliente.id})}">Pedidos</a></li>
+                <li class="breadcrumb-item active">Novo Pedido</li>
+            </ol>
+        </nav>
+
+        <h2>Novo Pedido — <span th:text="${cliente.nome}"></span></h2>
+
+        <form th:action="@{/pedidos}" method="post">
+            <input type="hidden" name="clienteId" th:value="${cliente.id}">
+
+            <!-- Morada de entrega -->
+            <div class="card mb-4">
+                <div class="card-header">Morada de entrega</div>
+                <div class="card-body">
+
+                    <!-- Moradas guardadas (se existirem) -->
+                    <div th:if="${not #lists.isEmpty(moradas)}" class="mb-3">
+                        <label class="form-label">Escolher morada guardada</label>
+                        <select class="form-select" name="moradaIndex" id="moradaSelect"
+                            onchange="toggleNewAddress(this.value)">
+                            <option value="">— Nova morada —</option>
+                            <option th:each="morada, iter : ${moradas}" th:value="${iter.index}"
+                                th:text="${morada.rua + ', ' + morada.codigoPostal + ' ' + morada.cidade}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Campos para nova morada -->
+                    <div id="newAddressFields">
+                        <div class="mb-3">
+                            <label class="form-label">Rua e número</label>
+                            <input type="text" class="form-control" name="rua" placeholder="Ex: Rua das Flores, 10">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Código Postal</label>
+                                <input type="text" class="form-control" name="codigoPostal" placeholder="1200-123">
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Cidade</label>
+                                <input type="text" class="form-control" name="cidade" placeholder="Lisboa">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Produtos por restaurante -->
+            <div th:each="restaurante : ${restaurantes}" class="card mb-3">
+                <div class="card-header d-flex justify-content-between">
+                    <strong th:text="${restaurante.nome}"></strong>
+                    <span th:if="${restaurante.aberto}" class="badge bg-success">Aberto</span>
+                    <span th:unless="${restaurante.aberto}" class="badge bg-secondary">Fechado</span>
+                </div>
+                <div class="card-body p-0"
+                    th:if="${restaurante.menu != null and not #lists.isEmpty(restaurante.menu.produtos)}">
+                    <table class="table table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Produto</th>
+                                <th>Categoria</th>
+                                <th>Preço</th>
+                                <th>Disponível</th>
+                                <th style="width:100px">Qtd</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="produto : ${restaurante.menu.produtos}"
+                                th:classappend="${!produto.disponivel or produto.eliminado} ? 'table-secondary text-muted' : ''">
+                                <td th:text="${produto.nome}"></td>
+                                <td th:text="${produto.categoria}"></td>
+                                <td th:text="${#numbers.formatDecimal(produto.preco, 1, 2) + ' €'}"></td>
+                                <td>
+                                    <span th:if="${produto.disponivel and !produto.eliminado}"
+                                        class="text-success">✓</span>
+                                    <span th:unless="${produto.disponivel and !produto.eliminado}"
+                                        class="text-danger">✗</span>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm"
+                                        th:name="'qty_' + ${produto.id}" min="0" value="0"
+                                        th:disabled="${!produto.disponivel or produto.eliminado or !restaurante.aberto}">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-body text-muted"
+                    th:if="${restaurante.menu == null or #lists.isEmpty(restaurante.menu.produtos)}">
+                    Sem produtos no menu.
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary">Confirmar Pedido</button>
+                <a th:href="@{/pedidos(clienteId=${cliente.id})}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function toggleNewAddress(value) {
+            const fields = document.getElementById('newAddressFields');
+            fields.style.display = value === '' ? 'block' : 'none';
+        }
+        // Inicializar com morada guardada se houver
+        const sel = document.getElementById('moradaSelect');
+        if (sel && sel.value !== '') {
+            document.getElementById('newAddressFields').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

@@ -113,4 +113,13 @@ public class PagamentoService {
     public Optional<Pagamento> buscarPorPedido(Long pedidoId) {
         return pagamentoRepository.findByPedidoId(pedidoId);
     }
+
+    /**
+     * Query de negócio — devolve a média do troco nos pagamentos a dinheiro concluídos.
+     *
+     * @return média do troco, ou {@code null} se não houver pagamentos a dinheiro concluídos
+     */
+    public Double calcularMediaTroco() {
+        return pagamentoRepository.findMediaTroco();
+    }
 }

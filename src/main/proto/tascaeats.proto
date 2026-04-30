@@ -1,0 +1,253 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "pt.ul.fc.css.tascaeats.grpc";
+option java_outer_classname = "TascaEatsProto";
+
+package tascaeats;
+
+import "google/protobuf/empty.proto";
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Serviço principal TascaEats gRPC
+// ═══════════════════════════════════════════════════════════════════════════════
+service TascaEatsService {
+
+    // ── Pessoa 1: Avaliações ─────────────────────────────────────────────────
+    rpc CriarAvaliacao (CriarAvaliacaoRequest) returns (AvaliacaoResponse);
+    rpc ListarAvaliacoes (ListarAvaliacoesRequest) returns (ListarAvaliacoesResponse);
+    rpc AtualizarAvaliacao (AtualizarAvaliacaoRequest) returns (AvaliacaoResponse);
+    rpc RemoverAvaliacao (RemoverAvaliacaoRequest) returns (google.protobuf.Empty);
+
+    // ── Pessoa 2: Menus Partilhados + Restaurantes ───────────────────────────
+    rpc CriarMenu (CriarMenuRequest) returns (MenuResponse);
+    rpc ListarMenus (ListarMenusRequest) returns (ListarMenusResponse);
+    rpc AtualizarMenu (AtualizarMenuRequest) returns (MenuResponse);
+    rpc RemoverMenu (RemoverMenuRequest) returns (google.protobuf.Empty);
+    rpc AssociarMenuRestaurante (AssociarMenuRestauranteRequest) returns (google.protobuf.Empty);
+    rpc ListarRestaurantes (ListarRestaurantesRequest) returns (ListarRestaurantesResponse);
+
+    // ── Pessoa 3: Pedidos + Entregas + Pagamentos ────────────────────────────
+    rpc CriarPedido (CriarPedidoRequest) returns (PedidoResponse);
+    rpc ListarPedidos (ListarPedidosRequest) returns (ListarPedidosResponse);
+    rpc AvancarEstadoPedido (AvancarEstadoPedidoRequest) returns (PedidoResponse);
+    rpc CancelarPedido (CancelarPedidoRequest) returns (google.protobuf.Empty);
+    rpc RegistarPagamento (RegistarPagamentoRequest) returns (PagamentoResponse);
+    rpc ObterEntrega (ObterEntregaRequest) returns (EntregaResponse);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Pessoa 1 — Avaliações
+// ═══════════════════════════════════════════════════════════════════════════════
+
+message CriarAvaliacaoRequest {
+    int64 cliente_id = 1;
+    int64 restaurante_id = 2;
+    int64 pedido_id = 3;
+    int32 nota = 4;         // 1–5
+    string comentario = 5;
+}
+
+message AtualizarAvaliacaoRequest {
+    int64 avaliacao_id = 1;
+    int32 nota = 2;
+    string comentario = 3;
+    int64 cliente_id = 4;
+}
+
+message RemoverAvaliacaoRequest {
+    int64 avaliacao_id = 1;
+    int64 cliente_id = 2;
+    bool is_admin = 3;
+}
+
+message ListarAvaliacoesRequest {
+    optional int64 restaurante_id = 1;
+    optional int64 cliente_id = 2;
+}
+
+message AvaliacaoResponse {
+    int64 id = 1;
+    int32 nota = 2;
+    string comentario = 3;
+    string data_avaliacao = 4;
+    int64 cliente_id = 5;
+    string cliente_nome = 6;
+    int64 restaurante_id = 7;
+    string restaurante_nome = 8;
+}
+
+message ListarAvaliacoesResponse {
+    repeated AvaliacaoResponse avaliacoes = 1;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Pessoa 2 — Menus Partilhados + Restaurantes
+// ═══════════════════════════════════════════════════════════════════════════════
+
+message CriarMenuRequest {
+    string nome = 1;
+    string descricao = 2;
+    repeated int64 produto_ids = 3;
+    repeated int64 restaurante_ids = 4;
+}
+
+message AtualizarMenuRequest {
+    int64 menu_id = 1;
+    string nome = 2;
+    string descricao = 3;
+    repeated int64 produto_ids = 4;
+    repeated int64 restaurante_ids = 5;
+}
+
+message RemoverMenuRequest {
+    int64 menu_id = 1;
+}
+
+message ListarMenusRequest {
+    optional string nome = 1;
+    optional int32 min_produtos = 2;
+    optional int32 max_produtos = 3;
+    optional double min_preco = 4;
+    optional double max_preco = 5;
+}
+
+message ProdutoInfo {
+    int64 id = 1;
+    string nome = 2;
+    string descricao = 3;
+    double preco = 4;
+    string categoria = 5;
+    bool disponivel = 6;
+}
+
+message RestauranteInfo {
+    int64 id = 1;
+    string nome = 2;
+    string nif = 3;
+    string tipo_cozinha = 4;
+    bool aberto = 5;
+    string horario_abertura = 6;
+    string horario_fecho = 7;
+    EnderecoInfo morada = 8;
+}
+
+message EnderecoInfo {
+    string rua = 1;
+    string codigo_postal = 2;
+    string cidade = 3;
+}
+
+message MenuResponse {
+    int64 id = 1;
+    string nome = 2;
+    string descricao = 3;
+    repeated ProdutoInfo produtos = 4;
+    repeated RestauranteInfo restaurantes = 5;
+}
+
+message ListarMenusResponse {
+    repeated MenuResponse menus = 1;
+}
+
+message AssociarMenuRestauranteRequest {
+    int64 menu_id = 1;
+    int64 restaurante_id = 2;
+}
+
+message ListarRestaurantesRequest {
+    optional string nome = 1;
+    optional string tipo_cozinha = 2;
+    optional string horario = 3;
+    optional double min_preco = 4;
+    optional double max_preco = 5;
+    optional int32 min_avaliacoes = 6;
+    optional string cidade = 7;
+    optional int32 min_pedidos = 8;
+}
+
+message ListarRestaurantesResponse {
+    repeated RestauranteInfo restaurantes = 1;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Pessoa 3 — Pedidos + Entregas + Pagamentos
+// ═══════════════════════════════════════════════════════════════════════════════
+
+message ItemPedido {
+    int64 produto_id = 1;
+    int32 quantidade = 2;
+}
+
+message CriarPedidoRequest {
+    int64 cliente_id = 1;
+    repeated ItemPedido itens = 2;
+    oneof morada_choice {
+        int64 morada_id = 3;
+        EnderecoInfo nova_morada = 4;
+    }
+}
+
+message ListarPedidosRequest {
+    int64 cliente_id = 1;
+    optional string status = 2;
+}
+
+message AvancarEstadoPedidoRequest {
+    int64 pedido_id = 1;
+}
+
+message CancelarPedidoRequest {
+    int64 pedido_id = 1;
+}
+
+message ProdutoPedidoInfo {
+    int64 produto_id = 1;
+    string produto_nome = 2;
+    int32 quantidade = 3;
+    double preco_compra = 4;
+}
+
+message PedidoResponse {
+    int64 id = 1;
+    string status = 2;
+    string data_hora = 3;
+    double preco_total = 4;
+    int64 cliente_id = 5;
+    EnderecoInfo endereco_entrega = 6;
+    repeated ProdutoPedidoInfo itens = 7;
+}
+
+message ListarPedidosResponse {
+    repeated PedidoResponse pedidos = 1;
+}
+
+message RegistarPagamentoRequest {
+    int64 pedido_id = 1;
+    string tipo_pagamento = 2;  // MULTIBANCO, MBWAY, DINHEIRO
+    optional string referencia = 3;
+    optional string bandeira = 4;
+    optional string telemovel = 5;
+    optional double troco = 6;
+}
+
+message PagamentoResponse {
+    int64 id = 1;
+    string tipo_pagamento = 2;
+    string status = 3;
+    double valor = 4;
+}
+
+message ObterEntregaRequest {
+    int64 entrega_id = 1;
+}
+
+message EntregaResponse {
+    int64 id = 1;
+    int64 pedido_id = 2;
+    int64 entregador_id = 3;
+    string entregador_nome = 4;
+    string status = 5;
+    string hora_retirada = 6;
+    string hora_entrega = 7;
+}

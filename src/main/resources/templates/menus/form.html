@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${menu != null ? 'Editar Menu — TascaEats' : 'Novo Menu — TascaEats'}">Menu — TascaEats</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+
+        .card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+        }
+
+        .field {
+            margin-bottom: 1.25rem;
+        }
+
+        .field label {
+            display: block;
+            font-weight: 600;
+            font-size: .85rem;
+            color: #555;
+            margin-bottom: .35rem;
+        }
+
+        .field input,
+        .field textarea {
+            width: 100%;
+            padding: .5rem .75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: .9rem;
+        }
+
+        .field textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .checkbox-group {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: .5rem;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .25rem 0;
+            font-weight: 400;
+            font-size: .9rem;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .actions {
+            display: flex;
+            gap: .75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: .55rem 1.25rem;
+            border: none;
+            border-radius: 4px;
+            font-size: .9rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #1a73e8;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #1558b0;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 th:text="${menu != null ? 'Editar Menu' : 'Novo Menu'}">Menu</h1>
+
+        <div class="card">
+            <form th:action="${menu != null ? '/menus/' + menu.id : '/menus'}" method="post">
+
+                <div class="field">
+                    <label for="nome">Nome *</label>
+                    <input id="nome" name="nome" required th:value="${menu != null ? menu.nome : ''}" />
+                </div>
+
+                <div class="field">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" name="descricao"
+                        th:text="${menu != null ? menu.descricao : ''}"></textarea>
+                </div>
+
+                <div class="field">
+                    <label>Produtos</label>
+                    <div class="checkbox-group">
+                        <div th:if="${produtos == null || produtos.isEmpty()}">
+                            <em>Nenhum produto disponível.</em>
+                        </div>
+                        <label th:each="p : ${produtos}">
+                            <input type="checkbox" name="produtoIds" th:value="${p.id}"
+                                th:checked="${menu != null && menu.produtos.contains(p)}" />
+                            <span th:text="${p.nome + ' — ' + p.preco + ' €'}"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Restaurantes</label>
+                    <div class="checkbox-group">
+                        <div th:if="${restaurantes == null || restaurantes.isEmpty()}">
+                            <em>Nenhum restaurante disponível.</em>
+                        </div>
+                        <label th:each="r : ${restaurantes}">
+                            <input type="checkbox" name="restauranteIds" th:value="${r.id}"
+                                th:checked="${menu != null && menu.restaurantes.contains(r)}" />
+                            <span th:text="${r.nome}"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary"
+                        th:text="${menu != null ? 'Guardar Alterações' : 'Criar Menu'}">Submeter</button>
+                    <a th:href="@{/menus}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

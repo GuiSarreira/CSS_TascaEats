@@ -234,57 +234,82 @@ Pedido ──(1:1)──> Avaliacao
 ### 5.1 Backend (revisão)
 ```
 pt.ul.fc.css.tascaeats/
-├── config/           → DataInitializer, OpenApiConfig, GrpcServerConfig
-├── entities/         → + Avaliacao, Menu; alterações nas existentes (Cliente.moradas)
-├── repositories/     → + AvaliacaoRepository, MenuRepository
-├── services/         → + AvaliacaoService, MenuService; alterações nos filtros
-├── controllers/      → + AvaliacaoController, MenuController; filtros nos existentes
-├── dto/              → + novos Request/Response DTOs para Avaliacao, Menu, filtros
-├── exceptions/       → (sem alterações previstas)
-├── grpc/             → ★ NOVO — serviço gRPC (server-side)
-└── proto/            → ★ NOVO — definições .proto
+├── config/      ✅  DataInitializer, OpenApiConfig
+│                ❌  GrpcServerConfig (fase F)
+├── entities/    ✅  Avaliacao, Menu + alterações (Cliente.moradas, Restaurante, Produto, Pagamento)
+├── repositories/✅  AvaliacaoRepository, MenuRepository + specs/ (RestauranteSpecifications, MenuSpecifications)
+│                ❌  UserSpecifications, ProdutoSpecifications
+├── services/    ✅  AvaliacaoService, MenuService, PedidoService, EntregaService, PagamentoService
+│                ✅  RestauranteService (7 filtros), UserService (adicionarMorada, removerMorada)
+├── controllers/ ✅  REST: AvaliacaoController, MenuController, EntregaController, PedidoController
+│                ❌  UserController (filtros), ProdutoController (filtros avançados)
+├── web/         ✅  Web: WebClienteController, WebPedidoController, WebPagamentoController
+│                ✅  Web: WebMenuController, WebAvaliacaoController, WebRestauranteController
+├── dto/         ✅  AvaliacaoRequest/Response, MenuRequest/Response, CriarPedidoRequest (moradaIndex)
+│                ✅  EntregaResponse, PagamentoRequest/Response, RestauranteResponse + restantes
+├── exceptions/  ✅  GlobalExceptionHandler, ErrorResponse
+├── grpc/        ❌  ★ NOVO — serviço gRPC server-side (fase F)
+└── proto/       ❌  ★ NOVO — definições .proto (fase F)
 ```
 
 ### 5.2 Interface Web — Thymeleaf
 ```
 src/main/resources/
 ├── templates/
-│   ├── layout.html          → Template base (navbar, footer)
-│   ├── login.html           → Página de login
-│   ├── home.html            → Dashboard
-│   ├── users/               → Listagem/detalhe utilizadores
-│   ├── restaurantes/        → Busca com filtros, detalhe
-│   ├── produtos/            → Busca com filtros
-│   ├── pedidos/             → Estado, cancelamento
-│   └── fragments/           → Componentes reutilizáveis
+│   ├── layout.html             ❌ Template base (navbar, footer)
+│   ├── login.html              ❌ Página de login
+│   ├── home.html               ❌ Dashboard
+│   ├── cliente/
+│   │   └── moradas.html        ✅ Gestão de moradas do cliente
+│   ├── pedidos/
+│   │   ├── novo.html           ✅ Carrinho multi-restaurante
+│   │   ├── lista.html          ✅ Lista de pedidos com filtro de estado
+│   │   └── detalhe.html        ✅ Detalhe (itens, entrega, pagamento, ações)
+│   ├── pagamentos/
+│   │   └── form.html           ✅ Formulário de pagamento (MBWay, Multibanco, Dinheiro)
+│   ├── menus/
+│   │   ├── index.html          ✅ Lista com filtros (nome, min/max produtos, min/max preço)
+│   │   ├── form.html           ✅ Criar/editar menu (checkboxes produtos e restaurantes)
+│   │   └── detalhe.html        ✅ Detalhe (produtos, restaurantes associados, associar)
+│   ├── restaurantes/
+│   │   ├── index.html          ✅ Busca com filtros avançados (card grid)
+│   │   └── detalhe.html        ✅ Detalhe (info, produtos, avaliações)
+│   ├── avaliacoes/
+│   │   ├── form.html           ❌ Formulário de avaliação
+│   │   └── lista.html          ❌ Lista de avaliações
+│   ├── users/                  ❌ Listagem/detalhe utilizadores
+│   ├── produtos/               ❌ Busca com filtros
+│   └── fragments/              ❌ Componentes reutilizáveis
 └── static/
-    ├── css/
-    └── js/
+    ├── css/                    ❌
+    └── js/                     ❌
 ```
 
-Novos controllers Thymeleaf (separados dos REST):
+Controllers Thymeleaf — package `pt.ul.fc.css.tascaeats.web`:
 ```
-pt.ul.fc.css.tascaeats/
-└── web/
-    ├── WebAuthController.java
-    ├── WebUserController.java
-    ├── WebRestauranteController.java
-    ├── WebProdutoController.java
-    ├── WebPedidoController.java
-    └── ...
+pt.ul.fc.css.tascaeats/web/
+├── WebAuthController.java        ❌ por criar
+├── WebUserController.java        ❌ por criar
+├── WebProdutoController.java     ❌ por criar
+├── WebClienteController.java     ✅ GET/POST moradas
+├── WebPedidoController.java      ✅ novo, lista, detalhe, cancelar
+├── WebPagamentoController.java   ✅ formulário de pagamento
+├── WebMenuController.java        ✅ CRUD de menus
+├── WebAvaliacaoController.java   ✅ criar/listar avaliações
+└── WebRestauranteController.java ✅ listar com filtros, detalhe
 ```
 
 ### 5.3 Interface Nativa — JavaFX + gRPC
 
-Módulo separado ou package dedicado:
+Módulo separado ou package dedicado (❌ ainda não iniciado — fase G):
 ```
 pt.ul.fc.css.tascaeats/
-└── javafx/
-    ├── TascaEatsFXApp.java       → Application entry point
-    ├── controllers/              → FX Controllers (FXML)
-    ├── views/                    → Ficheiros FXML
-    ├── grpc/                     → gRPC client stubs
-    └── model/                    → View models
+└── javafx/                      ❌
+    ├── TascaEatsFXApp.java       ❌ Application entry point
+    ├── controllers/              ❌ FX Controllers (FXML)
+    ├── views/                    ❌ Ficheiros FXML
+    ├── grpc/                     ❌ gRPC client stubs
+    └── model/                    ❌ View models
 ```
 
 Ficheiros FXML em `src/main/resources/fxml/` ou em módulo separado.
@@ -374,18 +399,27 @@ service TascaEatsService {
 
 ## 8. Queries de Negócio (validação do modelo)
 
+> **Legenda:** ✅ implementada como `@Query` num repositório · **C** query relacionada existe mas não cobre o caso exacto · `[ ]` não implementada
+
 O modelo atualizado deve permitir responder a:
 
-1. **No caso de pagamento com numerário, qual é a média do troco?**
-   → `SELECT AVG(d.troco) FROM Dinheiro d`
-2. **Qual é o item mais pedido de um restaurante?**
+1. `✅` **No caso de pagamento com numerário, qual é a média do troco?**
+   → `SELECT AVG(d.troco) FROM Dinheiro d WHERE d.status = COMPLETED AND d.troco IS NOT NULL`
+   → `PagamentoRepository.findMediaTroco(): Double`
+2. `[ ]` **Qual é o item mais pedido de um restaurante?**
    → `SELECT pp.produto, SUM(pp.quantity) ... GROUP BY pp.produto ORDER BY ... DESC`
-3. **Qual o entregador com mais entregas para um restaurante específico?**
-   → `JOIN Entrega → Pedido → ProdutoPedido → Produto → Restaurante` + `GROUP BY entregador`
-4. **Qual o restaurante mais popular de uma franquia (menu partilhado)?**
-   → Via `Menu → Restaurantes` + contagem de pedidos
-5. **Qual é o cliente que mais pedidos fez num intervalo de tempo?**
+   → Estrutura `ProdutoPedido` suporta a query; não implementada
+3. `✅` **Qual o entregador com mais entregas para um restaurante específico?**
+   → `JOIN Entrega → Pedido → ProdutoPedido → Produto → Menu → Restaurante` + `GROUP BY entregador`
+   → `EntregaRepository.findEntregadorComMaisEntregasParaRestaurante(restauranteId): List<Object[]>`
+4. `✅` **Qual o restaurante mais popular de uma franquia (menu partilhado)?**
+   → `JOIN Menu → Restaurantes + JOIN Menu → Produtos → itensPedido` + `COUNT(DISTINCT pedido)` por restaurante
+   → `MenuRepository.findRestauranteMaisPopularDoMenu(menuId): List<Object[]>`
+5. **C** **Qual é o cliente que mais pedidos fez num intervalo de tempo?**
    → `SELECT p.cliente, COUNT(*) FROM Pedido p WHERE p.dataHora BETWEEN ... GROUP BY ...`
+   → `ClienteRepository.findClienteComMaisPedidos(Pageable)` existe **sem filtro temporal**
+   → `PedidoRepository.findPedidosComFiltros(clienteId, status, dataMin, dataMax)` filtra por datas mas não agrega por cliente
+   → `PedidoRepository.findMediaPedidosPorClientePorMes()` agrega por cliente/mês mas não aceita intervalo livre
 
 > **Nota:** Podemos e devemos fazer mais queries 
 
@@ -425,23 +459,38 @@ O modelo atualizado deve permitir responder a:
 - ✅ Atualizar `MenuService` com `listarMenusComFiltros` (3 filtros)
 
 ### Fase D — Controllers REST (atualização)
-- [ ] `AvaliacaoController` — endpoints REST (não criado)
+- ✅ `AvaliacaoController` — endpoints REST (POST, GET, GET media, PUT, DELETE) + DTOs (AvaliacaoRequest, AvaliacaoResponse)
 - ✅ `MenuController` — CRUD + associação a restaurantes (8 endpoints)
 - ✅ Atualizar `RestauranteController` com filtros (nome, tipoCozinha, horario, preço, avaliações, cidade, minPedidos)
 - [ ] Atualizar `UserController` com filtros (nome, tipo, nº pedidos, nº entregas)
 - [ ] Atualizar `ProdutoController` com filtros avançados (categoria, disponibilidade, popularidade)
-- ✅ Atualizar `PedidoController` — pedido multi-restaurante
-- ✅ Atualizar DTOs (MenuRequest, MenuResponse, RestauranteResponse, etc.)
+- ✅ Atualizar `PedidoController` — pedido multi-restaurante, moradaIndex, status filter
+- ✅ Atualizar `EntregaController` — GET /api/entregas/{id}
+- ✅ Atualizar DTOs (MenuRequest, MenuResponse, RestauranteResponse, PedidoRequest com moradaIndex, AvaliacaoRequest, AvaliacaoResponse)
 
 ### Fase E — Interface Web (Thymeleaf)
 - [ ] Criar template base (`layout.html`) com navbar e estilos
 - [ ] Página de login (`login.html`)
-- [ ] Listagem/busca de restaurantes com filtros (`WebRestauranteController`)
+- ✅ Listagem/busca de restaurantes com filtros (`WebRestauranteController`)
 - [ ] Listagem/busca de produtos com filtros
 - [ ] Ver/editar utilizadores
-- [ ] Ver estado de pedidos, cancelar pedido
 - ✅ `WebMenuController` — CRUD de menus via Thymeleaf (listar, criar, editar, detalhe, associar restaurante)
+- ✅ `WebAvaliacaoController` — criar avaliação, listar avaliações por cliente/restaurante
+- ✅ `WebClienteController` — gerir moradas (listar, adicionar, remover)
+- ✅ `WebPedidoController` — novo pedido (carrinho), listar, detalhe, cancelar
+- ✅ `WebPagamentoController` — formulário de pagamento (MBWay, Multibanco, Dinheiro)
+- ✅ `WebRestauranteController` — listar restaurantes com filtros avançados, detalhe com produtos e avaliações
+- ✅ Todos os Web controllers movidos para package `pt.ul.fc.css.tascaeats.web`
+- ✅ Templates: `cliente/moradas.html`, `pedidos/novo.html`, `pedidos/lista.html`, `pedidos/detalhe.html`, `pagamentos/form.html`
+- ✅ Templates: `menus/index.html`, `menus/form.html`, `menus/detalhe.html`
+- ✅ Templates: `restaurantes/index.html`, `restaurantes/detalhe.html`
+- [ ] Templates: `avaliacoes/form.html`, `avaliacoes/lista.html`
 - [ ] Testar toda a navegação no browser
+
+> **Nota:** Para testar na web (Windows):
+> 1. Correr: `docker compose up -d pgserver` (apenas PostgreSQL)
+> 2. Correr: `$env:JAVA_HOME = "C:\Program Files\Java\jdk-24" ; $env:PATH = "$env:JAVA_HOME\bin;$env:PATH" ; .\mvnw spring-boot:run`
+> 3. Abrir: http://localhost:8080
 
 ### Fase F — gRPC Server
 - [ ] Definir ficheiro `.proto` com todos os serviços e mensagens
@@ -472,7 +521,7 @@ O modelo atualizado deve permitir responder a:
 - ✅ Testes para filtros (MenuSpecifications, RestauranteSpecifications)
 - ✅ Testes para atribuição automática de entregador
 - ✅ Testes para pedido multi-restaurante
-- ✅ 204 testes, 0 falhas (29/04/2026)
+- ✅ 204 testes, 0 falhas (30/04/2026)
 
 ### Fase I — Docker + Finalização
 - [ ] Atualizar `docker-compose.yml` (porta gRPC, JavaFX se aplicável)

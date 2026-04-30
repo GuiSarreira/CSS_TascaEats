@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="'Menu: ' + ${menu.nome} + ' — TascaEats'">Menu — TascaEats</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            margin-bottom: .25rem;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin: 1.5rem 0 .75rem;
+            color: #444;
+        }
+
+        a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .subtitle {
+            color: #777;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: #fff;
+            padding: 1.25rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+            margin-bottom: 1.25rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: .6rem .75rem;
+            text-align: left;
+        }
+
+        th {
+            font-size: .8rem;
+            color: #666;
+            border-bottom: 2px solid #eee;
+        }
+
+        td {
+            border-bottom: 1px solid #f0f0f0;
+            font-size: .9rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: .75rem;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: .45rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-size: .85rem;
+            cursor: pointer;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .btn-edit {
+            background: #1a73e8;
+            color: #fff;
+        }
+
+        .btn-edit:hover {
+            background: #1558b0;
+            text-decoration: none;
+        }
+
+        .btn-danger {
+            background: #ea4335;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #c5221f;
+        }
+
+        .btn-add {
+            background: #34a853;
+            color: #fff;
+        }
+
+        .btn-add:hover {
+            background: #2d8f47;
+        }
+
+        .btn-sm {
+            padding: .3rem .65rem;
+            font-size: .8rem;
+        }
+
+        .assoc-form {
+            display: flex;
+            gap: .5rem;
+            align-items: center;
+            margin-top: .75rem;
+        }
+
+        .assoc-form select {
+            padding: .4rem .5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: .85rem;
+        }
+
+        .vazio {
+            color: #999;
+            font-style: italic;
+            padding: .5rem 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 th:text="${menu.nome}">Nome do Menu</h1>
+        <p class="subtitle" th:text="${menu.descricao != null ? menu.descricao : 'Sem descrição'}"></p>
+
+        <div class="actions-bar">
+            <a th:href="@{/menus/{id}/editar(id=${menu.id})}" class="btn btn-edit">Editar</a>
+            <form th:action="@{/menus/{id}/remover(id=${menu.id})}" method="post" style="display:inline;"
+                onsubmit="return confirm('Tem a certeza que deseja remover este menu?');">
+                <button type="submit" class="btn btn-danger">Remover</button>
+            </form>
+            <a th:href="@{/menus}" class="btn" style="background:#e0e0e0; color:#333;">← Voltar</a>
+        </div>
+
+        <!-- Produtos -->
+        <h2>Produtos (<span th:text="${menu.produtos.size()}">0</span>)</h2>
+        <div class="card">
+            <table th:if="${!menu.produtos.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Categoria</th>
+                        <th>Preço</th>
+                        <th>Disponível</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${menu.produtos}">
+                        <td th:text="${p.nome}"></td>
+                        <td th:text="${p.categoria}"></td>
+                        <td th:text="${#numbers.formatDecimal(p.preco, 1, 2)} + ' €'"></td>
+                        <td th:text="${p.disponivel ? 'Sim' : 'Não'}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="vazio" th:if="${menu.produtos.isEmpty()}">Nenhum produto associado a este menu.</p>
+        </div>
+
+        <!-- Restaurantes associados -->
+        <h2>Restaurantes (<span th:text="${menu.restaurantes.size()}">0</span>)</h2>
+        <div class="card">
+            <table th:if="${!menu.restaurantes.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Cozinha</th>
+                        <th>Estado</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r : ${menu.restaurantes}">
+                        <td><a th:href="@{/restaurantes/{id}(id=${r.id})}" th:text="${r.nome}"></a></td>
+                        <td th:text="${r.tipoCozinha != null ? r.tipoCozinha : '—'}"></td>
+                        <td th:text="${r.aberto ? 'Aberto' : 'Fechado'}"></td>
+                        <td>
+                            <form th:action="@{/menus/{mid}/restaurantes/{rid}/remover(mid=${menu.id}, rid=${r.id})}"
+                                method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">Remover</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="vazio" th:if="${menu.restaurantes.isEmpty()}">Nenhum restaurante associado.</p>
+
+            <!-- Formulário para associar novo restaurante -->
+            <div class="assoc-form" th:if="${todosRestaurantes != null && !todosRestaurantes.isEmpty()}">
+                <form th:action="@{/menus/{id}/restaurantes/0(id=${menu.id})}" method="post"
+                      id="assocForm" th:attr="data-menu-id=${menu.id}">
+                    <div style="display:flex; gap:.5rem; align-items:center;">
+                        <select name="restauranteId" id="restauranteSelect">
+                            <option value="" disabled selected>Selecionar restaurante...</option>
+                            <option th:each="r : ${todosRestaurantes}" th:value="${r.id}" th:text="${r.nome}"></option>
+                        </select>
+                        <button type="submit" class="btn btn-add btn-sm"
+                                onclick="var sel = document.getElementById('restauranteSelect');
+                                         if (sel.value) {
+                                             var form = document.getElementById('assocForm');
+                                             form.action = '/menus/' + form.dataset.menuId + '/restaurantes/' + sel.value;
+                                             return true;
+                                         }
+                                         return false;">
+                            + Associar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

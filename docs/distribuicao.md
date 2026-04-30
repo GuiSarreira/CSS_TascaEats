@@ -48,18 +48,19 @@ Cada um trabalha numa **feature completa**: entidade → service → repository 
 ### Semana 2: Controllers REST + Web UI
 
 **Controller REST:**
-- [ ] `AvaliacaoController` (não criado):
+- ✅ `AvaliacaoController` (criado):
   - `POST /api/avaliacoes` — criar
   - `GET /api/avaliacoes?restauranteId=X` — listar por restaurante
   - `GET /api/avaliacoes?clienteId=X` — listar por cliente
+  - `GET /api/avaliacoes/restaurante/{id}/media` — média de notas
   - `PUT /api/avaliacoes/{id}` — atualizar
   - `DELETE /api/avaliacoes/{id}` — remover
   - DTOs: `AvaliacaoRequest`, `AvaliacaoResponse`
 
 **Web UI (Thymeleaf):**
-- [ ] `WebAvaliacaoController` (controller MVC, não REST):
+- ✅ `WebAvaliacaoController` (controller MVC, não REST):
   - `GET /avaliacoes/novo?pedidoId=X` — formulário de nova avaliação
-  - `POST /avaliacoes` — submeter avaliação (POST para API REST)
+  - `POST /avaliacoes` — submeter avaliação
   - `GET /avaliacoes` — listar avaliações do utilizador
 - [ ] Templates:
   - `avaliacoes/form.html` — formulário (nota select 1-5, comentário textarea, submit)
@@ -83,9 +84,6 @@ Cada um trabalha numa **feature completa**: entidade → service → repository 
 - [ ] Unit tests AvaliacaoService
 - [ ] Integration tests AvaliacaoController
 - [ ] Testes gRPC
-
-**Video:**
-- [ ] Demonstrar: criar pedido DELIVERED → avaliar restaurante → ver avaliações
 
 ---
 
@@ -154,15 +152,15 @@ Cada um trabalha numa **feature completa**: entidade → service → repository 
   - `POST /menus/{id}/restaurantes/{rid}` — associar restaurante
   - `POST /menus/{id}/restaurantes/{rid}/remover` — desassociar restaurante
   - `POST /menus/{id}/remover` — apagar menu
-- [ ] `WebRestauranteController` (não criado):
+- ✅ `WebRestauranteController` (package `web/`):
   - `GET /restaurantes?...filtros` — listar com filtros avançados (cozinha, horário, preço)
-  - `GET /restaurantes/{id}` — detalhe com menus e produtos
-- [ ] Templates:
+  - `GET /restaurantes/{id}` — detalhe com produtos e avaliações
+- ✅ Templates:
   - `menus/index.html` — lista com filtros
   - `menus/form.html` — formulário
   - `menus/detalhe.html` — detalhe (produtos, restaurantes associados)
-  - `restaurantes/index.html` — lista com filtros avançados
-  - `restaurantes/detalhe.html` — detalhe com menus
+  - `restaurantes/index.html` — lista com filtros avançados (card grid)
+  - `restaurantes/detalhe.html` — detalhe (info, produtos, avaliações)
 
 ---
 
@@ -184,9 +182,6 @@ Cada um trabalha numa **feature completa**: entidade → service → repository 
 - ✅ Unit tests MenuService
 - [ ] Integration tests MenuController
 - [ ] Testes gRPC
-
-**Video:**
-- [ ] Demonstrar: criar menu → associar a restaurante(s) → modificar produto no menu → reflete em todos restaurantes
 
 ---
 
@@ -261,24 +256,24 @@ Cada um trabalha numa **feature completa**: entidade → service → repository 
   - DTOs: `PagamentoRequest` (bandeira para MULTIBANCO, telemovel para MBWAY, troco para DINHEIRO)
 
 **Web UI (Thymeleaf):**
-- [ ] `WebClienteController`:
-  - `GET /cliente/moradas` — listar moradas do cliente
-  - `POST /cliente/moradas` — adicionar nova morada
-  - `DELETE /cliente/moradas/{id}` — remover morada
-- [ ] `WebPedidoController`:
-  - `GET /pedidos/novo` — carrinho de pedido (multi-restaurante)
-  - `POST /pedidos` — submeter pedido (POST para API REST)
-  - `GET /pedidos` — listar pedidos do cliente
+- ✅ `WebClienteController`:
+  - `GET /cliente/{id}/moradas` — listar moradas do cliente
+  - `POST /cliente/{id}/moradas` — adicionar nova morada
+  - `POST /cliente/{id}/moradas/{index}/remover` — remover morada (POST pois HTML não suporta DELETE)
+- ✅ `WebPedidoController`:
+  - `GET /pedidos/novo?clienteId=X` — carrinho de pedido (multi-restaurante)
+  - `POST /pedidos` — submeter pedido
+  - `GET /pedidos?clienteId=X` — listar pedidos do cliente
   - `GET /pedidos/{id}` — detalhe (estado, items, entrega, pagamento)
   - `POST /pedidos/{id}/cancelar` — cancelar
-  - `GET /pedidos/{id}/estado` — histórico de estados
-- [ ] `WebPagamentoController`:
+  - `GET /pedidos/{id}/estado` — redireciona para detalhe (sem histórico de estados)
+- ✅ `WebPagamentoController`:
   - `GET /pagamentos/novo?pedidoId=X` — formulário de pagamento
-  - `POST /pagamentos` — submeter pagamento (POST para API REST)
-- [ ] Templates:
-  - `pedidos/novo.html` — carrinho (buscar produtos, adicionar ao pedido, escolher morada)
-  - `pedidos/lista.html` — lista de pedidos
-  - `pedidos/detalhe.html` — detalhe (status, items, entrega, pagamento, cancelar)
+  - `POST /pagamentos` — submeter pagamento
+- ✅ Templates:
+  - `pedidos/novo.html` — carrinho (produtos por restaurante, escolha de morada)
+  - `pedidos/lista.html` — lista de pedidos com filtro por estado
+  - `pedidos/detalhe.html` — detalhe (status, items, entrega, pagamento, cancelar, avaliar)
   - `pagamentos/form.html` — formulário de pagamento (tipo select, campos dinâmicos por tipo)
   - `cliente/moradas.html` — gestão de moradas
 
@@ -299,14 +294,11 @@ Cada um trabalha numa **feature completa**: entidade → service → repository 
 - [ ] Implementar no `TascaEatsGrpcService`
 
 **Testes:**
-- **C** Unit tests PedidoService (multi-restaurante, validações)
+- ✅ Unit tests PedidoService (multi-restaurante, validações)
 - ✅ Unit tests EntregaService (atribuição automática)
 - ✅ Unit tests PagamentoService (novos campos)
 - [ ] Integration tests controllers
 - [ ] Testes gRPC
-
-**Video:**
-- [ ] Demonstrar: criar pedido multi-restaurante (produtos de diferentes restaurantes) → escolher morada → pagamento → atribuição automática entregador → cancelar pedido (ou entregar)
 
 ---
 

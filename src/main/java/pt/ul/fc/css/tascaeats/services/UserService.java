@@ -224,4 +224,50 @@ public class UserService {
     public List<Cliente> buscarClientesSemCompras() {
         return clienteRepository.findClientesSemCompras();
     }
+
+    /**
+     * Procura um cliente pelo seu identificador único.
+     *
+     * @param id ID do cliente
+     * @return o cliente encontrado
+     * @throws RuntimeException se não existir nenhum cliente com o ID fornecido
+     */
+    public Cliente buscarClientePorId(Long id) {
+        return clienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado: id=" + id));
+    }
+
+    /**
+     * Adiciona uma nova morada à lista de moradas de um cliente.
+     *
+     * @param clienteId ID do cliente
+     * @param morada    a morada a adicionar
+     * @throws RuntimeException se o cliente não for encontrado
+     */
+    @Transactional
+    public void adicionarMorada(Long clienteId, Endereco morada) {
+        Cliente cliente = buscarClientePorId(clienteId);
+        cliente.adicionarMorada(morada);
+        clienteRepository.save(cliente);
+    }
+
+    /**
+     * Remove a morada no índice especificado da lista de moradas do cliente.
+     *
+     * @param clienteId ID do cliente
+     * @param index     índice (0-based) da morada a remover
+     * @throws RuntimeException         se o cliente não for encontrado
+     * @throws IllegalArgumentException se o índice for inválido
+     */
+    @Transactional
+    public void removerMorada(Long clienteId, int index) {
+        Cliente cliente = buscarClientePorId(clienteId);
+        List<Endereco> moradas = cliente.getMoradas();
+        if (index < 0 || index >= moradas.size()) {
+            throw new IllegalArgumentException(
+                    "Índice de morada inválido: " + index + ". O cliente tem " + moradas.size() + " morada(s).");
+        }
+        cliente.removerMorada(moradas.get(index));
+        clienteRepository.save(cliente);
+    }
 }

@@ -157,4 +157,33 @@ public interface EntregaRepository extends JpaRepository<Entrega, Long> {
                      "ORDER BY e.pedido.dataHora DESC")
        List<Entrega> findEntregasComFiltros(@Param("restauranteId") Long restauranteId,
                      @Param("entregadorId") Long entregadorId);
+
+       /**
+        * Query de negócio — Entregador com mais entregas para um restaurante
+        * específico.
+        * Responde à query: "Qual o entregador com mais entregas para um restaurante?"
+        *
+        * Percorre: Entrega → Pedido → ProdutoPedido → Produto → Menu → Restaurante,
+        * filtra pelo restaurante indicado e agrupa por entregador.
+        *
+        * @param restauranteId o identificador do restaurante
+        * @return lista de arrays {@code [Entregador, totalEntregas]} ordenada por
+        *         total
+        *         decrescente; o primeiro elemento é o entregador mais activo nesse
+        *         restaurante
+        */
+       @Query(value = "SELECT e.entregador_id, COUNT(e.id) AS totalEntregas " +
+                     "FROM entrega e " +
+                     "WHERE e.status = 'CONCLUIDA' " +
+                     "AND e.pedido_id IN (" +
+                     "  SELECT DISTINCT pp.pedido_id FROM produtos_pedido pp " +
+                     "  JOIN menu_produto mp ON pp.produto_id = mp.produto_id " +
+                     "  JOIN menu m ON mp.menu_id = m.id " +
+                     "  JOIN restaurante r ON m.id = r.menu_id " +
+                     "  WHERE r.id = :restauranteId) " +
+                     "GROUP BY e.entregador_id " +
+                     "ORDER BY totalEntregas DESC " +
+                     "LIMIT 1", nativeQuery = true)
+       List<Object[]> findEntregadorComMaisEntregasParaRestaurante(
+                     @Param("restauranteId") Long restauranteId);
 }

@@ -249,4 +249,19 @@ public class EntregaService {
     public List<Entrega> listarEntregasAtivasPorEntregador(Long entregadorId) {
         return entregaRepository.findEntregasAtivasByEntregadorId(entregadorId);
     }
+
+    /**
+     * Query de negócio — devolve o entregador com mais entregas concluídas para um restaurante.
+     *
+     * @param restauranteId ID do restaurante
+     * @return Optional com o entregador mais activo, vazio se não houver entregas concluídas
+     */
+    public Optional<Entregador> entregadorComMaisEntregasParaRestaurante(Long restauranteId) {
+        List<Object[]> results = entregaRepository.findEntregadorComMaisEntregasParaRestaurante(restauranteId);
+        if (results.isEmpty()) {
+            return Optional.empty();
+        }
+        Long entregadorId = ((Number) results.get(0)[0]).longValue();
+        return entregadorRepository.findById(entregadorId);
+    }
 }
