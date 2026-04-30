@@ -29,15 +29,18 @@ public class PedidoController {
 
     /**
      * Cria um novo pedido na plataforma e devolve os dados formatados para resposta.
-     * O processo valida se o restaurante está aberto e se os produtos estão disponíveis.
+     * O processo valida se os restaurantes estão abertos e se os produtos estão disponíveis.
+     * A morada de entrega pode ser um índice de morada existente do cliente ({@code moradaIndex})
+     * ou uma nova morada ({@code enderecoEntrega}).
      *
-     * @param request DTO contendo o ID do cliente, ID do restaurante, morada e mapa de itens.
+     * @param request DTO contendo o ID do cliente, moradaIndex ou enderecoEntrega, e mapa de itens.
      * @return ResponseEntity contendo o PedidoResponse e o status HTTP 201 (Created).
      */
     @PostMapping
     public ResponseEntity<PedidoResponse> criar(@RequestBody CriarPedidoRequest request) {
         Pedido novoPedido = pedidoService.criarPedido(
             request.getClienteId(),
+            request.getMoradaIndex(),
             request.getEnderecoEntrega(),
             request.getItens()
         );
@@ -58,18 +61,20 @@ public class PedidoController {
 
     /**
      * Lista o histórico de pedidos de um cliente específico, ordenado por data decrescente.
+     * Aceita o parâmetro opcional {@code status} para filtrar por estado do pedido.
      *
      * @param clienteId O identificador do cliente.
+     * @param status    Estado a filtrar (opcional — se omitido, devolve todos os estados).
      * @return ResponseEntity contendo uma lista de PedidoResponse e o status HTTP 200 (OK).
      */
     @GetMapping("/cliente/{clienteId}")
-    public ResponseEntity<List<PedidoResponse>> listarPorCliente(@PathVariable Long clienteId) {
-        List<Pedido> pedidos = pedidoService.buscarPorCliente(clienteId);
-        
+    public ResponseEntity<List<PedidoResponse>> listarPorCliente(
+            @PathVariable Long clienteId,
+            @RequestParam(required = false) PedidoStatus status) {
+        List<Pedido> pedidos = pedidoService.buscarPorCliente(clienteId, status);
         List<PedidoResponse> response = pedidos.stream()
                 .map(PedidoResponse::from)
                 .toList();
-                
         return ResponseEntity.ok(response);
     }
 

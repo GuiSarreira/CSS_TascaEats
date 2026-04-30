@@ -9,7 +9,8 @@ import pt.ul.fc.css.tascaeats.services.EntregaService;
 
 /**
  * Controller REST para gestão de Entregas.
- * Expõe os endpoints da API para atribuição e controlo do ciclo de vida das entregas.
+ * Expõe os endpoints da API para atribuição e controlo do ciclo de vida das
+ * entregas.
  */
 @RestController
 @RequestMapping("/api")
@@ -22,11 +23,23 @@ public class EntregaController {
     }
 
     /**
+     * Consulta uma entrega pelo seu ID.
+     *
+     * @param entregaId ID da entrega
+     * @return A entrega encontrada
+     */
+    @GetMapping("/entregas/{entregaId}")
+    public ResponseEntity<EntregaResponse> buscarPorId(@PathVariable Long entregaId) {
+        Entrega entrega = entregaService.buscarPorId(entregaId);
+        return ResponseEntity.ok(EntregaResponse.from(entrega));
+    }
+
+    /**
      * Atribui um entregador a um pedido pronto para entrega.
      * Se entregadorId for null, a atribuição é automática.
      *
      * @param pedidoId ID do pedido
-     * @param request DTO com o ID do entregador
+     * @param request  DTO com o ID do entregador
      * @return A entrega criada com status 201 (Created)
      */
     @PostMapping("/pedidos/{pedidoId}/entregar")

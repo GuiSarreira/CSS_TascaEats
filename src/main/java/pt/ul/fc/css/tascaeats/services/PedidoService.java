@@ -44,6 +44,44 @@ public class PedidoService {
 
     /**
      * Cria um novo pedido multi-restaurante com os itens especificados.
+     * A morada de entrega é resolvida a partir do índice {@code moradaIndex}
+     * na lista de moradas do cliente, ou de {@code enderecoEntrega} se o índice
+     * for {@code null}.
+     *
+     * @param clienteId       ID do cliente que efetua o pedido
+     * @param moradaIndex     índice (0-based) de uma morada guardada do cliente; {@code null} para usar {@code enderecoEntrega}
+     * @param enderecoEntrega nova morada fornecida no pedido (usada se {@code moradaIndex} for {@code null})
+     * @param itens           mapa de {@code produtoId → quantidade}
+     * @return o pedido criado e persistido com estado {@code CREATED}
+     * @throws RuntimeException         se o cliente ou algum produto não for encontrado
+     * @throws IllegalArgumentException se o índice de morada for inválido, o mapa de itens estiver vazio ou alguma quantidade for inválida
+     * @throws IllegalStateException    se algum restaurante estiver fechado ou algum produto estiver esgotado/eliminado
+     */
+    @Transactional
+    public Pedido criarPedido(Long clienteId, Integer moradaIndex, Endereco enderecoEntrega, Map<Long, Integer> itens) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado: id=" + clienteId));
+
+        Endereco morada;
+        if (moradaIndex != null) {
+            List<Endereco> moradas = cliente.getMoradas();
+            if (moradaIndex < 0 || moradaIndex >= moradas.size()) {
+                throw new IllegalArgumentException(
+                        "Idx de morada inválido: " + moradaIndex + ". O cliente tem " + moradas.size() + " morada(s).");
+            }
+            morada = moradas.get(moradaIndex);
+        } else {
+            if (enderecoEntrega == null) {
+                throw new IllegalArgumentException("Deve fornecer moradaIndex ou enderecoEntrega.");
+            }
+            morada = enderecoEntrega;
+        }
+
+        return criarPedido(clienteId, morada, itens);
+    }
+
+    /**
+     * Cria um novo pedido multi-restaurante com os itens especificados.
      *
      * Regras aplicadas:
      * - Cada restaurante (via produto) deve estar aberto ({@code aberto = true}).
@@ -155,12 +193,17 @@ public class PedidoService {
 
     /**
      * Lista todos os pedidos de um determinado cliente, por ordem cronológica
-     * decrescente.
+     * decrescente. Filtra por status se fornecido.
      *
      * @param clienteId ID do cliente
+     * @param status    estado a filtrar (opcional — {@code null} devolve todos)
      * @return lista de pedidos do cliente
      */
-    public List<Pedido> buscarPorCliente(Long clienteId) {
+    public List<Pedido> buscarPorCliente(Long clienteId, PedidoStatus status) {
+        if (status != null) {
+            return pedidoRepository.findByClienteIdAndStatus(clienteId, status);
+        }
         return pedidoRepository.findByClienteIdOrderByDataHoraDesc(clienteId);
     }
+
 }

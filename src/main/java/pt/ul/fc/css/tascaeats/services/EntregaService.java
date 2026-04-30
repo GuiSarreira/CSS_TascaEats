@@ -215,6 +215,18 @@ public class EntregaService {
     }
 
     /**
+     * Procura uma entrega pelo seu ID.
+     *
+     * @param id ID da entrega
+     * @return a entrega encontrada
+     * @throws RuntimeException se a entrega não for encontrada
+     */
+    public Entrega buscarPorId(Long id) {
+        return entregaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Entrega não encontrada: id=" + id));
+    }
+
+    /**
      * Procura a entrega associada a um pedido.
      *
      * @param pedidoId ID do pedido
