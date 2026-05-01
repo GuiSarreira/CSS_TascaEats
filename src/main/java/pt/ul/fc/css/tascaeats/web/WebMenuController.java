@@ -136,6 +136,41 @@ public class WebMenuController {
         return "redirect:/menus";
     }
 
+    // ─── Query 4: Restaurante mais popular da franquia ────────────────────────
+
+    /**
+     * Formulário para consultar o restaurante mais popular de uma franquia.
+     * Query de negócio: "Qual o restaurante mais popular (com mais avaliações) de uma franquia (menu)?"
+     */
+    @GetMapping("/restaurante-popular")
+    public String restaurantePopularForm(Model model) {
+        model.addAttribute("titulo", "Restaurante Popular da Franquia");
+        model.addAttribute("descricao", "Qual o restaurante com mais avaliações de um menu partilhado?");
+        return "menus/restaurante-popular";
+    }
+
+    /**
+     * Resultado — restaurante mais popular de uma franquia.
+     */
+    @PostMapping("/restaurante-popular")
+    public String restaurantePopularResultado(
+            @RequestParam Long menuId,
+            Model model) {
+        var resultado = menuService.restauranteMaisPopularDoMenu(menuId);
+
+        if (resultado.isPresent()) {
+            model.addAttribute("restaurante", resultado.get());
+            model.addAttribute("encontrado", true);
+        } else {
+            model.addAttribute("encontrado", false);
+            model.addAttribute("mensagem", "Sem avaliações para este menu");
+        }
+
+        model.addAttribute("menuId", menuId);
+        model.addAttribute("titulo", "Restaurante Popular");
+        return "menus/restaurante-popular-resultado";
+    }
+
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
     private List<Produto> resolverProdutos(List<Long> ids) {

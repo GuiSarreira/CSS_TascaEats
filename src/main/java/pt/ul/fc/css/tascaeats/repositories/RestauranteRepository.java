@@ -2,6 +2,7 @@ package pt.ul.fc.css.tascaeats.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import pt.ul.fc.css.tascaeats.entities.Restaurante;
 import java.util.List;
@@ -69,4 +70,44 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Long>,
      * @return lista de restaurantes com {@code aberto = true}.
      */
     List<Restaurante> findByAbertoTrue();
+
+    /**
+     * Query de negócio (Fase 1): Restaurantes com mais pedidos completados.
+     * Calcula o número total de pedidos para cada restaurante,
+     * ordenado de forma decrescente (mais pedidos primeiro).
+     *
+     * Apenas inclui pedidos com status DELIVERED (concluídos).
+     * Contagem: COUNT(DISTINCT ped.id) para cada restaurante.
+     *
+     * @return lista de arrays [Restaurante, quantidadePedidos] ordenada por quantidade DESC
+     */
+    @Query("SELECT r, COUNT(DISTINCT ped.id) AS quantidadePedidos " +
+           "FROM Restaurante r " +
+           "JOIN r.menu m " +
+           "JOIN m.produtos p " +
+           "JOIN p.itensPedido ip " +
+           "JOIN ip.pedido ped " +
+           "WHERE ped.status = pt.ul.fc.css.tascaeats.entities.PedidoStatus.DELIVERED " +
+           "GROUP BY r.id " +
+           "ORDER BY quantidadePedidos DESC")
+    List<Object[]> findRestaurantesComMaisPedidos();
+
+    /**
+     * Query de negócio (Fase 1): Restaurantes com maior volume de vendas (€).
+     * Calcula o montante total (soma de preços) para cada restaurante,
+     * baseado em todos os itens pedidos em pedidos DELIVERED.
+     * Ordenado de forma decrescente (maior volume primeiro).
+     *
+     * @return lista de arrays [Restaurante, volumeVendas] ordenada por volume DESC
+     */
+    @Query("SELECT r, SUM(ip.preco * ip.quantity) AS volumeVendas " +
+           "FROM Restaurante r " +
+           "JOIN r.menu m " +
+           "JOIN m.produtos p " +
+           "JOIN p.itensPedido ip " +
+           "JOIN ip.pedido ped " +
+           "WHERE ped.status = pt.ul.fc.css.tascaeats.entities.PedidoStatus.DELIVERED " +
+           "GROUP BY r.id " +
+           "ORDER BY volumeVendas DESC")
+    List<Object[]> findRestaurantesComMaiorVolumeVendas();
 }

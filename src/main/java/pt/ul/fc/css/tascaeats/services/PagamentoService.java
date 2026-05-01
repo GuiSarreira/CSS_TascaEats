@@ -6,6 +6,7 @@ import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.repositories.PagamentoRepository;
 import pt.ul.fc.css.tascaeats.repositories.PedidoRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -121,5 +122,14 @@ public class PagamentoService {
      */
     public Double calcularMediaTroco() {
         return pagamentoRepository.findMediaTroco();
+    }
+
+    /**
+     * FASE 1 — Query 5: Método de pagamento mais utilizado.
+     * Conta o número de vezes que cada método de pagamento foi usado.
+     * @return lista de arrays [metodoPagamento, quantidade] ordenada por quantidade DESC
+     */
+    public List<Object[]> metodosPagamentoMaisUtilizados() {
+        return pagamentoRepository.findMetodoPagamentoMaisUtilizado();
     }
 }

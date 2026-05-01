@@ -75,6 +75,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
        /**
         * Lista pedidos de um cliente com filtros opcionais de estado e período.
+        * Utilizado para filtros avançados de utilizador (nº pedidos em intervalo de tempo).
         *
         * @param clienteId o identificador do cliente
         * @param status    o estado a filtrar (pode ser null para sem filtro)
@@ -101,4 +102,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
        @Query("SELECT p FROM Pedido p WHERE p.status = pt.ul.fc.css.tascaeats.entities.PedidoStatus.READY " +
               "AND p.entrega IS NULL ORDER BY p.dataHora ASC")
        List<Pedido> findPedidosReadyWithoutEntrega();
+
+
 }

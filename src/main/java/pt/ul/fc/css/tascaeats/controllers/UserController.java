@@ -120,4 +120,25 @@ public class UserController {
         userService.removerUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Lista utilizadores com filtros opcionais por nome, tipo, nº mínimo de
+     * pedidos (clientes) e nº mínimo de entregas (entregadores).
+     *
+     * @param nome        parte do nome (pesquisa parcial, insensível a maiúsculas)
+     * @param tipo        tipo de utilizador: CLIENTE, ENTREGADOR ou ADMIN
+     * @param minPedidos  nº mínimo de pedidos realizados (apenas clientes)
+     * @param minEntregas nº mínimo de entregas realizadas (apenas entregadores)
+     * @return Lista de utilizadores que satisfazem os critérios
+     */
+    @GetMapping("/filtros")
+    public ResponseEntity<List<UserResponse>> filtrar(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String tipo,
+            @RequestParam(required = false) Integer minPedidos,
+            @RequestParam(required = false) Integer minEntregas) {
+        List<UserResponse> resultado = userService.filtrarUtilizadores(nome, tipo, minPedidos, minEntregas)
+                .stream().map(UserResponse::from).toList();
+        return ResponseEntity.ok(resultado);
+    }
 }

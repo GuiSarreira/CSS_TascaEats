@@ -111,4 +111,19 @@ public class WebPedidoController {
         pedidoService.cancelarPedido(id);
         return "redirect:/pedidos?clienteId=" + clienteId;
     }
+
+    // ─── Query 3: Média de Pedidos por Cliente por Mês ───────────────────────
+
+    /**
+     * FASE 1 — Query 3: Média de pedidos por cliente por mês
+     * Página que mostra estatísticas de pedidos agrupados por cliente e período.
+     */
+    @GetMapping("/media-por-cliente-mes")
+    public String mediaePedidosPorClientePorMes(Model model) {
+        var resultados = pedidoService.mediaPedidosPorClientePorMes();
+        model.addAttribute("resultados", resultados);
+        model.addAttribute("titulo", "Média de Pedidos por Cliente por Mês");
+        model.addAttribute("descricao", "Estatísticas de pedidos agrupados por cliente e período mensal");
+        return "pedidos/media-por-cliente-mes";
+    }
 }

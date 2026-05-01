@@ -1,6 +1,7 @@
 package pt.ul.fc.css.tascaeats.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -10,10 +11,11 @@ import java.util.Optional;
 
 /**
  * Repositório para gestão da persistência de objetos do tipo User.
- * Fornece métodos para pesquisa baseada em email, role e estado de atividade.
+ * Fornece métodos para pesquisa baseada em email, role e estado de atividade,
+ * bem como suporte para filtragem dinâmica via {@link JpaSpecificationExecutor}.
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
     /**
      * Procura um utilizador pelo seu email.

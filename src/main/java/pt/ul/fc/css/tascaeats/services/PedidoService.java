@@ -8,6 +8,7 @@ import pt.ul.fc.css.tascaeats.repositories.*;
 
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 /**
  * Serviço responsável pela gestão de pedidos na plataforma TascaEats.
@@ -31,9 +32,9 @@ public class PedidoService {
     /**
      * Construtor para injeção de dependências dos repositórios necessários.
      *
-     * @param pedidoRepository      repositório de pedidos
-     * @param clienteRepository     repositório de clientes
-     * @param produtoRepository     repositório de produtos
+     * @param pedidoRepository  repositório de pedidos
+     * @param clienteRepository repositório de clientes
+     * @param produtoRepository repositório de produtos
      */
     public PedidoService(PedidoRepository pedidoRepository, ClienteRepository clienteRepository,
             ProdutoRepository produtoRepository) {
@@ -49,13 +50,19 @@ public class PedidoService {
      * for {@code null}.
      *
      * @param clienteId       ID do cliente que efetua o pedido
-     * @param moradaIndex     índice (0-based) de uma morada guardada do cliente; {@code null} para usar {@code enderecoEntrega}
-     * @param enderecoEntrega nova morada fornecida no pedido (usada se {@code moradaIndex} for {@code null})
+     * @param moradaIndex     índice (0-based) de uma morada guardada do cliente;
+     *                        {@code null} para usar {@code enderecoEntrega}
+     * @param enderecoEntrega nova morada fornecida no pedido (usada se
+     *                        {@code moradaIndex} for {@code null})
      * @param itens           mapa de {@code produtoId → quantidade}
      * @return o pedido criado e persistido com estado {@code CREATED}
-     * @throws RuntimeException         se o cliente ou algum produto não for encontrado
-     * @throws IllegalArgumentException se o índice de morada for inválido, o mapa de itens estiver vazio ou alguma quantidade for inválida
-     * @throws IllegalStateException    se algum restaurante estiver fechado ou algum produto estiver esgotado/eliminado
+     * @throws RuntimeException         se o cliente ou algum produto não for
+     *                                  encontrado
+     * @throws IllegalArgumentException se o índice de morada for inválido, o mapa
+     *                                  de itens estiver vazio ou alguma quantidade
+     *                                  for inválida
+     * @throws IllegalStateException    se algum restaurante estiver fechado ou
+     *                                  algum produto estiver esgotado/eliminado
      */
     @Transactional
     public Pedido criarPedido(Long clienteId, Integer moradaIndex, Endereco enderecoEntrega, Map<Long, Integer> itens) {
@@ -89,15 +96,17 @@ public class PedidoService {
      * - Cada produto deve existir, estar disponível e não estar eliminado.
      * - A quantidade de cada item deve ser maior que zero.
      * - O preço total é calculado automaticamente a partir de
-     *   {@code precoCompra × quantity} de cada item.
+     * {@code precoCompra × quantity} de cada item.
      * - Os produtos podem ser de diferentes restaurantes.
      *
      * @param clienteId       ID do cliente que efetua o pedido
      * @param enderecoEntrega morada de entrega para este pedido
      * @param itens           mapa de {@code produtoId → quantidade}
      * @return o pedido criado e persistido com estado {@code CREATED}
-     * @throws RuntimeException         se o cliente ou algum produto não for encontrado
-     * @throws IllegalStateException    se algum restaurante estiver fechado ou algum
+     * @throws RuntimeException         se o cliente ou algum produto não for
+     *                                  encontrado
+     * @throws IllegalStateException    se algum restaurante estiver fechado ou
+     *                                  algum
      *                                  produto estiver esgotado/eliminado
      * @throws IllegalArgumentException se o mapa de itens estiver vazio ou alguma
      *                                  quantidade for inválida
@@ -204,6 +213,37 @@ public class PedidoService {
             return pedidoRepository.findByClienteIdAndStatus(clienteId, status);
         }
         return pedidoRepository.findByClienteIdOrderByDataHoraDesc(clienteId);
+    }
+
+    /**
+     * Encontra o cliente com mais pedidos num intervalo de tempo.
+     *
+     * Query de negócio: "Qual é o cliente que mais pedidos fez num intervalo de
+     * tempo?"
+     *
+     * Responde com uma array contendo:
+     * - [0]: Cliente (a entidade)
+     * - [1]: totalPedidos (Long — total de pedidos no intervalo)
+     *
+     * @param dataInicio Data/hora inicial do intervalo (inclusivo)
+     * @param dataFim    Data/hora final do intervalo (inclusivo)
+     * @return Opcional contendo [Cliente, totalPedidos], vazio se não houver
+     *         pedidos no intervalo
+     */
+    public java.util.Optional<Object[]> clienteComMaisPedidosNoIntervalo(LocalDateTime dataInicio,
+            LocalDateTime dataFim) {
+        List<Object[]> resultados = clienteRepository.findClienteComMaisPedidosNoIntervalo(dataInicio, dataFim);
+        return resultados.isEmpty() ? java.util.Optional.empty() : java.util.Optional.of(resultados.get(0));
+    }
+
+    /**
+     * FASE 1 — Query 3: Média de pedidos por cliente por mês.
+     * Agrupa pedidos por cliente, ano e mês, retornando a contagem por período.
+     * 
+     * @return lista de arrays [Cliente, ano, mes, quantidadePedidos]
+     */
+    public List<Object[]> mediaPedidosPorClientePorMes() {
+        return pedidoRepository.findMediaPedidosPorClientePorMes();
     }
 
 }

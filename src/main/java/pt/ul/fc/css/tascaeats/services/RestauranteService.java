@@ -12,7 +12,8 @@ import java.util.Optional;
 
 /**
  * Serviço responsável pela gestão da lógica de negócio de Restaurantes.
- * Coordena operações de criação, atualização, abertura e remoção de estabelecimentos.
+ * Coordena operações de criação, atualização, abertura e remoção de
+ * estabelecimentos.
  */
 @Service
 public class RestauranteService {
@@ -24,7 +25,8 @@ public class RestauranteService {
      * Construtor para injeção de dependências dos repositórios necessários.
      *
      * @param restauranteRepository repositório de restaurantes
-     * @param userRepository        repositório de utilizadores (necessário para validar o admin)
+     * @param userRepository        repositório de utilizadores (necessário para
+     *                              validar o admin)
      */
     public RestauranteService(RestauranteRepository restauranteRepository, UserRepository userRepository) {
         this.restauranteRepository = restauranteRepository;
@@ -39,12 +41,15 @@ public class RestauranteService {
      * @param nome            nome do restaurante
      * @param morada          morada do restaurante
      * @param nif             NIF único do restaurante
-     * @param tipoCozinha     tipo de cozinha (ex: Portuguesa, Italiana); pode ser {@code null}
+     * @param tipoCozinha     tipo de cozinha (ex: Portuguesa, Italiana); pode ser
+     *                        {@code null}
      * @param horarioAbertura horário de abertura; pode ser {@code null}
      * @param horarioFecho    horário de fecho; pode ser {@code null}
-     * @param adminId         ID do utilizador que cria o restaurante (deve ser Admin)
+     * @param adminId         ID do utilizador que cria o restaurante (deve ser
+     *                        Admin)
      * @return o restaurante persistido
-     * @throws RuntimeException         se o utilizador indicado por {@code adminId} não existir
+     * @throws RuntimeException         se o utilizador indicado por {@code adminId}
+     *                                  não existir
      * @throws SecurityException        se o utilizador não for um administrador
      * @throws IllegalArgumentException se já existir um restaurante com o mesmo NIF
      */
@@ -52,7 +57,7 @@ public class RestauranteService {
     public Restaurante criarRestaurante(String nome, Endereco morada, String nif,
             String tipoCozinha, LocalTime horarioAbertura, LocalTime horarioFecho, Long adminId) {
         User user = userRepository.findById(adminId)
-            .orElseThrow(() -> new RuntimeException("Utilizador não encontrado: id=" + adminId));
+                .orElseThrow(() -> new RuntimeException("Utilizador não encontrado: id=" + adminId));
 
         if (!(user instanceof Admin)) {
             throw new SecurityException("Acesso Negado: Apenas administradores podem criar restaurantes.");
@@ -70,14 +75,15 @@ public class RestauranteService {
 
     /**
      * Altera o estado de funcionamento do restaurante.
-     * @param id O ID do restaurante a alterar.
+     * 
+     * @param id    O ID do restaurante a alterar.
      * @param abrir True para abrir o restaurante, False para fechar.
      * @throws RuntimeException Se o restaurante com o ID fornecido não existir.
      */
     @Transactional
     public void alterarEstadoAbertura(Long id, boolean abrir) {
         Restaurante restaurante = restauranteRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Restaurante não encontrado com o ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Restaurante não encontrado com o ID: " + id));
 
         restaurante.setAberto(abrir);
         restauranteRepository.save(restaurante);
@@ -85,6 +91,7 @@ public class RestauranteService {
 
     /**
      * Procura restaurantes por nome (pesquisa parcial).
+     * 
      * @param nome Texto a pesquisar no nome do restaurante.
      * @return Lista de restaurantes que contêm o texto no nome.
      */
@@ -94,6 +101,7 @@ public class RestauranteService {
 
     /**
      * Procura restaurantes por NIF.
+     * 
      * @param nif Texto a pesquisar no NIF do restaurante.
      * @return Lista de restaurantes que contêm o texto no NIF.
      */
@@ -103,6 +111,7 @@ public class RestauranteService {
 
     /**
      * Procura restaurantes por cidade.
+     * 
      * @param cidade Nome da cidade para filtrar.
      * @return Lista de restaurantes localizados na cidade.
      */
@@ -112,6 +121,7 @@ public class RestauranteService {
 
     /**
      * Lista todos os restaurantes registados no sistema.
+     * 
      * @return Lista completa de restaurantes.
      */
     public List<Restaurante> listarTodos() {
@@ -120,7 +130,9 @@ public class RestauranteService {
 
     /**
      * Procura restaurantes por tipo de cozinha.
-     * @param tipoCozinha tipo de cozinha a pesquisar (ex: "Portuguesa", "Italiana").
+     * 
+     * @param tipoCozinha tipo de cozinha a pesquisar (ex: "Portuguesa",
+     *                    "Italiana").
      * @return Lista de restaurantes com o tipo de cozinha indicado.
      */
     public List<Restaurante> buscarPorTipoCozinha(String tipoCozinha) {
@@ -129,6 +141,7 @@ public class RestauranteService {
 
     /**
      * Lista todos os restaurantes que estão atualmente abertos.
+     * 
      * @return Lista de restaurantes abertos.
      */
     public List<Restaurante> listarAbertos() {
@@ -153,7 +166,7 @@ public class RestauranteService {
     @Transactional
     public Restaurante atualizarRestaurante(Long id, String nome, Endereco morada, Long adminId) {
         Restaurante restauranteExistente = restauranteRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Restaurante não encontrado com ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Restaurante não encontrado com ID: " + id));
 
         if (!restauranteExistente.getAdmin().getId().equals(adminId)) {
             throw new SecurityException("Não tem permissão para alterar este restaurante.");
@@ -174,13 +187,14 @@ public class RestauranteService {
      * @param id      ID do restaurante a remover
      * @param adminId ID do utilizador que solicita a remoção
      * @throws RuntimeException      se o restaurante não for encontrado
-     * @throws SecurityException     se o utilizador não for o admin dono do restaurante
+     * @throws SecurityException     se o utilizador não for o admin dono do
+     *                               restaurante
      * @throws IllegalStateException se o restaurante já tiver pedidos associados
      */
     @Transactional
     public void removerRestaurante(Long id, Long adminId) {
         Restaurante restaurante = restauranteRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Restaurante não encontrado com o ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Restaurante não encontrado com o ID: " + id));
 
         if (!restaurante.getAdmin().getId().equals(adminId)) {
             throw new SecurityException("Não tem permissão para remover este restaurante.");
@@ -191,26 +205,27 @@ public class RestauranteService {
 
     /**
      * Procura um restaurante específico pelo seu identificador técnico (ID).
+     * 
      * @param id O identificador único (Long) na base de dados.
      * @return O objeto Restaurante encontrado.
      * @throws RuntimeException Se o restaurante não for encontrado.
      */
     public Restaurante buscarPorId(Long id) {
         return restauranteRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Restaurante não encontrado."));
+                .orElseThrow(() -> new RuntimeException("Restaurante não encontrado."));
     }
 
     /**
      * Lista restaurantes aplicando filtros dinâmicos.
      *
-     * @param nome             parte do nome (opcional)
-     * @param tipoCozinha      tipo de cozinha exacto (opcional)
-     * @param horario          horário a que deve estar aberto (opcional)
-     * @param minPreco         preço médio mínimo dos produtos (opcional)
-     * @param maxPreco         preço médio máximo dos produtos (opcional)
-     * @param minAvaliacoes    número mínimo de avaliações (opcional)
-     * @param cidade           cidade da morada (opcional)
-     * @param minPedidos       número mínimo de pedidos realizados (opcional)
+     * @param nome          parte do nome (opcional)
+     * @param tipoCozinha   tipo de cozinha exacto (opcional)
+     * @param horario       horário a que deve estar aberto (opcional)
+     * @param minPreco      preço médio mínimo dos produtos (opcional)
+     * @param maxPreco      preço médio máximo dos produtos (opcional)
+     * @param minAvaliacoes número mínimo de avaliações (opcional)
+     * @param cidade        cidade da morada (opcional)
+     * @param minPedidos    número mínimo de pedidos realizados (opcional)
      * @return lista de restaurantes que satisfazem todos os critérios
      */
     public List<Restaurante> listarRestaurantesComFiltros(String nome, String tipoCozinha,
@@ -225,5 +240,26 @@ public class RestauranteService {
                 .and(RestauranteSpecifications.comCidade(cidade))
                 .and(RestauranteSpecifications.comMinimoPedidos(minPedidos));
         return restauranteRepository.findAll(spec);
+    }
+
+    /**
+     * FASE 1 — Query 1: Restaurantes com maior volume de vendas (€).
+     * Calcula o montante total (soma de preços) para cada restaurante.
+     * 
+     * @return lista de arrays [Restaurante, volumeVendas] ordenada por volume DESC
+     */
+    public List<Object[]> restaurantesComVolumeSvendas() {
+        return restauranteRepository.findRestaurantesComMaiorVolumeVendas();
+    }
+
+    /**
+     * FASE 1 — Query 2: Restaurantes com mais pedidos completados.
+     * Calcula o número total de pedidos para cada restaurante.
+     * 
+     * @return lista de arrays [Restaurante, quantidadePedidos] ordenada por
+     *         quantidade DESC
+     */
+    public List<Object[]> restaurantesComMaisPedidos() {
+        return restauranteRepository.findRestaurantesComMaisPedidos();
     }
 }

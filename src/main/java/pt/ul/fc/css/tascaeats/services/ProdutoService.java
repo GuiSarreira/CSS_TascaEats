@@ -1,9 +1,12 @@
 package pt.ul.fc.css.tascaeats.services;
 
 import pt.ul.fc.css.tascaeats.repositories.*;
+import pt.ul.fc.css.tascaeats.repositories.specs.ProdutoSpecifications;
 import pt.ul.fc.css.tascaeats.entities.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +21,7 @@ public class ProdutoService {
     private final ProdutoRepository produtoRepository;
     private final RestauranteRepository restauranteRepository;
     private final MenuRepository menuRepository;
+    private final ProdutoPedidoRepository produtoPedidoRepository;
 
     /**
      * Construtor para injeção de dependências dos repositórios necessários.
@@ -25,13 +29,16 @@ public class ProdutoService {
      * @param produtoRepository   repositório de produtos
      * @param restauranteRepository repositório de restaurantes (necessário para validar acesso ao menu)
      * @param menuRepository      repositório de menus (necessário para gestão de menus padrão)
+     * @param produtoPedidoRepository repositório de itens de pedidos (necessário para queries de negócio)
      */
     public ProdutoService(ProdutoRepository produtoRepository,
                           RestauranteRepository restauranteRepository,
-                          MenuRepository menuRepository) {
+                          MenuRepository menuRepository,
+                          ProdutoPedidoRepository produtoPedidoRepository) {
         this.produtoRepository = produtoRepository;
         this.restauranteRepository = restauranteRepository;
         this.menuRepository = menuRepository;
+        this.produtoPedidoRepository = produtoPedidoRepository;
     }
 
     /**
@@ -184,5 +191,76 @@ public class ProdutoService {
         return menu.getProdutos().stream()
                 .filter(p -> !p.isEliminado() && p.getPreco() <= precoMaximo)
                 .toList();
+    }
+
+    /**
+     * Filtra produtos com múltiplos critérios usando JPA Specifications.
+     * Todos os parâmetros são opcionais; apenas os não-null são aplicados.
+     *
+     * Filtros suportados:
+     * - Nome: substring search (case-insensitive)
+     * - Preço: intervalo (precoMin/precoMax)
+     * - Categoria: correspondência exata
+     * - Disponibilidade: booleano (apenas admin/entregador devem usar filtro de disponibilidade)
+     * - Popularidade: número mínimo de vezes pedido em intervalo de tempo
+     *
+     * @param nome Parte do nome a procurar (null para ignorar)
+     * @param precoMin Preço mínimo (null para ignorar)
+     * @param precoMax Preço máximo (null para ignorar)
+     * @param categoria Categoria exata (null para ignorar)
+     * @param disponivel Estado de disponibilidade (null para ignorar)
+     * @param minPopularidade Número mínimo de vezes pedido (null para ignorar)
+     * @param dataInicio Data/hora inicial para popularidade (null para ignorar)
+     * @param dataFim Data/hora final para popularidade (null para ignorar)
+     * @return Lista de produtos que satisfazem todos os critérios aplicados
+     */
+    public List<Produto> filtrarProdutos(String nome, Double precoMin, Double precoMax,
+                                         String categoria, Boolean disponivel,
+                                         Integer minPopularidade, LocalDateTime dataInicio, LocalDateTime dataFim) {
+        Specification<Produto> spec = Specification.where(ProdutoSpecifications.naoEliminado());
+
+        if (nome != null && !nome.isBlank()) {
+            spec = spec.and(ProdutoSpecifications.comNome(nome));
+        }
+        if (precoMin != null || precoMax != null) {
+            spec = spec.and(ProdutoSpecifications.comPreco(precoMin, precoMax));
+        }
+        if (categoria != null && !categoria.isBlank()) {
+            spec = spec.and(ProdutoSpecifications.comCategoria(categoria));
+        }
+        if (disponivel != null) {
+            spec = spec.and(ProdutoSpecifications.comDisponibilidade(disponivel));
+        }
+        if (minPopularidade != null && minPopularidade > 0) {
+            spec = spec.and(ProdutoSpecifications.comPopularidade(minPopularidade, dataInicio, dataFim));
+        }
+
+        return produtoRepository.findAll(spec);
+    }
+
+    /**
+     * Encontra o produto mais pedido (mais vezes encomendado) de um restaurante.
+     *
+     * Query de negócio: "Qual é o item mais pedido de um restaurante?"
+     *
+     * Responde com uma array contendo:
+     * - [0]: Produto (a entidade)
+     * - [1]: totalVezesPedido (Long — total de vezes que foi pedido, somando quantidades)
+     *
+     * @param restauranteId Identificador único do restaurante
+     * @return Opcional contendo [Produto, totalVezesPedido], vazio se restaurante não tem pedidos
+     */
+    public java.util.Optional<Object[]> produtoMaisPedidoDoRestaurante(Long restauranteId) {
+        List<Object[]> resultados = produtoPedidoRepository.findProdutoMaisPedidoDoRestaurante(restauranteId);
+        return resultados.isEmpty() ? java.util.Optional.empty() : java.util.Optional.of(resultados.get(0));
+    }
+
+    /**
+     * FASE 1 — Query 4: Produtos mais vendidos da plataforma.
+     * Calcula a quantidade total de cada produto vendido (em pedidos DELIVERED).
+     * @return lista de arrays [Produto, quantidadeTotal] ordenada por quantidade DESC
+     */
+    public List<Object[]> produtosMaisVendidos() {
+        return produtoRepository.findProdutosMaisVendidos();
     }
 }

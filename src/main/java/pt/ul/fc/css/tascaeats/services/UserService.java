@@ -1,9 +1,11 @@
 package pt.ul.fc.css.tascaeats.services;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.repositories.*;
+import pt.ul.fc.css.tascaeats.repositories.specs.UserSpecifications;
 
 import java.util.List;
 import java.util.Optional;
@@ -269,5 +271,41 @@ public class UserService {
         }
         cliente.removerMorada(moradas.get(index));
         clienteRepository.save(cliente);
+    }
+
+    /**
+     * Lista utilizadores ativos com filtros opcionais por nome, tipo, nº mínimo de
+     * pedidos (clientes) e nº mínimo de entregas (entregadores).
+     *
+     * Usa {@code Specification} para filtros dinâmicos em SQL, sem carregar
+     * todos os utilizadores em memória.
+     *
+     * @param nome        parte do nome a pesquisar (insensível a maiúsculas)
+     * @param tipo        tipo de utilizador: "CLIENTE", "ENTREGADOR" ou "ADMIN"
+     * @param minPedidos  nº mínimo de pedidos (apenas aplicado a clientes)
+     * @param minEntregas nº mínimo de entregas (apenas aplicado a entregadores)
+     * @return lista de utilizadores que satisfazem todos os critérios fornecidos
+     */
+    @Transactional(readOnly = true)
+    public List<User> filtrarUtilizadores(String nome, String tipo, Integer minPedidos, Integer minEntregas) {
+        Specification<User> spec = Specification.where(UserSpecifications.ativo());
+
+        if (nome != null && !nome.isBlank()) {
+            spec = spec.and(UserSpecifications.comNome(nome));
+        }
+
+        if (tipo != null && !tipo.isBlank()) {
+            spec = spec.and(UserSpecifications.comTipo(tipo));
+        }
+
+        if (minPedidos != null) {
+            spec = spec.and(UserSpecifications.comMinimoPedidos(minPedidos));
+        }
+
+        if (minEntregas != null) {
+            spec = spec.and(UserSpecifications.comMinimoEntregas(minEntregas));
+        }
+
+        return userRepository.findAll(spec);
     }
 }

@@ -238,14 +238,14 @@ Cada um trabalha numa **feature completa**: entidade → service → repository 
 ### Semana 2: Controllers REST + Web UI
 
 **Controller REST:**
-- **C** Atualizar `PedidoController`:
+- ✅ Atualizar `PedidoController`:
   - `POST /api/pedidos` — criar (aceitar items de restaurantes diferentes, morada)
   - `GET /api/pedidos/{id}` — detalhe
   - `GET /api/pedidos/cliente/{clienteId}` — listar do cliente com filtros
   - `PATCH /api/pedidos/{id}/avancar` — avançar estado
   - `PATCH /api/pedidos/{id}/cancelar` — cancelar
   - DTOs: `CriarPedidoRequest` (aceitar `List<{produtoId, quantity}>`, `moradaId ou novaModada`), `PedidoResponse`
-- **C** `EntregaController`:
+- ✅ `EntregaController`:
   - `GET /api/entregas/{id}` — detalhe
   - `GET /api/entregas/pedido/{pedidoId}` — entrega do pedido
   - `PATCH /api/entregas/{id}/iniciar` — iniciar

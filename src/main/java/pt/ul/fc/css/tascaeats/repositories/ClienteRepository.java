@@ -1,8 +1,8 @@
 package pt.ul.fc.css.tascaeats.repositories;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pt.ul.fc.css.tascaeats.entities.Cliente;
 import java.util.List;
@@ -41,20 +41,7 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     @Query("SELECT c FROM Cliente c WHERE c.id NOT IN (SELECT DISTINCT p.cliente.id FROM Pedido p)")
     List<Cliente> findClientesSemCompras();
 
-    /**
-     * Devolve o cliente com o maior número de pedidos.
-     * Query de negócio para responder a: "Qual é o cliente com mais pedidos?"
-     *
-     * Deve ser chamado com {@code PageRequest.of(0, 1)} para obter apenas o primeiro resultado:
-     * clienteRepository.findClienteComMaisPedidos(PageRequest.of(0, 1))
-     *                  .stream().findFirst()
-     *                  .map(obj -> (Cliente) obj[0]);
-     *
-     * @param pageable use {@code PageRequest.of(0, 1)} para limitar ao top 1
-     * @return lista com no máximo um array {@code [Cliente, totalPedidos]}
-     */
-    @Query("SELECT c, COUNT(p.id) AS totalPedidos FROM Cliente c JOIN c.pedidos p GROUP BY c.id ORDER BY totalPedidos DESC")
-    List<Object[]> findClienteComMaisPedidos(Pageable pageable);
+
 
     /**
      * Lista todos os clientes com o respetivo total de pedidos realizados.
@@ -65,4 +52,23 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
      */
     @Query("SELECT c, COUNT(p.id) AS totalPedidos FROM Cliente c LEFT JOIN c.pedidos p GROUP BY c.id ORDER BY totalPedidos DESC")
     List<Object[]> findAllClientesComTotalPedidos();
+
+    /**
+     * Encontra o cliente com mais pedidos num intervalo de tempo.
+     * Query de negócio (Fase 2): "Qual é o cliente que mais pedidos fez num intervalo de tempo?"
+     *
+     * Agrupa por cliente, filtra por data/hora, e retorna ordenado por total de pedidos descendente.
+     *
+     * @param dataInicio data/hora inicial do intervalo (inclusivo)
+     * @param dataFim data/hora final do intervalo (inclusivo)
+     * @return lista de arrays {@code [Cliente, totalPedidos]} ordenada por totalPedidos DESC
+     */
+    @Query("SELECT p.cliente, COUNT(p) AS totalPedidos " +
+           "FROM Pedido p " +
+           "WHERE p.dataHora >= :dataInicio AND p.dataHora <= :dataFim " +
+           "GROUP BY p.cliente.id " +
+           "ORDER BY totalPedidos DESC")
+    List<Object[]> findClienteComMaisPedidosNoIntervalo(
+           @Param("dataInicio") java.time.LocalDateTime dataInicio,
+           @Param("dataFim") java.time.LocalDateTime dataFim);
 }

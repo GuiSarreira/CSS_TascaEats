@@ -13,7 +13,6 @@ import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.exceptions.GlobalExceptionHandler;
 import pt.ul.fc.css.tascaeats.services.ProdutoService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;

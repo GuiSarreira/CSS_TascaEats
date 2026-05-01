@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.dto.*;
 import pt.ul.fc.css.tascaeats.services.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -118,5 +119,49 @@ public class ProdutoController {
     public ResponseEntity<Void> remover(@PathVariable Long restauranteId, @PathVariable Long id) {
         produtoService.removerProduto(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Filtra produtos com múltiplos critérios avançados (endpoint global, não aninhado).
+     * 
+     * Filtros suportados (todos opcionais):
+     * - nome: substring search (case-insensitive)
+     * - precoMin: preço mínimo em euros
+     * - precoMax: preço máximo em euros
+     * - categoria: categoria exata (ex: "Entrada", "Prato Principal")
+     * - disponivel: boolean (true/false); requer admin/entregador (controlo de acesso)
+     * - minPopularidade: número mínimo de vezes que o produto foi pedido
+     * - dataInicio: data/hora inicial para filtro de popularidade (ISO format: yyyy-MM-dd'T'HH:mm:ss)
+     * - dataFim: data/hora final para filtro de popularidade (ISO format: yyyy-MM-dd'T'HH:mm:ss)
+     *
+     * @param nome Parte do nome a procurar (opcional)
+     * @param precoMin Preço mínimo (opcional)
+     * @param precoMax Preço máximo (opcional)
+     * @param categoria Categoria exata (opcional)
+     * @param disponivel Filtro de disponibilidade (opcional; apenas admin/entregador devem usar)
+     * @param minPopularidade Número mínimo de vezes pedido (opcional)
+     * @param dataInicio Data/hora inicial (opcional)
+     * @param dataFim Data/hora final (opcional)
+     * @return Lista de ProdutoResponse que satisfazem os critérios
+     */
+    @GetMapping("/filtros")
+    public ResponseEntity<List<ProdutoResponse>> filtrar(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) Double precoMin,
+            @RequestParam(required = false) Double precoMax,
+            @RequestParam(required = false) String categoria,
+            @RequestParam(required = false) Boolean disponivel,
+            @RequestParam(required = false) Integer minPopularidade,
+            @RequestParam(required = false) LocalDateTime dataInicio,
+            @RequestParam(required = false) LocalDateTime dataFim) {
+
+        List<ProdutoResponse> produtos = produtoService.filtrarProdutos(
+                nome, precoMin, precoMax, categoria, disponivel,
+                minPopularidade, dataInicio, dataFim)
+                .stream()
+                .map(ProdutoResponse::from)
+                .toList();
+
+        return ResponseEntity.ok(produtos);
     }
 }

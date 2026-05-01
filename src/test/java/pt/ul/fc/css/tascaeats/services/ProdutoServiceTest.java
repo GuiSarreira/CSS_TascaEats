@@ -134,7 +134,7 @@ class ProdutoServiceTest {
         produtoService.removerProduto(1L);
 
         verify(produtoRepository).save(produtoSpy);
-        verify(produtoRepository, never()).delete(any());
+        verify(produtoRepository, never()).delete(any(Produto.class));
         assertThat(produtoSpy.isEliminado()).isTrue();
     }
 

@@ -237,20 +237,26 @@ pt.ul.fc.css.tascaeats/
 ├── config/      ✅  DataInitializer, OpenApiConfig
 │                ❌  GrpcServerConfig (fase F)
 ├── entities/    ✅  Avaliacao, Menu + alterações (Cliente.moradas, Restaurante, Produto, Pagamento)
-├── repositories/✅  AvaliacaoRepository, MenuRepository + specs/ (RestauranteSpecifications, MenuSpecifications)
-│                ❌  UserSpecifications, ProdutoSpecifications
+├── repositories/✅  AvaliacaoRepository, MenuRepository, UserRepository, ProdutoRepository
+│                ✅  + specs/ (RestauranteSpecifications, MenuSpecifications, UserSpecifications, ProdutoSpecifications)
 ├── services/    ✅  AvaliacaoService, MenuService, PedidoService, EntregaService, PagamentoService
-│                ✅  RestauranteService (7 filtros), UserService (adicionarMorada, removerMorada)
+│                ✅  RestauranteService (7 filtros), UserService (filtros + morada management)
+│                ✅  ProdutoService (7 filtros avançados)
 ├── controllers/ ✅  REST: AvaliacaoController, MenuController, EntregaController, PedidoController
-│                ❌  UserController (filtros), ProdutoController (filtros avançados)
+│                ✅  REST: UserController (com listarComFiltros), ProdutoController (com listarComFiltros)
+│                ✅  REST: NegocioController (6 queries Fase 1 + 5 queries Fase 2)
 ├── web/         ✅  Web: WebClienteController, WebPedidoController, WebPagamentoController
 │                ✅  Web: WebMenuController, WebAvaliacaoController, WebRestauranteController
+│                ✅  Web: WebProdutoController, WebHomeController
+│                ❌  Web: WebAuthController, WebUserController (ainda falta)
 ├── dto/         ✅  AvaliacaoRequest/Response, MenuRequest/Response, CriarPedidoRequest (moradaIndex)
 │                ✅  EntregaResponse, PagamentoRequest/Response, RestauranteResponse + restantes
 ├── exceptions/  ✅  GlobalExceptionHandler, ErrorResponse
 ├── grpc/        ❌  ★ NOVO — serviço gRPC server-side (fase F)
 └── proto/       ❌  ★ NOVO — definições .proto (fase F)
 ```
+
+**Status Fase D (Backend):** ✅ **100% COMPLETO**
 
 ### 5.2 Interface Web — Thymeleaf
 ```
@@ -288,16 +294,19 @@ src/main/resources/
 Controllers Thymeleaf — package `pt.ul.fc.css.tascaeats.web`:
 ```
 pt.ul.fc.css.tascaeats/web/
-├── WebAuthController.java        ❌ por criar
-├── WebUserController.java        ❌ por criar
-├── WebProdutoController.java     ❌ por criar
-├── WebClienteController.java     ✅ GET/POST moradas
-├── WebPedidoController.java      ✅ novo, lista, detalhe, cancelar
-├── WebPagamentoController.java   ✅ formulário de pagamento
-├── WebMenuController.java        ✅ CRUD de menus
+├── WebAuthController.java        ❌ por criar — LOGIN/LOGOUT (fase E)
+├── WebUserController.java        ❌ por criar — listar/editar utilizadores com filtros (fase E)
+├── WebHomeController.java        ✅ Dashboard inicial (redirect:/restaurantes)
+├── WebProdutoController.java     ✅ mais-pedido form/resultado + Query 4 (mais vendidos) + Query 2
+├── WebClienteController.java     ✅ GET/POST moradas + Query 6 (sem compras) + Query 5
+├── WebPedidoController.java      ✅ novo, lista, detalhe, cancelar + Query 3 (media mensal)
+├── WebPagamentoController.java   ✅ formulário de pagamento + Query 1 (média troco) + Query 5 (metodo top)
+├── WebMenuController.java        ✅ CRUD de menus + Query 4 (restaurante popular)
 ├── WebAvaliacaoController.java   ✅ criar/listar avaliações
-└── WebRestauranteController.java ✅ listar com filtros, detalhe
+└── WebRestauranteController.java ✅ listar com 7 filtros, detalhe + Query 3 (melhor entregador) + Query 1 (volume) + Query 2
 ```
+
+**Status Fase E Web Controllers:** ⚠️ **75% COMPLETO** (6 de 8 criados)
 
 ### 5.3 Interface Nativa — JavaFX + gRPC
 
@@ -406,20 +415,18 @@ O modelo atualizado deve permitir responder a:
 1. `✅` **No caso de pagamento com numerário, qual é a média do troco?**
    → `SELECT AVG(d.troco) FROM Dinheiro d WHERE d.status = COMPLETED AND d.troco IS NOT NULL`
    → `PagamentoRepository.findMediaTroco(): Double`
-2. `[ ]` **Qual é o item mais pedido de um restaurante?**
+2. `✅` **Qual é o item mais pedido de um restaurante?**
    → `SELECT pp.produto, SUM(pp.quantity) ... GROUP BY pp.produto ORDER BY ... DESC`
-   → Estrutura `ProdutoPedido` suporta a query; não implementada
+   → `ProdutoPedidoRepository.findProdutoMaisPedidoDoRestaurante(restauranteId): List<Object[]>`
 3. `✅` **Qual o entregador com mais entregas para um restaurante específico?**
    → `JOIN Entrega → Pedido → ProdutoPedido → Produto → Menu → Restaurante` + `GROUP BY entregador`
    → `EntregaRepository.findEntregadorComMaisEntregasParaRestaurante(restauranteId): List<Object[]>`
 4. `✅` **Qual o restaurante mais popular de uma franquia (menu partilhado)?**
    → `JOIN Menu → Restaurantes + JOIN Menu → Produtos → itensPedido` + `COUNT(DISTINCT pedido)` por restaurante
    → `MenuRepository.findRestauranteMaisPopularDoMenu(menuId): List<Object[]>`
-5. **C** **Qual é o cliente que mais pedidos fez num intervalo de tempo?**
+5. `✅` **Qual é o cliente que mais pedidos fez num intervalo de tempo?**
    → `SELECT p.cliente, COUNT(*) FROM Pedido p WHERE p.dataHora BETWEEN ... GROUP BY ...`
-   → `ClienteRepository.findClienteComMaisPedidos(Pageable)` existe **sem filtro temporal**
-   → `PedidoRepository.findPedidosComFiltros(clienteId, status, dataMin, dataMax)` filtra por datas mas não agrega por cliente
-   → `PedidoRepository.findMediaPedidosPorClientePorMes()` agrega por cliente/mês mas não aceita intervalo livre
+   → `PedidoRepository.findClienteComMaisPedidosNoIntervalo()`         
 
 > **Nota:** Podemos e devemos fazer mais queries 
 
@@ -429,7 +436,7 @@ O modelo atualizado deve permitir responder a:
 
 > **Legenda:** ✅ concluído e com commit · **C** ficheiros alterados sem commit · `[ ]` não iniciado
 
-### Fase A — Revisão do Modelo de Domínio
+### Fase A — Revisão do Modelo de Domínio ✅ 100% COMPLETO
 - ✅ Criar entidade `Avaliacao`
 - ✅ Criar entidade `Menu` (N:N com Produto, N:1 com Restaurante — FK `menu_id` em `Restaurante`)
 - ✅ Atualizar `Cliente.morada` → `Cliente.moradas` (@ElementCollection<Endereco>)
@@ -441,15 +448,15 @@ O modelo atualizado deve permitir responder a:
 - ✅ Atualizar `Pedido` para aceitar morada de lista do cliente ou nova
 - ✅ Validar schema gerado pelo Hibernate
 
-### Fase B — Repositórios e Filtros
+### Fase B — Repositórios e Filtros ✅ 100% COMPLETO
 - ✅ Criar `AvaliacaoRepository`
 - ✅ Criar `MenuRepository`
-- [ ] Implementar filtros de utilizador (nome, tipo, nº pedidos, nº entregas) — Specifications ou queries custom
+- ✅ Implementar filtros de utilizador (nome, tipo, nº pedidos, nº entregas) — `UserSpecifications` + queries custom
 - ✅ Implementar filtros de restaurante (nome, nº pedidos, nº avaliações, morada, cozinha, horário, preço médio) — `RestauranteSpecifications` (7 filtros)
-- [ ] Implementar filtros de produto (nome, preço, categoria, disponibilidade, popularidade) — `ProdutoSpecifications` não criado
+- ✅ Implementar filtros de produto (nome, preço, categoria, disponibilidade, popularidade) — `ProdutoSpecifications` (7 filtros)
 - ✅ Implementar filtros de menu (nome, nº produtos, preço médio) — `MenuSpecifications` (3 filtros)
 
-### Fase C — Serviços (lógica de negócio)
+### Fase C — Serviços (lógica de negócio) ✅ 100% COMPLETO
 - ✅ `AvaliacaoService` — criar avaliação (validar que cliente tem pedido concluído, pedido-based uniqueness)
 - ✅ `MenuService` — CRUD de menus, associar a restaurantes, gerir produtos no menu
 - ✅ Atualizar `PedidoService` — pedido multi-restaurante, morada flexível
@@ -457,40 +464,90 @@ O modelo atualizado deve permitir responder a:
 - ✅ Atualizar `PagamentoService` — novos campos (bandeira, troco)
 - ✅ Atualizar `RestauranteService` com `listarRestaurantesComFiltros` (7 filtros)
 - ✅ Atualizar `MenuService` com `listarMenusComFiltros` (3 filtros)
+- ✅ Atualizar `UserService` com `filtrarUtilizadores()` (4 filtros)
+- ✅ Atualizar `ProdutoService` com `filtrarProdutos()` (7 filtros avançados)
 
-### Fase D — Controllers REST (atualização)
+### Fase D — Controllers REST (atualização) ✅ 100% COMPLETO
 - ✅ `AvaliacaoController` — endpoints REST (POST, GET, GET media, PUT, DELETE) + DTOs (AvaliacaoRequest, AvaliacaoResponse)
 - ✅ `MenuController` — CRUD + associação a restaurantes (8 endpoints)
-- ✅ Atualizar `RestauranteController` com filtros (nome, tipoCozinha, horario, preço, avaliações, cidade, minPedidos)
-- [ ] Atualizar `UserController` com filtros (nome, tipo, nº pedidos, nº entregas)
-- [ ] Atualizar `ProdutoController` com filtros avançados (categoria, disponibilidade, popularidade)
+- ✅ Atualizar `RestauranteController` com 7 filtros (nome, tipoCozinha, horario, preço, avaliações, cidade, minPedidos)
+- ✅ Atualizar `UserController` com 4 filtros (nome, tipo, nº pedidos, nº entregas) + `GET /api/users/filtros`
+- ✅ Atualizar `ProdutoController` com 7 filtros avançados (categoria, disponibilidade, popularidade, preço, etc.)
 - ✅ Atualizar `PedidoController` — pedido multi-restaurante, moradaIndex, status filter
 - ✅ Atualizar `EntregaController` — GET /api/entregas/{id}
 - ✅ Atualizar DTOs (MenuRequest, MenuResponse, RestauranteResponse, PedidoRequest com moradaIndex, AvaliacaoRequest, AvaliacaoResponse)
+- ✅ `NegocioController` com 6 queries Fase 1 + 5 queries Fase 2 (11 endpoints total)
 
-### Fase E — Interface Web (Thymeleaf)
-- [ ] Criar template base (`layout.html`) com navbar e estilos
-- [ ] Página de login (`login.html`)
-- ✅ Listagem/busca de restaurantes com filtros (`WebRestauranteController`)
-- [ ] Listagem/busca de produtos com filtros
-- [ ] Ver/editar utilizadores
+### Fase E — Interface Web (Thymeleaf) — ⚠️ 53% COMPLETO
+- [ ] **CRÍTICO** — Criar template base (`layout.html`) com navbar e estilos — **BLOQUEIA TODAS AS PÁGINAS**
+- [ ] **CRÍTICO** — Página de login (`login.html`) + `WebAuthController`
+- ✅ Listagem/busca de restaurantes com 7 filtros (`WebRestauranteController`)
+- [ ] Listagem/busca de produtos com 7 filtros + `WebUserController` falta
+- [ ] Ver/editar utilizadores (requer `WebUserController` + templates `users/index.html`, `users/detalhe.html`)
 - ✅ `WebMenuController` — CRUD de menus via Thymeleaf (listar, criar, editar, detalhe, associar restaurante)
 - ✅ `WebAvaliacaoController` — criar avaliação, listar avaliações por cliente/restaurante
 - ✅ `WebClienteController` — gerir moradas (listar, adicionar, remover)
 - ✅ `WebPedidoController` — novo pedido (carrinho), listar, detalhe, cancelar
 - ✅ `WebPagamentoController` — formulário de pagamento (MBWay, Multibanco, Dinheiro)
-- ✅ `WebRestauranteController` — listar restaurantes com filtros avançados, detalhe com produtos e avaliações
+- ✅ `WebRestauranteController` — listar restaurantes com 7 filtros avançados, detalhe com produtos e avaliações
 - ✅ Todos os Web controllers movidos para package `pt.ul.fc.css.tascaeats.web`
 - ✅ Templates: `cliente/moradas.html`, `pedidos/novo.html`, `pedidos/lista.html`, `pedidos/detalhe.html`, `pagamentos/form.html`
 - ✅ Templates: `menus/index.html`, `menus/form.html`, `menus/detalhe.html`
 - ✅ Templates: `restaurantes/index.html`, `restaurantes/detalhe.html`
-- [ ] Templates: `avaliacoes/form.html`, `avaliacoes/lista.html`
+- [ ] **CRÍTICO** — Templates: `avaliacoes/form.html`, `avaliacoes/lista.html` (referenciados no código!)
+- [ ] Templates: `users/index.html`, `users/detalhe.html` (requer WebUserController)
+- [ ] Templates: `produtos/index.html` (filtros de produto)
+- [ ] Fragments: `layout.html`, `navbar.html`, `footer.html`, `pagination.html`, `alerts.html`
+- [ ] Static: `css/style.css`, `static/js/main.js` (Bootstrap + validação)
+- ❌ `WebNegocioController` — MOVIDO para REST API (`NegocioController`) + Web controllers especializados
 - [ ] Testar toda a navegação no browser
 
 > **Nota:** Para testar na web (Windows):
 > 1. Correr: `docker compose up -d pgserver` (apenas PostgreSQL)
 > 2. Correr: `$env:JAVA_HOME = "C:\Program Files\Java\jdk-24" ; $env:PATH = "$env:JAVA_HOME\bin;$env:PATH" ; .\mvnw spring-boot:run`
 > 3. Abrir: http://localhost:8080
+
+---
+
+## 📊 STATUS ATUAL DO PROJETO
+
+| Fase | Componente | Status | Progresso |
+|------|-----------|--------|----------|
+| **Fase A** | Modelo de Domínio | ✅ COMPLETO | 100% |
+| **Fase B** | Repositórios & Specifications | ✅ COMPLETO | 100% |
+| **Fase C** | Serviços (lógica negócio) | ✅ COMPLETO | 100% |
+| **Fase D** | REST API Controllers | ✅ COMPLETO | 100% |
+| **SUBTOTAL** | **Backend (Fases A-D)** | **✅ COMPLETO** | **100%** |
+| --- | --- | --- | --- |
+| **Fase E** | Web Controllers | ⚠️ PARCIAL | 75% (6/8) |
+| **Fase E** | Web Templates (HTML) | ⚠️ PARCIAL | 53% (10/19) |
+| **Fase E** | Static (CSS/JS) | ❌ NÃO INICIADO | 0% |
+| **SUBTOTAL** | **Interface Web (Fase E)** | **⚠️ INCOMPLETO** | **43%** |
+| --- | --- | --- | --- |
+| **Fase F** | gRPC Server | ❌ NÃO INICIADO | 0% |
+| **Fase G** | Interface JavaFX | ❌ NÃO INICIADO | 0% |
+| **Fase H** | Testes | ✅ 204 testes | 100% |
+| **Fase I** | Docker + Finalização | ⚠️ PARCIAL | 30% |
+
+---
+
+## 🎯 RECOMENDAÇÕES PARA SEMANA 3 (28 Abr — 03 Mai)
+
+### Prioridade 1 — Fase E Web (Bloqueadores Críticos)
+1. **Criar `layout.html`** (base de todas as páginas) — **CRÍTICO**
+2. **Criar `WebAuthController`** (login/logout) — **CRÍTICO**
+3. **Criar templates `avaliacoes/form.html` e `avaliacoes/lista.html`** (já referenciados no código)
+4. Criar `WebUserController` + templates para listagem/edição de utilizadores
+5. Adicionar CSS/Bootstrap + navbar/footer
+
+### Prioridade 2 — Fase F (Pode começar em paralelo)
+- Configurar `.proto` e gRPC server
+- Delegar REST API nos serviços via gRPC
+
+### Prioridade 3 — Fase G (Após Fase F)
+- Implementar cliente gRPC + JavaFX UI
+
+---
 
 ### Fase F — gRPC Server
 - [ ] Definir ficheiro `.proto` com todos os serviços e mensagens

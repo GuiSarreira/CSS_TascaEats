@@ -16,7 +16,6 @@ import pt.ul.fc.css.tascaeats.repositories.RestauranteRepository;
 import java.lang.reflect.Field;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
