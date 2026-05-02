@@ -1,0 +1,24 @@
+/* Custom styles for TascaEats */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.card {
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-4px);
+}
+.rating {
+    color: #ffc107;
+}
+.btn-primary {
+    background-color: #d9534f;
+    border-color: #d9534f;
+}
+.btn-primary:hover {
+    background-color: #c9302c;
+    border-color: #ac2925;
+}

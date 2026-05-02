@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${tipo == 'cliente'} ? 'Minhas Avaliações' : 'Avaliações do Restaurante'">Avaliações</title>
+</head>
+<div layout:fragment="content">
+    <h1 th:if="${tipo == 'cliente'}"><i class="fas fa-user-check"></i> Minhas Avaliações</h1>
+    <h1 th:if="${tipo == 'restaurante'}"><i class="fas fa-store"></i> Avaliações do Restaurante</h1>
+
+    <div th:if="${avaliacoes == null || avaliacoes.length == 0}" class="alert alert-info">
+        Nenhuma avaliação encontrada.
+    </div>
+    <div th:unless="${avaliacoes == null || avaliacoes.length == 0}">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="list-group">
+                    <div th:each="av : ${avaliacoes}" class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong th:text="${av.clienteNome}"></strong> avaliou 
+                                <strong th:text="${av.restauranteNome}"></strong>
+                                <span class="rating ms-2">
+                                    <span th:each="i, iterStat : ${#arrays.sequence(1, av.nota)}">★</span>
+                                    <span th:each="i, iterStat : ${#arrays.sequence(av.nota+1, 5)}">☆</span>
+                                </span>
+                            </div>
+                            <small class="text-muted" th:text="${#temporals.format(av.dataAvaliacao, 'dd/MM/yyyy HH:mm')}"></small>
+                        </div>
+                        <p class="mt-2 mb-0" th:text="${av.comentario}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="alerts">
+    <div th:if="${session.successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${session.successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <!-- limpar mensagem após mostrar -->
+        <div th:remove="all" th:utext="${#session.remove('successMessage')}"></div>
+    </div>
+    <div th:if="${session.errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${session.errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div th:remove="all" th:utext="${#session.remove('errorMessage')}"></div>
+    </div>
+</div>
+</html>
