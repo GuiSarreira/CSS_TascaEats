@@ -16,16 +16,20 @@ service TascaEatsService {
     // ── Pessoa 1: Avaliações ─────────────────────────────────────────────────
     rpc CriarAvaliacao (CriarAvaliacaoRequest) returns (AvaliacaoResponse);
     rpc ListarAvaliacoes (ListarAvaliacoesRequest) returns (ListarAvaliacoesResponse);
+    rpc ObterAvaliacao (ObterAvaliacaoRequest) returns (AvaliacaoResponse);
     rpc AtualizarAvaliacao (AtualizarAvaliacaoRequest) returns (AvaliacaoResponse);
     rpc RemoverAvaliacao (RemoverAvaliacaoRequest) returns (google.protobuf.Empty);
 
     // ── Pessoa 2: Menus Partilhados + Restaurantes ───────────────────────────
     rpc CriarMenu (CriarMenuRequest) returns (MenuResponse);
     rpc ListarMenus (ListarMenusRequest) returns (ListarMenusResponse);
+    rpc ObterMenu (ObterMenuRequest) returns (MenuResponse);
     rpc AtualizarMenu (AtualizarMenuRequest) returns (MenuResponse);
     rpc RemoverMenu (RemoverMenuRequest) returns (google.protobuf.Empty);
     rpc AssociarMenuRestaurante (AssociarMenuRestauranteRequest) returns (google.protobuf.Empty);
     rpc ListarRestaurantes (ListarRestaurantesRequest) returns (ListarRestaurantesResponse);
+    rpc CriarRestaurante (CriarRestauranteRequest) returns (RestauranteResponse);
+    rpc AtualizarRestaurante (AtualizarRestauranteRequest) returns (RestauranteResponse);
 
     // ── Pessoa 3: Pedidos + Entregas + Pagamentos ────────────────────────────
     rpc CriarPedido (CriarPedidoRequest) returns (PedidoResponse);
@@ -33,7 +37,21 @@ service TascaEatsService {
     rpc AvancarEstadoPedido (AvancarEstadoPedidoRequest) returns (PedidoResponse);
     rpc CancelarPedido (CancelarPedidoRequest) returns (google.protobuf.Empty);
     rpc RegistarPagamento (RegistarPagamentoRequest) returns (PagamentoResponse);
+    rpc ListarPagamentos (ListarPagamentosRequest) returns (ListarPagamentosResponse);
+    rpc ListarEntregas (ListarEntregasRequest) returns (ListarEntregasResponse);
+    rpc AtualizarStatusEntrega (AtualizarStatusEntregaRequest) returns (EntregaResponse);
     rpc ObterEntrega (ObterEntregaRequest) returns (EntregaResponse);
+
+    // ── Administração: Users ───────────────────────────────────────────────
+    rpc ListarUsers (ListarUsersRequest) returns (ListarUsersResponse);
+    rpc RemoverUser (RemoverUserRequest) returns (google.protobuf.Empty);
+    rpc RegistarUser (RegistarUserRequest) returns (UserResponse);
+
+    // ── Administração: Produtos ───────────────────────────────────────────────
+    rpc ListarProdutos (ListarProdutosRequest) returns (ListarProdutosResponse);
+    rpc CriarProduto (CriarProdutoRequest) returns (ProdutoResponse);
+    rpc AtualizarProduto (AtualizarProdutoRequest) returns (ProdutoResponse);
+    rpc RemoverProduto (RemoverProdutoRequest) returns (google.protobuf.Empty);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -64,6 +82,10 @@ message RemoverAvaliacaoRequest {
 message ListarAvaliacoesRequest {
     optional int64 restaurante_id = 1;
     optional int64 cliente_id = 2;
+}
+
+message ObterAvaliacaoRequest {
+    int64 avaliacao_id = 1;
 }
 
 message AvaliacaoResponse {
@@ -110,6 +132,10 @@ message ListarMenusRequest {
     optional int32 max_produtos = 3;
     optional double min_preco = 4;
     optional double max_preco = 5;
+}
+
+message ObterMenuRequest {
+    int64 menu_id = 1;
 }
 
 message ProdutoInfo {
@@ -170,6 +196,36 @@ message ListarRestaurantesResponse {
     repeated RestauranteInfo restaurantes = 1;
 }
 
+message CriarRestauranteRequest {
+    string nome = 1;
+    EnderecoInfo morada = 2;
+    string tipo_culinaria = 3;
+    string hora_abertura = 4;
+    string hora_fecho = 5;
+    string descricao = 6;
+}
+
+message AtualizarRestauranteRequest {
+    int64 id = 1;
+    string nome = 2;
+    EnderecoInfo morada = 3;
+    string tipo_culinaria = 4;
+    string hora_abertura = 5;
+    string hora_fecho = 6;
+    string descricao = 7;
+}
+
+message RestauranteResponse {
+    int64 id = 1;
+    string nome = 2;
+    string tipo_cozinha = 3;
+    bool aberto = 4;
+    string horario_abertura = 5;
+    string horario_fecho = 6;
+    EnderecoInfo morada = 7;
+    string descricao = 8;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Pessoa 3 — Pedidos + Entregas + Pagamentos
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -214,8 +270,9 @@ message PedidoResponse {
     string data_hora = 3;
     double preco_total = 4;
     int64 cliente_id = 5;
-    EnderecoInfo endereco_entrega = 6;
-    repeated ProdutoPedidoInfo itens = 7;
+    string restaurante_nome = 6;
+    EnderecoInfo endereco_entrega = 7;
+    repeated ProdutoPedidoInfo itens = 8;
 }
 
 message ListarPedidosResponse {
@@ -250,4 +307,121 @@ message EntregaResponse {
     string status = 5;
     string hora_retirada = 6;
     string hora_entrega = 7;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Entregas — Listagem e Atualização
+// ═══════════════════════════════════════════════════════════════════════════════
+
+message ListarEntregasRequest {
+    optional string status = 1;
+    optional int64 entregador_id = 2;
+}
+
+message ListarEntregasResponse {
+    repeated EntregaResponse entregas = 1;
+}
+
+message AtualizarStatusEntregaRequest {
+    int64 entrega_id = 1;
+    string novo_status = 2;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Pagamentos — Listagem
+// ═══════════════════════════════════════════════════════════════════════════════
+
+message ListarPagamentosRequest {
+    optional int64 pedido_id = 1;
+    optional string status = 2;
+}
+
+message ListarPagamentosResponse {
+    repeated PagamentoResponse pagamentos = 1;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Users — CRUD
+// ═══════════════════════════════════════════════════════════════════════════════
+
+message UserInfo {
+    int64 id = 1;
+    string nome = 2;
+    string email = 3;
+    string tipo = 4;  // CLIENTE, ADMIN, ENTREGADOR
+    bool ativo = 5;
+}
+
+message ListarUsersRequest {
+    optional string tipo = 1;
+}
+
+message ListarUsersResponse {
+    repeated UserInfo users = 1;
+}
+
+message RemoverUserRequest {
+    int64 user_id = 1;
+}
+
+message RegistarUserRequest {
+    string nome = 1;
+    string email = 2;
+    string password = 3;
+    string tipo = 4;  // CLIENTE, ADMIN, ENTREGADOR
+    optional string zona_atuacao = 5;  // Para ENTREGADOR
+    optional string telemovel = 6;
+}
+
+message UserResponse {
+    int64 id = 1;
+    string nome = 2;
+    string email = 3;
+    string tipo = 4;  // CLIENTE, ADMIN, ENTREGADOR
+    bool ativo = 5;
+    optional string zona_atuacao = 6;  // Para ENTREGADOR
+    optional string telemovel = 7;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Produtos — CRUD
+// ═══════════════════════════════════════════════════════════════════════════════
+
+message ProdutoResponse {
+    int64 id = 1;
+    string nome = 2;
+    string descricao = 3;
+    double preco = 4;
+    string categoria = 5;
+    bool disponivel = 6;
+}
+
+message ListarProdutosRequest {
+    optional string categoria = 1;
+    optional string nome = 2;
+}
+
+message ListarProdutosResponse {
+    repeated ProdutoResponse produtos = 1;
+}
+
+message CriarProdutoRequest {
+    string nome = 1;
+    string descricao = 2;
+    double preco = 3;
+    string categoria = 4;
+    bool disponivel = 5;
+}
+
+message AtualizarProdutoRequest {
+    int64 produto_id = 1;
+    string nome = 2;
+    string descricao = 3;
+    double preco = 4;
+    string categoria = 5;
+    bool disponivel = 6;
+}
+
+message RemoverProdutoRequest {
+    int64 produto_id = 1;
 }

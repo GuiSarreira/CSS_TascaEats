@@ -14,6 +14,11 @@ services:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d postgres" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     restart: unless-stopped
 
   # APP*****************************************
@@ -24,15 +29,20 @@ services:
     container_name: java_app
     restart: unless-stopped
     depends_on:
-      - pgserver
+      pgserver:
+        condition: service_healthy
     networks:
       - dbnet
     ports:
       - 8080:8080
+      - 9090:9090
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://pgserver:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=password
 
 volumes:
   postgres-data:
-
 
 networks:
   dbnet:

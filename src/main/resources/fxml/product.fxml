@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pt.ul.fc.css.tascaeats.javafx.controllers.ProductController"
+    spacing="16"
+    styleClass="page-container">
+
+    <stylesheets>
+        <URL value="@../css/styles.css"/>
+    </stylesheets>
+
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <!-- Title -->
+    <Label text="Produtos" styleClass="section-title"/>
+    <Label text="Consulta e gere produtos usando o mesmo padrão de superfícies, toolbar e tabelas do dashboard." styleClass="section-subtitle" wrapText="true"/>
+
+    <!-- Filter Bar -->
+    <FlowPane hgap="10" vgap="8" prefWrapLength="980" styleClass="toolbar" style="-fx-alignment: center-left;">
+        <TextField fx:id="txtFilterName" promptText="Nome" prefWidth="180"/>
+        <TextField fx:id="txtMinPrice" promptText="Preco min" prefWidth="120"/>
+        <TextField fx:id="txtMaxPrice" promptText="Preco max" prefWidth="120"/>
+        <ComboBox fx:id="comboCategory" prefWidth="170"/>
+        <ComboBox fx:id="comboAvailability" prefWidth="140"/>
+        <TextField fx:id="txtMinPopularidade" promptText="Min popularidade" prefWidth="140"/>
+        <Button text="Filtrar" onAction="#loadProducts"/>
+        <Button text="Limpar" onAction="#clearFilters"/>
+        <Button fx:id="btnNewProduct" text="+ Novo" onAction="#newProduct" styleClass="button-secondary"/>
+        <Button fx:id="btnRefresh" text="Recarregar" onAction="#refresh"/>
+    </FlowPane>
+
+    <!-- Products Table -->
+    <TableView fx:id="tblProducts" prefHeight="400" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colProductId" text="ID" prefWidth="80"/>
+            <TableColumn fx:id="colProductName" text="Nome" prefWidth="200"/>
+            <TableColumn fx:id="colProductCategory" text="Categoria" prefWidth="120"/>
+            <TableColumn fx:id="colProductPrice" text="Preço (EUR)" prefWidth="100"/>
+            <TableColumn fx:id="colProductAvailable" text="Disponivel" prefWidth="110"/>
+            <TableColumn fx:id="colProductActions" text="Acoes" prefWidth="180"/>
+        </columns>
+    </TableView>
+
+    <!-- Status Bar -->
+    <HBox spacing="10" styleClass="status-bar" style="-fx-alignment: center-left;">
+        <Label fx:id="lblStatus" text="Pronto" styleClass="label,muted"/>
+    </HBox>
+
+</VBox>

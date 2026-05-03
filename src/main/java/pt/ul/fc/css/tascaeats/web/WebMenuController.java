@@ -1,5 +1,6 @@
 package pt.ul.fc.css.tascaeats.web;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -58,7 +59,10 @@ public class WebMenuController {
     // ─── Criar ───────────────────────────────────────────────────────────────
 
     @GetMapping("/novo")
-    public String formNovo(Model model) {
+    public String formNovo(Model model, HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/menus";
+        }
         model.addAttribute("restaurantes", restauranteRepository.findAll());
         model.addAttribute("produtos", produtoRepository.findByEliminadoFalse());
         return "menus/form";
@@ -68,7 +72,12 @@ public class WebMenuController {
     public String criar(@RequestParam String nome,
             @RequestParam(required = false) String descricao,
             @RequestParam(required = false) List<Long> produtoIds,
-            @RequestParam(required = false) List<Long> restauranteIds) {
+            @RequestParam(required = false) List<Long> restauranteIds,
+            HttpSession session) {
+
+        if (!isAdmin(session)) {
+            return "redirect:/menus";
+        }
 
         List<Produto> produtos = resolverProdutos(produtoIds);
         List<Restaurante> restaurantes = resolverRestaurantes(restauranteIds);
@@ -80,7 +89,10 @@ public class WebMenuController {
     // ─── Editar ──────────────────────────────────────────────────────────────
 
     @GetMapping("/{id}/editar")
-    public String formEditar(@PathVariable Long id, Model model) {
+    public String formEditar(@PathVariable Long id, Model model, HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/menus";
+        }
         Menu menu = menuService.buscarPorId(id);
         model.addAttribute("menu", menu);
         model.addAttribute("restaurantes", restauranteRepository.findAll());
@@ -93,7 +105,12 @@ public class WebMenuController {
             @RequestParam String nome,
             @RequestParam(required = false) String descricao,
             @RequestParam(required = false) List<Long> produtoIds,
-            @RequestParam(required = false) List<Long> restauranteIds) {
+            @RequestParam(required = false) List<Long> restauranteIds,
+            HttpSession session) {
+
+        if (!isAdmin(session)) {
+            return "redirect:/menus";
+        }
 
         List<Produto> produtos = resolverProdutos(produtoIds);
         List<Restaurante> restaurantes = resolverRestaurantes(restauranteIds);
@@ -116,14 +133,22 @@ public class WebMenuController {
 
     @PostMapping("/{id}/restaurantes/{restauranteId}")
     public String associarRestaurante(@PathVariable Long id,
-            @PathVariable Long restauranteId) {
+            @PathVariable Long restauranteId,
+            HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/menus";
+        }
         menuService.associarMenuRestaurante(id, restauranteId);
         return "redirect:/menus/" + id;
     }
 
     @PostMapping("/{id}/restaurantes/{restauranteId}/remover")
     public String desassociarRestaurante(@PathVariable Long id,
-            @PathVariable Long restauranteId) {
+            @PathVariable Long restauranteId,
+            HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/menus";
+        }
         menuService.removerMenuRestaurante(id, restauranteId);
         return "redirect:/menus/" + id;
     }
@@ -131,7 +156,10 @@ public class WebMenuController {
     // ─── Remover ─────────────────────────────────────────────────────────────
 
     @PostMapping("/{id}/remover")
-    public String remover(@PathVariable Long id) {
+    public String remover(@PathVariable Long id, HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/menus";
+        }
         menuService.removerMenu(id);
         return "redirect:/menus";
     }
@@ -140,7 +168,8 @@ public class WebMenuController {
 
     /**
      * Formulário para consultar o restaurante mais popular de uma franquia.
-     * Query de negócio: "Qual o restaurante mais popular (com mais avaliações) de uma franquia (menu)?"
+     * Query de negócio: "Qual o restaurante mais popular (com mais avaliações) de
+     * uma franquia (menu)?"
      */
     @GetMapping("/restaurante-popular")
     public String restaurantePopularForm(Model model) {
@@ -185,5 +214,13 @@ public class WebMenuController {
             return new ArrayList<>();
         }
         return new ArrayList<>(restauranteRepository.findAllById(ids));
+    }
+
+    private boolean isAdmin(HttpSession session) {
+        Object rawUser = session.getAttribute("user");
+        if (rawUser instanceof pt.ul.fc.css.tascaeats.dto.UserResponse user) {
+            return "ADMIN".equalsIgnoreCase(user.getRole());
+        }
+        return false;
     }
 }

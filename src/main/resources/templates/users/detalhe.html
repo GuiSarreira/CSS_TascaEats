@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Detalhe do Utilizador</title>
+</head>
+<div layout:fragment="content">
+    <div class="page-shell-te" style="max-width:920px;">
+        <div class="page-header-te">
+            <h1 class="page-title-te"><i class="fas fa-id-card me-2"></i>Perfil do Utilizador</h1>
+            <a th:href="@{/users}" class="btn-te btn-te-outline">Voltar</a>
+        </div>
+
+        <div class="surface-card-te">
+            <div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">ID</label>
+                        <p class="form-control-plaintext" th:text="${utilizador.id}">1</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Estado</label>
+                        <p class="form-control-plaintext">
+                            <span class="pill-te pill-open-te" th:if="${utilizador.ativo}">Ativo</span>
+                            <span class="pill-te pill-closed-te" th:unless="${utilizador.ativo}">Inativo</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Nome</label>
+                        <p class="form-control-plaintext" th:text="${utilizador.nome}">Nome</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Email</label>
+                        <p class="form-control-plaintext" th:text="${utilizador.email}">email@example.com</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Tipo</label>
+                        <p class="form-control-plaintext" th:text="${utilizador.class.simpleName}">Cliente</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Data de Registo</label>
+                        <p class="form-control-plaintext"
+                            th:text="${#temporals.format(utilizador.dataRegisto, 'dd/MM/yyyy HH:mm')}">01/01/2026 12:00
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="surface-card-te" th:if="${utilizador.class.simpleName == 'Cliente'}">
+            <div class="card-header">Dados de Cliente</div>
+            <div>
+                <p><strong>Total de pedidos:</strong> <span th:text="${utilizador.pedidos.size()}">0</span></p>
+                <div>
+                    <strong>Moradas:</strong>
+                    <ul class="mt-2 mb-0" th:if="${!#lists.isEmpty(utilizador.moradas)}">
+                        <li th:each="m : ${utilizador.moradas}"
+                            th:text="${m.rua + ', ' + m.codigoPostal + ' ' + m.cidade}">Morada</li>
+                    </ul>
+                    <p class="text-muted mt-2 mb-0" th:if="${#lists.isEmpty(utilizador.moradas)}">Sem moradas
+                        registadas.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="surface-card-te" th:if="${utilizador.class.simpleName == 'Entregador'}">
+            <div class="card-header">Dados de Entregador</div>
+            <div>
+                <p><strong>Veículo:</strong> <span th:text="${utilizador.veiculo}">N/A</span></p>
+                <p><strong>Zona de atuação:</strong> <span th:text="${utilizador.zonaAtuacao}">N/A</span></p>
+                <p class="mb-0"><strong>Total de entregas:</strong> <span
+                        th:text="${utilizador.entregas.size()}">0</span></p>
+            </div>
+        </div>
+
+        <div class="surface-card-te" th:if="${utilizador.class.simpleName == 'Admin'}">
+            <div class="card-header">Dados de Admin</div>
+            <div>
+                <p class="mb-0"><strong>Restaurantes geridos:</strong> <span
+                        th:text="${utilizador.restaurantes.size()}">0</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

@@ -183,21 +183,29 @@ public class MenuService {
      * @param maxPreco preço médio máximo (opcional)
      * @return lista de menus que satisfazem todos os critérios
      */
+    @Transactional(readOnly = true)
     public List<Menu> listarMenusComFiltros(String nome, Integer minProd, Integer maxProd,
             Double minPreco, Double maxPreco) {
         Specification<Menu> spec = Specification.where(MenuSpecifications.comNome(nome))
                 .and(MenuSpecifications.quantidadeProdutosEntre(minProd, maxProd))
                 .and(MenuSpecifications.precoMedioEntre(minPreco, maxPreco));
 
-        return menuRepository.findAll(spec);
+        List<Menu> menus = menuRepository.findAll(spec);
+        menus.forEach(menu -> {
+            menu.getProdutos().size();
+            menu.getRestaurantes().size();
+        });
+        return menus;
     }
 
     /**
-     * Query de negócio — devolve o restaurante mais popular de uma franquia (menu partilhado).
+     * Query de negócio — devolve o restaurante mais popular de uma franquia (menu
+     * partilhado).
      * Popularidade medida pelo número de avaliações recebidas.
      *
      * @param menuId ID do menu partilhado
-     * @return Optional com o restaurante mais popular, vazio se não houver avaliações
+     * @return Optional com o restaurante mais popular, vazio se não houver
+     *         avaliações
      */
     public Optional<Restaurante> restauranteMaisPopularDoMenu(Long menuId) {
         List<Object[]> results = menuRepository.findRestauranteMaisPopularDoMenu(menuId);

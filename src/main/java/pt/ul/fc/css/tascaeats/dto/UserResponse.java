@@ -33,14 +33,25 @@ public class UserResponse {
     /** Se a conta está ativa. */
     private boolean ativo;
 
+    /** Telemóvel de contacto do utilizador. */
+    private String telemovel;
+
     /** Moradas do cliente — presente apenas para utilizadores do tipo CLIENTE. */
     private List<Endereco> moradas;
 
     /** Tipo de veículo — presente apenas para utilizadores do tipo ENTREGADOR. */
     private String veiculo;
 
-    /** Zona geográfica de atuação — presente apenas para utilizadores do tipo ENTREGADOR. */
+    /**
+     * Zona geográfica de atuação — presente apenas para utilizadores do tipo
+     * ENTREGADOR.
+     */
     private String zonaAtuacao;
+
+    /**
+     * Disponibilidade atual — presente apenas para utilizadores do tipo ENTREGADOR.
+     */
+    private Boolean disponivel;
 
     /** Construtor vazio para uso interno. */
     public UserResponse() {
@@ -60,12 +71,14 @@ public class UserResponse {
         r.email = user.getEmail();
         r.role = user.getClass().getSimpleName().toUpperCase();
         r.ativo = user.isAtivo();
+        r.telemovel = user.getTelemovel();
 
         if (user instanceof Cliente c) {
             r.moradas = new ArrayList<>(c.getMoradas());
         } else if (user instanceof Entregador e) {
             r.veiculo = e.getVeiculo();
             r.zonaAtuacao = e.getZonaAtuacao();
+            r.disponivel = e.isDisponivel();
         }
 
         return r;
@@ -91,6 +104,10 @@ public class UserResponse {
         return ativo;
     }
 
+    public String getTelemovel() {
+        return telemovel;
+    }
+
     public List<Endereco> getMoradas() {
         return moradas;
     }
@@ -102,5 +119,8 @@ public class UserResponse {
     public String getZonaAtuacao() {
         return zonaAtuacao;
     }
-}
 
+    public Boolean getDisponivel() {
+        return disponivel;
+    }
+}

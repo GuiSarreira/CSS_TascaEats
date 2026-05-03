@@ -40,28 +40,33 @@ public class AvaliacaoService {
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
         Restaurante restaurante = restauranteRepository.findById(restauranteId)
                 .orElseThrow(() -> new RuntimeException("Restaurante não encontrado"));
-        Pedido pedido = pedidoRepository.findById(pedidoId)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        Pedido pedido = null;
 
-        // 1. O pedido pertence ao cliente?
-        if (!pedido.getCliente().getId().equals(clienteId)) {
-            throw new IllegalStateException("Este pedido não pertence ao cliente.");
-        }
-        // 2. Pedido entregue?
-        if (pedido.getStatus() != PedidoStatus.DELIVERED) {
-            throw new IllegalStateException("Só é possível avaliar após a entrega do pedido.");
-        }
-        // 3. O restaurante está presente no pedido? (verificar nos produtos do pedido via menus)
-        boolean restauranteNoPedido = pedido.getProdutosPedido().stream()
-                .flatMap(pp -> pp.getProduto().getMenus().stream())
-                .flatMap(menu -> menu.getRestaurantes().stream())
-                .anyMatch(r -> r.getId().equals(restauranteId));
-        if (!restauranteNoPedido) {
-            throw new IllegalStateException("O restaurante não forneceu produtos neste pedido.");
-        }
-        // 4. Já existe avaliação para este pedido?
-        if (avaliacaoRepository.findByPedidoId(pedidoId).isPresent()) {
-            throw new IllegalStateException("Este pedido já tem uma avaliação.");
+        // Fluxo com pedido (web/API): mantém as regras completas de negócio.
+        if (pedidoId != null && pedidoId > 0) {
+            pedido = pedidoRepository.findById(pedidoId)
+                    .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+
+            // 1. O pedido pertence ao cliente?
+            if (!pedido.getCliente().getId().equals(clienteId)) {
+                throw new IllegalStateException("Este pedido não pertence ao cliente.");
+            }
+            // 2. Pedido entregue?
+            if (pedido.getStatus() != PedidoStatus.DELIVERED) {
+                throw new IllegalStateException("Só é possível avaliar após a entrega do pedido.");
+            }
+            // 3. O restaurante está presente no pedido? (verificar nos produtos do pedido via menus)
+            boolean restauranteNoPedido = pedido.getProdutosPedido().stream()
+                    .flatMap(pp -> pp.getProduto().getMenus().stream())
+                    .flatMap(menu -> menu.getRestaurantes().stream())
+                    .anyMatch(r -> r.getId().equals(restauranteId));
+            if (!restauranteNoPedido) {
+                throw new IllegalStateException("O restaurante não forneceu produtos neste pedido.");
+            }
+            // 4. Já existe avaliação para este pedido?
+            if (avaliacaoRepository.findByPedidoId(pedidoId).isPresent()) {
+                throw new IllegalStateException("Este pedido já tem uma avaliação.");
+            }
         }
 
         Avaliacao avaliacao = new Avaliacao(nota, comentario, cliente, restaurante, pedido);

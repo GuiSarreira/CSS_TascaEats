@@ -13,6 +13,7 @@ import pt.ul.fc.css.tascaeats.services.RestauranteService;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Controller MVC (Thymeleaf) para visualização de Restaurantes.
@@ -46,7 +47,9 @@ public class WebRestauranteController {
     @GetMapping
     public String listar(
             @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String morada,
             @RequestParam(required = false) String tipoCozinha,
+            @RequestParam(required = false) String estado,
             @RequestParam(required = false) @DateTimeFormat(pattern = "HH:mm") LocalTime horario,
             @RequestParam(required = false) Double minPreco,
             @RequestParam(required = false) Double maxPreco,
@@ -55,12 +58,47 @@ public class WebRestauranteController {
             @RequestParam(required = false) Integer minPedidos,
             Model model) {
 
+        nome = normalize(nome);
+        morada = normalize(morada);
+        tipoCozinha = normalize(tipoCozinha);
+        estado = normalize(estado);
+        cidade = normalize(cidade);
+
         List<Restaurante> restaurantes = restauranteService.listarRestaurantesComFiltros(
                 nome, tipoCozinha, horario, minPreco, maxPreco, minAvaliacoes, cidade, minPedidos);
 
+        if (morada != null && !morada.isBlank()) {
+            String filtroMorada = morada.trim().toLowerCase(Locale.ROOT);
+            restaurantes = restaurantes.stream()
+                    .filter(r -> r.getMorada() != null)
+                    .filter(r -> {
+                        String rua = r.getMorada().getRua() != null ? r.getMorada().getRua().toLowerCase(Locale.ROOT)
+                                : "";
+                        String cidadeMorada = r.getMorada().getCidade() != null
+                                ? r.getMorada().getCidade().toLowerCase(Locale.ROOT)
+                                : "";
+                        String codigoPostal = r.getMorada().getCodigoPostal() != null
+                                ? r.getMorada().getCodigoPostal().toLowerCase(Locale.ROOT)
+                                : "";
+                        return rua.contains(filtroMorada)
+                                || cidadeMorada.contains(filtroMorada)
+                                || codigoPostal.contains(filtroMorada);
+                    })
+                    .toList();
+        }
+
+        if (estado != null && !"TODOS".equalsIgnoreCase(estado)) {
+            boolean aberto = "ABERTO".equalsIgnoreCase(estado);
+            restaurantes = restaurantes.stream()
+                    .filter(r -> r.isAberto() == aberto)
+                    .toList();
+        }
+
         model.addAttribute("restaurantes", restaurantes);
         model.addAttribute("filtroNome", nome);
+        model.addAttribute("filtroMorada", morada);
         model.addAttribute("filtroTipoCozinha", tipoCozinha);
+        model.addAttribute("filtroEstado", estado);
         model.addAttribute("filtroHorario", horario);
         model.addAttribute("filtroMinPreco", minPreco);
         model.addAttribute("filtroMaxPreco", maxPreco);
@@ -163,5 +201,13 @@ public class WebRestauranteController {
         model.addAttribute("titulo", "Restaurante com Mais Pedidos");
         model.addAttribute("descricao", "Qual é o restaurante com maior número de pedidos completados?");
         return "restaurantes/mais-pedidos";
+    }
+
+    private String normalize(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

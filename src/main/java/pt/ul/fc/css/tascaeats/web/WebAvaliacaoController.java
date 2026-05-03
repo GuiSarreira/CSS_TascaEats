@@ -2,9 +2,12 @@ package pt.ul.fc.css.tascaeats.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.bind.annotation.*;
+import pt.ul.fc.css.tascaeats.dto.AvaliacaoRequest;
 import pt.ul.fc.css.tascaeats.entities.Avaliacao;
 import pt.ul.fc.css.tascaeats.entities.Pedido;
+import pt.ul.fc.css.tascaeats.entities.Restaurante;
 import pt.ul.fc.css.tascaeats.services.AvaliacaoService;
 import pt.ul.fc.css.tascaeats.services.PedidoService;
 
@@ -35,10 +38,32 @@ public class WebAvaliacaoController {
     @GetMapping("/novo")
     public String formAvaliacao(@RequestParam Long pedidoId,
             @RequestParam(required = false) Long clienteId,
-            Model model) {
+            Model model,
+            RedirectAttributes redirectAttributes) {
         Pedido pedido = pedidoService.buscarPorId(pedidoId);
+
+        if (avaliacaoService.obterAvaliacoesPorCliente(clienteId != null ? clienteId : pedido.getCliente().getId())
+                .stream()
+                .anyMatch(a -> a.getPedido() != null && a.getPedido().getId().equals(pedidoId))) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Este pedido já tem uma avaliação.");
+            return "redirect:/pedidos?clienteId=" + (clienteId != null ? clienteId : pedido.getCliente().getId());
+        }
+
+        Restaurante restaurante = pedido.getProdutosPedido().stream()
+                .flatMap(pp -> pp.getProduto().getMenus().stream())
+                .flatMap(menu -> menu.getRestaurantes().stream())
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Não foi possível resolver o restaurante do pedido"));
+
+        AvaliacaoRequest request = new AvaliacaoRequest();
+        request.setPedidoId(pedido.getId());
+        request.setClienteId(clienteId != null ? clienteId : pedido.getCliente().getId());
+        request.setRestauranteId(restaurante.getId());
+        request.setNota(5);
+
         model.addAttribute("pedido", pedido);
-        model.addAttribute("clienteId", clienteId != null ? clienteId : pedido.getCliente().getId());
+        model.addAttribute("restauranteNome", restaurante.getNome());
+        model.addAttribute("avaliacaoRequest", request);
         return "avaliacoes/form";
     }
 
@@ -47,9 +72,16 @@ public class WebAvaliacaoController {
             @RequestParam Long pedidoId,
             @RequestParam Long restauranteId,
             @RequestParam int nota,
-            @RequestParam(required = false) String comentario) {
-        avaliacaoService.criarAvaliacao(clienteId, restauranteId, pedidoId, nota, comentario);
-        return "redirect:/avaliacoes?clienteId=" + clienteId;
+            @RequestParam(required = false) String comentario,
+            RedirectAttributes redirectAttributes) {
+        try {
+            avaliacaoService.criarAvaliacao(clienteId, restauranteId, pedidoId, nota, comentario);
+            redirectAttributes.addFlashAttribute("successMessage", "Avaliação submetida com sucesso.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    e.getMessage() != null ? e.getMessage() : "Não foi possível submeter a avaliação.");
+        }
+        return "redirect:/pedidos?clienteId=" + clienteId;
     }
 
     // ─── Listagem ─────────────────────────────────────────────────────────────

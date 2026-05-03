@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pt.ul.fc.css.tascaeats.javafx.controllers.UserManagementController"
+    spacing="16"
+    styleClass="page-container">
+
+    <stylesheets>
+        <URL value="@../css/styles.css"/>
+    </stylesheets>
+
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <!-- Title -->
+    <Label text="Gestão de Utilizadores" styleClass="section-title"/>
+    <Label text="Lista utilizadores por perfil e abre ações ao clicar num utilizador." styleClass="section-subtitle" wrapText="true"/>
+
+    <!-- Filter Bar -->
+    <FlowPane hgap="10" vgap="10" prefWrapLength="780" styleClass="toolbar" style="-fx-alignment: center-left;">
+        <TextField fx:id="txtFilterName" promptText="Nome do utilizador" prefWidth="220"/>
+        <Label text="Filtrar por tipo:"/>
+        <ComboBox fx:id="comboUserType" prefWidth="150"/>
+        <TextField fx:id="txtMinPedidos" promptText="Min. pedidos (clientes)" prefWidth="170"/>
+        <TextField fx:id="txtMinEntregas" promptText="Min. entregas (entregadores)" prefWidth="190"/>
+        <Button text="Filtrar" onAction="#searchUsers" minWidth="100"/>
+        <Button text="Recarregar" onAction="#refresh" minWidth="110"/>
+    </FlowPane>
+
+    <!-- Users Table -->
+    <TableView fx:id="tblUsers" prefHeight="400" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colUserName" text="Nome" prefWidth="260"/>
+            <TableColumn fx:id="colUserType" text="Tipo" prefWidth="160"/>
+            <TableColumn fx:id="colUserEmail" text="Email" prefWidth="320"/>
+        </columns>
+    </TableView>
+
+    <!-- Status Bar -->
+    <HBox spacing="10" styleClass="status-bar" style="-fx-alignment: center-left;">
+        <Label fx:id="lblStatus" text="Pronto" styleClass="label,muted"/>
+    </HBox>
+
+</VBox>

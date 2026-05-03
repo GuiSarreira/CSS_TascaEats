@@ -110,6 +110,17 @@ public class UserController {
     }
 
     /**
+     * Atualiza a disponibilidade de um entregador.
+     */
+    @PatchMapping("/{id}/disponibilidade-entregador")
+    public ResponseEntity<UserResponse> atualizarDisponibilidadeEntregador(
+            @PathVariable Long id,
+            @RequestParam boolean disponivel) {
+        Entregador entregador = userService.atualizarDisponibilidadeEntregador(id, disponivel);
+        return ResponseEntity.ok(UserResponse.from(entregador));
+    }
+
+    /**
      * Remove (soft-delete) um utilizador do sistema.
      *
      * @param id ID do utilizador a remover

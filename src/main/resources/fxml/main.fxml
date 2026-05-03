@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="root"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="pt.ul.fc.css.tascaeats.javafx.controllers.MainController"
+            prefHeight="860"
+            prefWidth="1320"
+            styleClass="app-shell">
+
+    <stylesheets>
+        <URL value="@../css/styles.css"/>
+    </stylesheets>
+
+    <top>
+        <HBox styleClass="app-topbar" spacing="18">
+            <padding>
+                <Insets top="18" right="24" bottom="18" left="24"/>
+            </padding>
+
+            <Button fx:id="btnTopDashboard" text="TascaEats" onAction="#abrirDashboard" styleClass="button-secondary"/>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                <VBox styleClass="topbar-chip" spacing="2">
+                    <Label text="Sessão" styleClass="topbar-chip-label"/>
+                    <Label fx:id="lblHeaderUser" text="user@example.com" styleClass="topbar-chip-value"/>
+                </VBox>
+                <VBox styleClass="topbar-chip" spacing="2">
+                    <Label text="Perfil" styleClass="topbar-chip-label"/>
+                    <Label fx:id="lblHeaderRole" text="CLIENTE" styleClass="topbar-chip-value"/>
+                </VBox>
+                <Button fx:id="btnPerfil" text="user" onAction="#abrirPerfil" styleClass="button-secondary"/>
+                <Button text="Logout" onAction="#logout" styleClass="button-danger"/>
+            </HBox>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox styleClass="app-sidebar" spacing="10">
+            <padding>
+                <Insets top="18" right="16" bottom="18" left="16"/>
+            </padding>
+
+            <Label text="Navegação" styleClass="sidebar-title"/>
+            <Button text="Utilizadores" onAction="#abrirUtilizadores" styleClass="nav-button" maxWidth="1.7976931348623157E308"/>
+            <Button text="Restaurantes" onAction="#abrirRestaurantes" styleClass="nav-button" maxWidth="1.7976931348623157E308"/>
+            <Button text="Menus" onAction="#abrirMenus" styleClass="nav-button" maxWidth="1.7976931348623157E308"/>
+            <Button text="Produtos" onAction="#abrirProdutos" styleClass="nav-button" maxWidth="1.7976931348623157E308"/>
+            <Button text="Pedidos" onAction="#abrirPedidos" styleClass="nav-button" maxWidth="1.7976931348623157E308"/>
+            <Button text="Entregas" onAction="#abrirEntregas" styleClass="nav-button" maxWidth="1.7976931348623157E308"/>
+            <Button text="Pagamentos" onAction="#abrirPagamentos" styleClass="nav-button" maxWidth="1.7976931348623157E308"/>
+            <Button text="Avaliações (consulta)" onAction="#abrirAvaliacoes" styleClass="nav-button" maxWidth="1.7976931348623157E308"/>
+        </VBox>
+    </left>
+
+    <center>
+        <StackPane fx:id="contentContainer" styleClass="content-area">
+            <ScrollPane fx:id="dashboardScroll" fitToWidth="true" hbarPolicy="NEVER" styleClass="dashboard-scroll">
+                <content>
+                    <VBox fx:id="dashboardView" styleClass="dashboard-page" spacing="24" fillWidth="true">
+                        <padding>
+                            <Insets top="24" right="24" bottom="24" left="24"/>
+                        </padding>
+
+                        <HBox styleClass="welcome-banner" spacing="24">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label fx:id="lblWelcomeTitle" text="Bem-vindo" styleClass="dashboard-hero-title"/>
+                                <Label fx:id="lblWelcomeSubtitle" text="Escolhe para onde queres ir." styleClass="dashboard-hero-subtitle" wrapText="true"/>
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="12">
+                            <Label text="Ações rápidas" styleClass="section-title"/>
+                            <Label text="Atalhos para as operações principais da plataforma." styleClass="section-subtitle" wrapText="true"/>
+                            <FlowPane hgap="18" vgap="18" prefWrapLength="860" styleClass="dashboard-grid">
+                                <VBox styleClass="action-card-dashboard card-hover" spacing="10" onMouseClicked="#abrirRestaurantes">
+                                    <Label text="Restaurantes" styleClass="action-card-title"/>
+                                    <Label text="Explora restaurantes, consulta estado e navega para menus." styleClass="label-muted" wrapText="true"/>
+                                </VBox>
+                                <VBox styleClass="action-card-dashboard card-hover" spacing="10" onMouseClicked="#abrirMenus">
+                                    <Label text="Menus" styleClass="action-card-title"/>
+                                    <Label text="Consulta menus partilhados e cria novas entradas." styleClass="label-muted" wrapText="true"/>
+                                </VBox>
+                                <VBox styleClass="action-card-dashboard card-hover" spacing="10" onMouseClicked="#abrirPedidos">
+                                    <Label text="Pedidos" styleClass="action-card-title"/>
+                                    <Label text="Acompanha o ciclo do pedido desde o registo até à entrega." styleClass="label-muted" wrapText="true"/>
+                                </VBox>
+                                <VBox styleClass="action-card-dashboard card-hover" spacing="10" onMouseClicked="#abrirPerfil">
+                                    <Label text="Perfil" styleClass="action-card-title"/>
+                                    <Label text="Consulta os teus dados de sessão e identidade na aplicação." styleClass="label-muted" wrapText="true"/>
+                                </VBox>
+                                <VBox styleClass="action-card-dashboard card-hover" spacing="10" onMouseClicked="#abrirAvaliacoes">
+                                    <Label text="Avaliações (consulta)" styleClass="action-card-title"/>
+                                    <Label text="Admin e entregador podem apenas consultar avaliações feitas na interface web." styleClass="label-muted" wrapText="true"/>
+                                </VBox>
+                            </FlowPane>
+                        </VBox>
+
+                        <VBox styleClass="card" spacing="18">
+                            <Label text="Como funciona" styleClass="section-title"/>
+                            <HBox spacing="16">
+                                <VBox styleClass="info-step-card" spacing="6" HBox.hgrow="ALWAYS">
+                                    <Label text="1" styleClass="info-step-number"/>
+                                    <Label text="Descobre" styleClass="action-card-title"/>
+                                    <Label text="Consulta restaurantes e menus disponíveis a partir do painel principal." styleClass="label-muted" wrapText="true"/>
+                                </VBox>
+                                <VBox styleClass="info-step-card" spacing="6" HBox.hgrow="ALWAYS">
+                                    <Label text="2" styleClass="info-step-number"/>
+                                    <Label text="Opera" styleClass="action-card-title"/>
+                                    <Label text="Gere pedidos, pagamentos e entregas num fluxo único e consistente." styleClass="label-muted" wrapText="true"/>
+                                </VBox>
+                                <VBox styleClass="info-step-card" spacing="6" HBox.hgrow="ALWAYS">
+                                    <Label text="3" styleClass="info-step-number"/>
+                                    <Label text="Acompanha" styleClass="action-card-title"/>
+                                    <Label text="Usa o perfil e o estado da sessão para manter contexto da operação." styleClass="label-muted" wrapText="true"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </StackPane>
+    </center>
+
+</BorderPane>

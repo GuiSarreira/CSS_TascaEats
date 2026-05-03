@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+<?import java.lang.String?>
+<?import java.net.URL?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pt.ul.fc.css.tascaeats.javafx.controllers.LoginController"
+      spacing="0"
+      alignment="CENTER"
+      styleClass="login-container">
+
+    <stylesheets>
+        <URL value="@../css/styles.css"/>
+    </stylesheets>
+
+    <padding>
+        <Insets top="60" right="60" bottom="60" left="60"/>
+    </padding>
+
+    <!-- Card Container -->
+    <VBox spacing="20" styleClass="login-card">
+        <alignment>CENTER</alignment>
+
+        <!-- Logo/Title -->
+        <Label text="TascaEats" styleClass="login-title"/>
+        <Label text="Sistema de Gestão de Restaurantes" styleClass="login-subtitle"/>
+
+        <!-- Separator -->
+        <VBox style="-fx-pref-height: 8;"/>
+
+        <!-- Email/Username -->
+        <VBox spacing="6">
+            <Label text="Email ou Utilizador:"/>
+            <TextField fx:id="txtEmail" promptText="Insira o seu email"/>
+        </VBox>
+
+        <!-- Password -->
+        <VBox spacing="6">
+            <Label text="Palavra-passe:"/>
+            <HBox spacing="8" style="-fx-alignment: center-left;">
+                <PasswordField fx:id="txtPassword" promptText="Insira a sua palavra-passe" HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="txtPasswordVisible" promptText="Insira a sua palavra-passe" HBox.hgrow="ALWAYS" visible="false" managed="false"/>
+                <Button fx:id="btnTogglePassword" text="👁" onAction="#alternarVisibilidadePassword" styleClass="button-secondary button-compact"/>
+            </HBox>
+        </VBox>
+
+        <!-- Error Message -->
+        <Label fx:id="lblErro" styleClass="label,error" style="-fx-font-size: 12; -fx-padding: 6 10; -fx-background-radius: 4; -fx-background-color: #fce8e6;"/>
+
+        <!-- Buttons -->
+        <HBox spacing="12" style="-fx-alignment: center; -fx-padding: 8 0 0 0;">
+            <Button fx:id="btnEntrar" text="Entrar" onAction="#fazerLogin" styleClass="button-primary" defaultButton="true"/>
+            <Button fx:id="btnRegistar" text="Registar" onAction="#abrirRegisto"/>
+        </HBox>
+
+        <!-- Hint -->
+        <Label text="Demo: admin@example.com / password123" styleClass="label,muted" style="-fx-alignment: center;"/>
+
+    </VBox>
+
+</VBox>

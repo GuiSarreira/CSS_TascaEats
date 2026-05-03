@@ -41,6 +41,10 @@ public abstract class User {
     @Column(nullable = false)
     private String password;
 
+    /** Telemóvel de contacto do utilizador. */
+    @Column
+    private String telemovel;
+
     /**
      * Data e hora de registo na plataforma.
      * Definida automaticamente no construtor e imutável após criação.
@@ -48,12 +52,16 @@ public abstract class User {
     @Column(nullable = false, updatable = false)
     private LocalDateTime dataRegisto;
 
-    /** Indica se a conta está ativa. {@code false} quando desativada (soft-delete de utilizador). */
+    /**
+     * Indica se a conta está ativa. {@code false} quando desativada (soft-delete de
+     * utilizador).
+     */
     @Column(nullable = false)
     private boolean ativo = true;
 
     /** Construtor protegido exigido pelo JPA. */
-    protected User() {}
+    protected User() {
+    }
 
     /**
      * Cria um novo utilizador com os dados fornecidos.
@@ -71,7 +79,10 @@ public abstract class User {
         this.ativo = true;
     }
 
-    /** Desativa a conta do utilizador. A conta fica invisível mas o registo é preservado. */
+    /**
+     * Desativa a conta do utilizador. A conta fica invisível mas o registo é
+     * preservado.
+     */
     public void desativar() {
         this.ativo = false;
     }
@@ -108,6 +119,14 @@ public abstract class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getTelemovel() {
+        return telemovel;
+    }
+
+    public void setTelemovel(String telemovel) {
+        this.telemovel = telemovel;
     }
 
     public LocalDateTime getDataRegisto() {

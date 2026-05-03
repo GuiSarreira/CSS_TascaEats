@@ -1,188 +1,74 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}" lang="pt">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Restaurantes — TascaEats</title>
-    <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: #f5f5f5;
-            color: #333
-        }
-
-        .container {
-            max-width: 1060px;
-            margin: 0 auto;
-            padding: 2rem 1rem
-        }
-
-        h1 {
-            font-size: 1.75rem;
-            margin-bottom: 1.5rem
-        }
-
-        a {
-            color: #1a73e8;
-            text-decoration: none
-        }
-
-        a:hover {
-            text-decoration: underline
-        }
-
-        .filtros {
-            background: #fff;
-            padding: 1.25rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, .1)
-        }
-
-        .filtros form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: .75rem;
-            align-items: flex-end
-        }
-
-        .filtros label {
-            display: block;
-            font-size: .8rem;
-            color: #666;
-            margin-bottom: .25rem
-        }
-
-        .filtros input {
-            padding: .45rem .6rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: .9rem;
-            width: 130px
-        }
-
-        .filtros button {
-            padding: .5rem 1rem;
-            background: #1a73e8;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer
-        }
-
-        .filtros button:hover {
-            background: #1558b0
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1rem
-        }
-
-        .card {
-            background: #fff;
-            border-radius: 8px;
-            padding: 1.25rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
-            transition: box-shadow .2s
-        }
-
-        .card:hover {
-            box-shadow: 0 3px 10px rgba(0, 0, 0, .15)
-        }
-
-        .card h3 {
-            font-size: 1.1rem;
-            margin-bottom: .35rem
-        }
-
-        .card h3 a {
-            color: #333
-        }
-
-        .card h3 a:hover {
-            color: #1a73e8
-        }
-
-        .meta {
-            font-size: .85rem;
-            color: #666;
-            line-height: 1.6
-        }
-
-        .badge {
-            display: inline-block;
-            padding: .15rem .5rem;
-            border-radius: 12px;
-            font-size: .75rem;
-            font-weight: 600
-        }
-
-        .badge-aberto {
-            background: #e6f4ea;
-            color: #1e8e3e
-        }
-
-        .badge-fechado {
-            background: #fce8e6;
-            color: #d93025
-        }
-
-        .vazio {
-            text-align: center;
-            padding: 2rem;
-            color: #999
-        }
-    </style>
 </head>
 
-<body>
-    <div class="container">
-        <h1>Restaurantes</h1>
+<div layout:fragment="content">
+    <div class="page-shell-te">
+        <div class="page-header-te">
+            <h1 class="page-title-te">Restaurantes</h1>
+        </div>
 
-        <div class="filtros">
-            <form th:action="@{/restaurantes}" method="get">
-                <div><label for="nome">Nome</label>
+        <div class="surface-card-te">
+            <form th:action="@{/restaurantes}" method="get" class="filters-form-te">
+                <div class="field-group-inline-te"><label for="nome">Nome</label>
                     <input id="nome" name="nome" th:value="${filtroNome}" placeholder="Pesquisar..." />
                 </div>
-                <div><label for="tipoCozinha">Cozinha</label>
+                <div class="field-group-inline-te"><label for="morada">Morada</label>
+                    <input id="morada" name="morada" th:value="${filtroMorada}" placeholder="Rua, cidade ou CP..." />
+                </div>
+                <div class="field-group-inline-te"><label for="tipoCozinha">Cozinha</label>
                     <input id="tipoCozinha" name="tipoCozinha" th:value="${filtroTipoCozinha}"
                         placeholder="Portuguesa..." />
                 </div>
-                <div><label for="cidade">Cidade</label>
+                <div class="field-group-inline-te"><label for="cidade">Cidade</label>
                     <input id="cidade" name="cidade" th:value="${filtroCidade}" placeholder="Lisboa..." />
                 </div>
-                <div><label for="horario">Horário</label>
+                <div class="field-group-inline-te"><label for="horario">Horário</label>
                     <input id="horario" name="horario" type="time" th:value="${filtroHorario}" />
                 </div>
-                <div><label for="minPreco">Preço Mín.</label>
+                <div class="field-group-inline-te"><label for="estado">Estado</label>
+                    <select id="estado" name="estado">
+                        <option value="TODOS" th:selected="${filtroEstado == null or filtroEstado == 'TODOS'}">Todos
+                        </option>
+                        <option value="ABERTO" th:selected="${filtroEstado == 'ABERTO'}">Aberto</option>
+                        <option value="FECHADO" th:selected="${filtroEstado == 'FECHADO'}">Fechado</option>
+                    </select>
+                </div>
+                <div class="field-group-inline-te"><label for="minPreco">Preço Mín.</label>
                     <input id="minPreco" name="minPreco" type="number" step="0.01" th:value="${filtroMinPreco}" />
                 </div>
-                <div><label for="maxPreco">Preço Máx.</label>
+                <div class="field-group-inline-te"><label for="maxPreco">Preço Máx.</label>
                     <input id="maxPreco" name="maxPreco" type="number" step="0.01" th:value="${filtroMaxPreco}" />
                 </div>
-                <div><label for="minAvaliacoes">Mín. Aval.</label>
+                <div class="field-group-inline-te"><label for="minPedidos">Mín. Pedidos</label>
+                    <input id="minPedidos" name="minPedidos" type="number" min="0" th:value="${filtroMinPedidos}" />
+                </div>
+                <div class="field-group-inline-te"><label for="minAvaliacoes">Mín. Aval.</label>
                     <input id="minAvaliacoes" name="minAvaliacoes" type="number" th:value="${filtroMinAvaliacoes}" />
                 </div>
-                <button type="submit">Filtrar</button>
+                <div>
+                    <button type="submit" class="btn-te btn-te-primary">Filtrar</button>
+                </div>
+                <div>
+                    <a th:href="@{/restaurantes}" class="btn-te btn-te-outline">Limpar</a>
+                </div>
+                <div>
+                    <a th:href="@{/restaurantes}" class="btn-te btn-te-secondary">Recarregar</a>
+                </div>
             </form>
         </div>
 
-        <div class="grid" th:if="${!restaurantes.isEmpty()}">
-            <div class="card" th:each="r : ${restaurantes}">
+        <div class="cards-grid-te" th:if="${!restaurantes.isEmpty()}">
+            <div class="result-card-te" th:each="r : ${restaurantes}">
                 <h3><a th:href="@{/restaurantes/{id}(id=${r.id})}" th:text="${r.nome}">Restaurante</a></h3>
-                <div class="meta">
-                    <span class="badge" th:classappend="${r.aberto ? 'badge-aberto' : 'badge-fechado'}"
+                <div class="meta-list-te">
+                    <span class="pill-te" th:classappend="${r.aberto ? 'pill-open-te' : 'pill-closed-te'}"
                         th:text="${r.aberto ? 'Aberto' : 'Fechado'}"></span><br />
                     <span th:if="${r.tipoCozinha != null}" th:text="'Cozinha: ' + ${r.tipoCozinha}"></span><br />
                     <span th:if="${r.morada != null}" th:text="${r.morada.rua + ', ' + r.morada.cidade}"></span><br />
@@ -192,8 +78,10 @@
             </div>
         </div>
 
-        <p class="vazio" th:if="${restaurantes.isEmpty()}">Nenhum restaurante encontrado.</p>
+        <div class="surface-card-te" th:if="${restaurantes.isEmpty()}">
+            <p class="vazio-te">Nenhum restaurante encontrado.</p>
+        </div>
     </div>
-</body>
+</div>
 
 </html>

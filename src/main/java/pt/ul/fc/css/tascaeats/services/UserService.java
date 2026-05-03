@@ -217,6 +217,23 @@ public class UserService {
     }
 
     /**
+     * Atualiza a disponibilidade de um entregador.
+     *
+     * @param id         ID do utilizador (deve ser entregador)
+     * @param disponivel novo estado de disponibilidade
+     * @return entregador atualizado
+     */
+    @Transactional
+    public Entregador atualizarDisponibilidadeEntregador(Long id, boolean disponivel) {
+        User user = buscarPorId(id);
+        if (!(user instanceof Entregador entregador)) {
+            throw new IllegalArgumentException("O utilizador indicado não é entregador.");
+        }
+        entregador.setDisponivel(disponivel);
+        return entregadorRepository.save(entregador);
+    }
+
+    /**
      * Lista clientes registados que ainda não realizaram nenhuma compra.
      *
      * Responde à query de negócio: "Clientes registados sem compras."

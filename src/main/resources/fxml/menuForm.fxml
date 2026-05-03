@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.lang.String?>
+<?import java.net.URL?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pt.ul.fc.css.tascaeats.javafx.controllers.MenuFormController"
+    spacing="10"
+    styleClass="page-container">
+
+    <stylesheets>
+        <URL value="@../css/styles.css"/>
+    </stylesheets>
+
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <!-- TÃ­tulo -->
+    <Label fx:id="lblTitulo" text="Criar Menu" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+
+    <!-- Nome -->
+    <VBox spacing="5">
+        <Label text="Nome do Menu:"/>
+        <TextField fx:id="txtNome" promptText="Insira o nome do menu" style="-fx-padding: 8;"/>
+    </VBox>
+
+    <!-- DescriÃ§Ã£o -->
+    <VBox spacing="5" VBox.vgrow="ALWAYS">
+        <Label text="Descrição:"/>
+        <TextArea fx:id="txtDescricao" promptText="Insira a descrição do menu" 
+                  wrapText="true" style="-fx-padding: 8; -fx-font-family: Arial;"/>
+    </VBox>
+
+    <!-- Restaurantes associados -->
+    <VBox spacing="5">
+        <Label text="Restaurantes associados (multi seleção):"/>
+        <ListView fx:id="lstRestaurantes" prefHeight="100"/>
+    </VBox>
+
+    <!-- Produtos associados -->
+    <VBox spacing="5">
+        <Label text="Produtos associados (multi seleção):"/>
+        <ListView fx:id="lstProdutos" prefHeight="140"/>
+    </VBox>
+
+    <!-- BotÃµes -->
+    <HBox spacing="10" style="-fx-alignment: center-right;">
+        <Button fx:id="btnGuardar" text="Guardar" onAction="#guardarMenu" 
+                style="-fx-font-size: 12; -fx-padding: 8 30; -fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+        <Button fx:id="btnCancelar" text="Cancelar" onAction="#cancelar" 
+                style="-fx-font-size: 12; -fx-padding: 8 30; -fx-background-color: #f44336; -fx-text-fill: white;"/>
+    </HBox>
+
+    <!-- Mensagem de erro -->
+    <Label fx:id="lblErro" style="-fx-text-fill: #d32f2f; -fx-font-size: 10; -fx-padding: 5;"/>
+
+</VBox>

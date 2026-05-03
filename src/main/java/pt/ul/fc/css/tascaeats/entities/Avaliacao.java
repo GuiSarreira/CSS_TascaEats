@@ -7,10 +7,10 @@ import java.time.LocalDateTime;
  * Classe que representa uma avaliação de um restaurante feita por um cliente
  * após a conclusão de um pedido.
  *
- * Cada avaliação está ligada a um pedido específico (relação {@code @OneToOne}
- * com unicidade garantida pela coluna {@code pedido_id unique=true}). Um cliente
- * pode avaliar o mesmo restaurante várias vezes, desde que cada avaliação
- * corresponda a um pedido diferente.
+ * Uma avaliação pode estar ligada a um pedido específico (relação {@code @OneToOne}
+ * com unicidade garantida pela coluna {@code pedido_id unique=true}).
+ * No cliente desktop, também pode ser criada avaliação direta ao restaurante,
+ * sem associação a pedido.
  */
 @Entity
 public class Avaliacao {
@@ -37,7 +37,7 @@ public class Avaliacao {
     private Restaurante restaurante;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pedido_id", nullable = false, unique = true)
+    @JoinColumn(name = "pedido_id", nullable = true, unique = true)
     private Pedido pedido;
 
     protected Avaliacao() {

@@ -1,9 +1,14 @@
 package pt.ul.fc.css.tascaeats.web;
 
+import jakarta.servlet.http.HttpSession;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import pt.ul.fc.css.tascaeats.dto.UserResponse;
 import pt.ul.fc.css.tascaeats.services.ProdutoService;
+
+import java.time.LocalDateTime;
 
 /**
  * Controller MVC (Thymeleaf) para gestão de Produtos.
@@ -19,6 +24,45 @@ public class WebProdutoController {
 
     public WebProdutoController(ProdutoService produtoService) {
         this.produtoService = produtoService;
+    }
+
+    // ─── Listagem com Filtros ───────────────────────────────────────────────
+
+    @GetMapping
+    public String listar(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) Double precoMin,
+            @RequestParam(required = false) Double precoMax,
+            @RequestParam(required = false) String categoria,
+            @RequestParam(required = false) Boolean disponivel,
+            @RequestParam(required = false) Integer minPopularidade,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime dataInicio,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime dataFim,
+            Model model,
+            HttpSession session) {
+
+        UserResponse utilizador = (UserResponse) session.getAttribute("user");
+        String role = utilizador != null ? utilizador.getRole() : null;
+        boolean podeFiltrarDisponibilidade = "ADMIN".equalsIgnoreCase(role) || "ENTREGADOR".equalsIgnoreCase(role);
+        if (!podeFiltrarDisponibilidade) {
+            disponivel = null;
+        }
+
+        var produtos = produtoService.filtrarProdutos(
+                nome, precoMin, precoMax, categoria, disponivel, minPopularidade, dataInicio, dataFim);
+
+        model.addAttribute("produtos", produtos);
+        model.addAttribute("filtroNome", nome);
+        model.addAttribute("filtroPrecoMin", precoMin);
+        model.addAttribute("filtroPrecoMax", precoMax);
+        model.addAttribute("filtroCategoria", categoria);
+        model.addAttribute("filtroDisponivel", disponivel);
+        model.addAttribute("filtroMinPopularidade", minPopularidade);
+        model.addAttribute("filtroDataInicio", dataInicio);
+        model.addAttribute("filtroDataFim", dataFim);
+        model.addAttribute("podeFiltrarDisponibilidade", podeFiltrarDisponibilidade);
+
+        return "produtos/index";
     }
 
     // ─── Query 2: Produto mais pedido de um restaurante ────────────────────

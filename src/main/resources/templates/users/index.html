@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Utilizadores</title>
+</head>
+<div layout:fragment="content">
+    <div class="page-shell-te">
+        <div class="page-header-te">
+            <h1 class="page-title-te"><i class="fas fa-users me-2"></i>Utilizadores</h1>
+        </div>
+
+        <div class="surface-card-te">
+            <div class="card-header">Filtros</div>
+            <div>
+                <form th:action="@{/users}" method="get" class="filters-form-te">
+                    <div class="field-group-inline-te">
+                        <label for="nome">Nome</label>
+                        <input id="nome" name="nome" th:value="${filtroNome}" placeholder="Ex: Maria" />
+                    </div>
+                    <div class="field-group-inline-te">
+                        <label for="tipo">Tipo</label>
+                        <select id="tipo" name="tipo">
+                            <option value="">Todos</option>
+                            <option value="CLIENTE" th:selected="${filtroTipo == 'CLIENTE'}">Cliente</option>
+                            <option value="ADMIN" th:selected="${filtroTipo == 'ADMIN'}">Admin</option>
+                            <option value="ENTREGADOR" th:selected="${filtroTipo == 'ENTREGADOR'}">Entregador</option>
+                        </select>
+                    </div>
+                    <div class="field-group-inline-te">
+                        <label for="minPedidos">Mín. Pedidos (Cliente)</label>
+                        <input id="minPedidos" name="minPedidos" type="number" min="0" th:value="${filtroMinPedidos}" />
+                    </div>
+                    <div class="field-group-inline-te">
+                        <label for="minEntregas">Mín. Entregas (Entregador)</label>
+                        <input id="minEntregas" name="minEntregas" type="number" min="0"
+                            th:value="${filtroMinEntregas}" />
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn-te btn-te-primary">Filtrar</button>
+                        <a th:href="@{/users}" class="btn-te btn-te-outline">Limpar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="surface-card-te" th:if="${#lists.isEmpty(utilizadores)}">
+            <p class="vazio-te">Nenhum utilizador encontrado para os critérios indicados.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(utilizadores)}" class="surface-card-te table-shell-te">
+            <table class="table-te">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Tipo</th>
+                        <th>Métricas</th>
+                        <th>Estado</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="u : ${utilizadores}">
+                        <td th:text="${u.id}">1</td>
+                        <td th:text="${u.nome}">Nome</td>
+                        <td th:text="${u.email}">email@example.com</td>
+                        <td>
+                            <span class="pill-te pill-open-te" th:if="${u.class.simpleName == 'Cliente'}">CLIENTE</span>
+                            <span class="pill-te" style="background:#dfe4ef; color:#2b3447;"
+                                th:if="${u.class.simpleName == 'Admin'}">ADMIN</span>
+                            <span class="pill-te" style="background:#fff0d2; color:#6b4a12;"
+                                th:if="${u.class.simpleName == 'Entregador'}">ENTREGADOR</span>
+                        </td>
+                        <td>
+                            <span th:if="${u.class.simpleName == 'Cliente'}"
+                                th:text="'Pedidos: ' + ${u.pedidos.size()}">Pedidos: 0</span>
+                            <span th:if="${u.class.simpleName == 'Entregador'}"
+                                th:text="'Entregas: ' + ${u.entregas.size()}">Entregas: 0</span>
+                            <span th:if="${u.class.simpleName == 'Admin'}">-</span>
+                        </td>
+                        <td>
+                            <span class="pill-te pill-open-te" th:if="${u.ativo}">Ativo</span>
+                            <span class="pill-te pill-closed-te" th:unless="${u.ativo}">Inativo</span>
+                        </td>
+                        <td>
+                            <a class="btn-te btn-te-outline btn-te-sm" th:href="@{/users/{id}(id=${u.id})}">Detalhe</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</html>

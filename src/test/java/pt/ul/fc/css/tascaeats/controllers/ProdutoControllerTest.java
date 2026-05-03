@@ -33,14 +33,10 @@ class ProdutoControllerTest {
     @MockBean
     private ProdutoService produtoService;
 
-    private Endereco endereco;
-    private Restaurante restaurante;
     private Produto produto;
 
     @BeforeEach
     void setUp() {
-        endereco = new Endereco("Rua E, 5", "5000-005", "Braga");
-        restaurante = new Restaurante("Braga Grill", endereco, "444555666");
         produto = new Produto("Francesinha", "Com molho especial", 8.5, "Prato Principal");
         produto.setDisponivel(true);
     }

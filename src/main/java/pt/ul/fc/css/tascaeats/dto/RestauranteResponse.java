@@ -31,16 +31,20 @@ public class RestauranteResponse {
     /** Se o restaurante está atualmente aberto para receber pedidos. */
     private boolean aberto;
 
+    /** ID do administrador dono do restaurante. */
+    private Long adminId;
+
     /** Construtor vazio para uso interno. */
     public RestauranteResponse() {
     }
 
-    private RestauranteResponse(Long id, String nome, String nif, Endereco morada, boolean aberto) {
+    private RestauranteResponse(Long id, String nome, String nif, Endereco morada, boolean aberto, Long adminId) {
         this.id = id;
         this.nome = nome;
         this.nif = nif;
         this.morada = morada;
         this.aberto = aberto;
+        this.adminId = adminId;
     }
 
     /**
@@ -56,7 +60,8 @@ public class RestauranteResponse {
                 r.getNome(),
                 r.getNif(),
                 r.getMorada(),
-                r.isAberto());
+                r.isAberto(),
+                r.getAdmin() != null ? r.getAdmin().getId() : null);
     }
 
     public Long getId() {
@@ -77,5 +82,9 @@ public class RestauranteResponse {
 
     public boolean isAberto() {
         return aberto;
+    }
+
+    public Long getAdminId() {
+        return adminId;
     }
 }

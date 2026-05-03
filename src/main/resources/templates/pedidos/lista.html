@@ -1,41 +1,44 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}" lang="pt">
 
 <head>
     <meta charset="UTF-8">
     <title>Os Meus Pedidos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 
-<body>
-    <div class="container mt-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>Os Meus Pedidos</h2>
-            <a th:href="@{/pedidos/novo(clienteId=${clienteId})}" class="btn btn-primary">+ Novo Pedido</a>
+<div layout:fragment="content">
+    <div class="page-shell-te">
+        <div class="page-header-te">
+            <h2 class="page-title-te">Os Meus Pedidos</h2>
+            <a th:href="@{/pedidos/novo(clienteId=${clienteId})}" class="btn-te btn-te-primary">+ Novo Pedido</a>
         </div>
 
         <!-- Filtro por estado -->
-        <form th:action="@{/pedidos}" method="get" class="d-flex gap-2 mb-4 align-items-end">
-            <input type="hidden" name="clienteId" th:value="${clienteId}">
-            <div>
-                <label class="form-label mb-1">Estado</label>
-                <select class="form-select" name="status">
-                    <option value="">Todos</option>
-                    <option th:each="s : ${todosStatus}" th:value="${s}" th:text="${s}"
-                        th:selected="${s == statusAtual}">
-                    </option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-outline-secondary">Filtrar</button>
-        </form>
-
-        <!-- Lista de pedidos -->
-        <div th:if="${#lists.isEmpty(pedidos)}" class="alert alert-info">
-            Nenhum pedido encontrado.
+        <div class="surface-card-te">
+            <form th:action="@{/pedidos}" method="get" class="filters-form-te">
+                <input type="hidden" name="clienteId" th:value="${clienteId}">
+                <div class="field-group-inline-te">
+                    <label class="mb-1">Estado</label>
+                    <select name="status">
+                        <option value="">Todos</option>
+                        <option th:each="s : ${todosStatus}" th:value="${s}" th:text="${s}"
+                            th:selected="${s == statusAtual}">
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" class="btn-te btn-te-outline">Filtrar</button>
+                </div>
+            </form>
         </div>
 
-        <div th:each="pedido : ${pedidos}" class="card mb-3">
+        <!-- Lista de pedidos -->
+        <div class="surface-card-te" th:if="${#lists.isEmpty(pedidos)}">
+            <p class="vazio-te">Nenhum pedido encontrado.</p>
+        </div>
+
+        <div th:each="pedido : ${pedidos}" class="surface-card-te">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>
                     Pedido <strong th:text="'#' + ${pedido.id}"></strong>
@@ -47,7 +50,7 @@
                                   (${pedido.status.name() == 'CREATED'} ? 'badge bg-secondary' : 'badge bg-warning text-dark'))">
                 </span>
             </div>
-            <div class="card-body">
+            <div class="pt-2">
                 <p class="mb-1">
                     <strong>Total:</strong>
                     <span th:text="${#numbers.formatDecimal(pedido.precoTotal, 1, 2) + ' €'}"></span>
@@ -56,19 +59,22 @@
                     th:text="${pedido.enderecoEntrega.rua + ', ' + pedido.enderecoEntrega.codigoPostal + ' ' + pedido.enderecoEntrega.cidade}">
                 </p>
                 <div class="d-flex gap-2">
-                    <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="btn btn-sm btn-outline-primary">Ver
+                    <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="btn-te btn-te-outline btn-te-sm">Ver
                         detalhe</a>
+                    <a th:if="${pedido.status.name() == 'DELIVERED' and !#sets.contains(pedidosAvaliados, pedido.id)}"
+                        th:href="@{/avaliacoes/novo(pedidoId=${pedido.id},clienteId=${clienteId})}"
+                        class="btn-te btn-te-primary btn-te-sm">Avaliar</a>
                     <form th:if="${pedido.status.name() == 'CREATED' or pedido.status.name() == 'PAID'}"
                         th:action="@{/pedidos/{id}/cancelar(id=${pedido.id})}" method="post" style="display:inline">
                         <input type="hidden" name="clienteId" th:value="${clienteId}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                        <button type="submit" class="btn-te btn-te-danger btn-te-sm"
                             onclick="return confirm('Cancelar este pedido?')">Cancelar</button>
                     </form>
                 </div>
             </div>
         </div>
-
     </div>
-</body>
+
+</div>
 
 </html>

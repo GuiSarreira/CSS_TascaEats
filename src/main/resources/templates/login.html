@@ -1,38 +1,35 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
 <head>
     <title>TascaEats - Login</title>
 </head>
-<div layout:fragment="content">
-    <div class="row justify-content-center mt-5">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i>Login</h4>
-                </div>
-                <div class="card-body">
-                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-                    <form th:action="@{/login}" th:object="${loginRequest}" method="post">
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" th:field="*{email}" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Palavra-passe</label>
-                            <input type="password" th:field="*{password}" class="form-control" required>
-                            <div class="form-text">(mock auth – qualquer password é aceite)</div>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Entrar</button>
-                    </form>
-                    <hr>
-                    <div class="text-center">
-                        <a href="/users/registar/cliente" class="btn btn-link">Registar novo cliente</a>
-                    </div>
-                </div>
+<div layout:fragment="content" class="auth-shell">
+    <div class="auth-card-te">
+        <h2>Iniciar sessão</h2>
+
+        <div th:if="${error}" class="auth-message error" th:text="${error}"></div>
+
+        <form th:action="@{/login}" th:object="${loginRequest}" method="post" class="auth-form-te">
+            <div class="field-group-te">
+                <label for="email">Email</label>
+                <input id="email" type="email" th:field="*{email}" placeholder="nome@exemplo.com" required>
             </div>
-        </div>
+
+            <div class="field-group-te">
+                <label for="password">Palavra-passe</label>
+                <input id="password" type="password" th:field="*{password}" required>
+            </div>
+
+            <button type="submit" class="auth-btn-te">Entrar</button>
+        </form>
+
+        <p class="auth-link-te">
+            Ainda não tens conta?
+            <a th:href="@{/register}">Regista-te</a>
+        </p>
     </div>
 </div>
+
 </html>

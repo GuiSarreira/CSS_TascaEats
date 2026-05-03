@@ -1,0 +1,105 @@
+SCRIPT VIDEO NATIVA
+DADOS INICIALIZADOS
+- Admins:
+  - admin@tascaeats.pt / admin123
+  - admin2@tascaeats.pt / admin123
+- Entregadores:
+  - bruno@tascaeats.pt / pass123 (disponivel=true)
+  - ines@tascaeats.pt / pass123
+  - mario@tascaeats.pt / pass123
+  - pedro.removivel@tascaeats.pt / pass123
+- Clientes:
+  - ana@tascaeats.pt / pass123
+  - joao@tascaeats.pt / pass123
+  - rita@tascaeats.pt / pass123
+- Restaurantes:
+  - Tasca Lisboa (ABERTO)
+  - Solar do Bacalhau (ABERTO)
+  - Casa Fechada (FECHADO)
+  - Cantinho da Se (ABERTO)
+- Produtos (exemplos):
+  - Tasca Lisboa: Prego no Pao, Sopa do Dia, Bacalhau a Bras, Arroz de Pato (indisponivel)
+  - Solar do Bacalhau: Francesinha, Caldo Verde
+- Avaliacoes:
+  - 2 avaliacoes iniciais ligadas a pedidos DELIVERED
+  - notas de exemplo: 5 e 4
+
+A - LOGIN MOCK (NATIVO)
+[A]
+- Valido: login com admin@example.com (demo nativa) ou admin@tascaeats.pt.
+- Valido: login entregador (ex: bruno@tascaeats.pt).
+- Invalido: login com email inexistente.
+- Regra: cliente nao entra na interface nativa.
+
+PERFIL 
+- Login como ADMIN: no Perfil mostrar restaurantes e demonstrar atualizar/remover restaurante.
+- Login como ENTREGADOR: no Perfil alternar disponivel/indisponivel.
+
+C/D - UTILIZADORES (GESTAO NATIVA)
+[C][D]
+- Registrar admin e entregador.
+- Abrir pagina Utilizadores.
+- Filtrar por tipo (CLIENTE, ADMIN, ENTREGADOR), nome, min pedidos, min entregas.
+- Clicar utilizador para Verificar.
+- Como ADMIN:
+  - ADMIN: Atualizar gestao de restaurantes (acrescentar/retirar).
+  - ENTREGADOR: Atualizar disponibilidade.
+  - CLIENTE: apenas verificar.
+- Como ENTREGADOR:
+  - so pode atualizar o proprio estado (nao remove/nao atualiza terceiros).
+
+E/F - RESTAURANTES
+[E][F]
+- Buscar por filtros (nome/cidade/etc.) na vista de restaurantes.
+- Criar restaurante (ADMIN) com dados concretos
+- Transferir restaurante valido para outro admin:
+  - abrir Utilizadores -> ADMIN (admin2@tascaeats.pt) -> Atualizar
+    - nome: Mar e Serra
+    - nif: 555666777
+    - rua: Rua das Flores 15
+    - codigoPostal: 1100-200
+    - cidade: Lisboa
+    - tipoCozinha: Portuguesa
+- Alterar estado aberto/fechado.
+- Invalido: tentar acao sem permissao de role.
+
+G - MENUS
+[G]
+- Abrir pagina Menus.
+- Criar menu.
+- Atualizar menu (produtos/restaurantes).
+- Remover menu.
+- Invalido: nome/filtro sem resultados.
+
+H - PRODUTOS
+[H]
+- Abrir pagina Produtos.
+- Criar produto (ADMIN).
+- Atualizar e mudar disponibilidade.
+- Filtrar produtos por nome/categoria/disponibilidade.
+- Invalido: tentativa de criar sem permissao ou filtro vazio sem resultados.
+
+K - PAGAMENTOS
+[K]
+- Abrir pagina Pagamentos.
+- Processar pagamento do pedido (CREATED).
+- Mostrar consulta do pagamento.
+- Invalido: não é possível pagar sem estar em CREATED.
+
+L - ESTADO DO PEDIDO
+[L]
+- Avancar pedido: PAID -> PREPARING -> READY.
+- Invalido: avancar pedido ID 105 (DELIVERED).
+
+M - ENTREGAS
+[M]
+- Abrir pagina Entregas.
+- Atribuicao manual: pedido 103 -> entregador bruno@tascaeats.pt.
+- Atribuicao automatica: pedido 104.
+- Iniciar entrega da atribuicao do pedido 103 e concluir.
+- Invalido: tentar atribuir pedido 101 (CREATED).
+
+N - CANCELAMENTO
+[N]
+- Cancelar pedido 101 (CREATED) e pedido 102 (PAID) [valido].
+- Tentar cancelar pedido 105 (DELIVERED) [invalido].

@@ -7,9 +7,18 @@ import net.devh.boot.grpc.server.service.GrpcService;
 import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.repositories.ProdutoRepository;
 import pt.ul.fc.css.tascaeats.repositories.RestauranteRepository;
+import pt.ul.fc.css.tascaeats.repositories.UserRepository;
+import pt.ul.fc.css.tascaeats.repositories.EntregaRepository;
+import pt.ul.fc.css.tascaeats.repositories.PagamentoRepository;
+import pt.ul.fc.css.tascaeats.repositories.AvaliacaoRepository;
+import pt.ul.fc.css.tascaeats.repositories.PedidoRepository;
 import pt.ul.fc.css.tascaeats.services.AvaliacaoService;
 import pt.ul.fc.css.tascaeats.services.MenuService;
+import pt.ul.fc.css.tascaeats.services.PedidoService;
 import pt.ul.fc.css.tascaeats.services.RestauranteService;
+import pt.ul.fc.css.tascaeats.services.PagamentoService;
+import pt.ul.fc.css.tascaeats.services.UserService;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -17,10 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementação do serviço gRPC TascaEats.
- *
- * <p>Pessoa 2: Menus Partilhados + Restaurantes — implementação completa.</p>
- * <p>Pessoa 1 (Avaliações) e Pessoa 3 (Pedidos/Entregas/Pagamentos) — stub UNIMPLEMENTED.</p>
+ * Implementação do serviço gRPC TascaEats
  */
 @GrpcService
 public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServiceImplBase {
@@ -28,28 +34,53 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     private final MenuService menuService;
     private final RestauranteService restauranteService;
     private final AvaliacaoService avaliacaoService;
+    private final PagamentoService pagamentoService;
     private final RestauranteRepository restauranteRepository;
     private final ProdutoRepository produtoRepository;
+    private final UserRepository userRepository;
+    private final EntregaRepository entregaRepository;
+    private final PagamentoRepository pagamentoRepository;
+    private final AvaliacaoRepository avaliacaoRepository;
+    private final PedidoRepository pedidoRepository;
+    private final UserService userService;
+    private final PedidoService pedidoService;
 
     public TascaEatsGrpcServiceImpl(MenuService menuService,
-                                    RestauranteService restauranteService,
-                                    AvaliacaoService avaliacaoService,
-                                    RestauranteRepository restauranteRepository,
-                                    ProdutoRepository produtoRepository) {
+            RestauranteService restauranteService,
+            AvaliacaoService avaliacaoService,
+            PagamentoService pagamentoService,
+            RestauranteRepository restauranteRepository,
+            ProdutoRepository produtoRepository,
+            UserRepository userRepository,
+            EntregaRepository entregaRepository,
+            PagamentoRepository pagamentoRepository,
+            AvaliacaoRepository avaliacaoRepository,
+            PedidoRepository pedidoRepository,
+            UserService userService,
+            PedidoService pedidoService) {
         this.menuService = menuService;
         this.restauranteService = restauranteService;
         this.avaliacaoService = avaliacaoService;
+        this.pagamentoService = pagamentoService;
         this.restauranteRepository = restauranteRepository;
         this.produtoRepository = produtoRepository;
+        this.userRepository = userRepository;
+        this.entregaRepository = entregaRepository;
+        this.pagamentoRepository = pagamentoRepository;
+        this.avaliacaoRepository = avaliacaoRepository;
+        this.pedidoRepository = pedidoRepository;
+        this.userService = userService;
+        this.pedidoService = pedidoService;
     }
 
     // ═════════════════════════════════════════════════════════════════════════
-    // Pessoa 2 — Menus Partilhados
+    // Menus Partilhados + Restaurantes
     // ═════════════════════════════════════════════════════════════════════════
 
     @Override
+    @Transactional
     public void criarMenu(CriarMenuRequest request,
-                          StreamObserver<MenuResponse> responseObserver) {
+            StreamObserver<MenuResponse> responseObserver) {
         try {
             List<Produto> produtos = resolverProdutos(request.getProdutoIdsList());
             List<Restaurante> restaurantes = resolverRestaurantes(request.getRestauranteIdsList());
@@ -66,8 +97,9 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void listarMenus(ListarMenusRequest request,
-                            StreamObserver<ListarMenusResponse> responseObserver) {
+            StreamObserver<ListarMenusResponse> responseObserver) {
         try {
             String nome = request.hasNome() ? request.getNome() : null;
             Integer minProd = request.hasMinProdutos() ? request.getMinProdutos() : null;
@@ -92,8 +124,9 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
+    @Transactional
     public void atualizarMenu(AtualizarMenuRequest request,
-                              StreamObserver<MenuResponse> responseObserver) {
+            StreamObserver<MenuResponse> responseObserver) {
         try {
             List<Produto> produtos = resolverProdutos(request.getProdutoIdsList());
             List<Restaurante> restaurantes = resolverRestaurantes(request.getRestauranteIdsList());
@@ -112,7 +145,7 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
 
     @Override
     public void removerMenu(RemoverMenuRequest request,
-                            StreamObserver<Empty> responseObserver) {
+            StreamObserver<Empty> responseObserver) {
         try {
             menuService.removerMenu(request.getMenuId());
             responseObserver.onNext(Empty.getDefaultInstance());
@@ -125,7 +158,7 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
 
     @Override
     public void associarMenuRestaurante(AssociarMenuRestauranteRequest request,
-                                        StreamObserver<Empty> responseObserver) {
+            StreamObserver<Empty> responseObserver) {
         try {
             menuService.associarMenuRestaurante(
                     request.getMenuId(), request.getRestauranteId());
@@ -137,13 +170,9 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
         }
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    // Pessoa 2 — Restaurantes (filtros avançados)
-    // ═════════════════════════════════════════════════════════════════════════
-
     @Override
     public void listarRestaurantes(ListarRestaurantesRequest request,
-                                   StreamObserver<ListarRestaurantesResponse> responseObserver) {
+            StreamObserver<ListarRestaurantesResponse> responseObserver) {
         try {
             String nome = request.hasNome() ? request.getNome() : null;
             String tipoCozinha = request.hasTipoCozinha() ? request.getTipoCozinha() : null;
@@ -169,19 +198,20 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
 
             responseObserver.onNext(builder.build());
             responseObserver.onCompleted();
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            e.printStackTrace();
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage()).asRuntimeException());
         }
     }
 
     // ═════════════════════════════════════════════════════════════════════════
-    // Pessoa 1 — Avaliações (implementação completa)
+    // Avaliações
     // ═════════════════════════════════════════════════════════════════════════
 
     @Override
     public void criarAvaliacao(CriarAvaliacaoRequest request,
-                               StreamObserver<AvaliacaoResponse> responseObserver) {
+            StreamObserver<AvaliacaoResponse> responseObserver) {
         try {
             Avaliacao a = avaliacaoService.criarAvaliacao(
                     request.getClienteId(), request.getRestauranteId(),
@@ -196,16 +226,17 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void listarAvaliacoes(ListarAvaliacoesRequest request,
-                                 StreamObserver<ListarAvaliacoesResponse> responseObserver) {
+            StreamObserver<ListarAvaliacoesResponse> responseObserver) {
         try {
             List<Avaliacao> avaliacoes;
             if (request.hasRestauranteId()) {
-                avaliacoes = avaliacaoService.obterAvaliacoesPorRestaurante(request.getRestauranteId());
+                avaliacoes = avaliacaoRepository.findByRestauranteIdWithFetch(request.getRestauranteId());
             } else if (request.hasClienteId()) {
-                avaliacoes = avaliacaoService.obterAvaliacoesPorCliente(request.getClienteId());
+                avaliacoes = avaliacaoRepository.findByClienteIdWithFetch(request.getClienteId());
             } else {
-                avaliacoes = List.of();
+                avaliacoes = avaliacaoRepository.findAllWithClienteAndRestaurante();
             }
 
             ListarAvaliacoesResponse.Builder builder = ListarAvaliacoesResponse.newBuilder();
@@ -223,7 +254,7 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
 
     @Override
     public void atualizarAvaliacao(AtualizarAvaliacaoRequest request,
-                                   StreamObserver<AvaliacaoResponse> responseObserver) {
+            StreamObserver<AvaliacaoResponse> responseObserver) {
         try {
             Avaliacao a = avaliacaoService.atualizarAvaliacao(
                     request.getAvaliacaoId(), request.getNota(),
@@ -239,7 +270,7 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
 
     @Override
     public void removerAvaliacao(RemoverAvaliacaoRequest request,
-                                 StreamObserver<Empty> responseObserver) {
+            StreamObserver<Empty> responseObserver) {
         try {
             avaliacaoService.removerAvaliacao(
                     request.getAvaliacaoId(), request.getClienteId(), request.getIsAdmin());
@@ -251,54 +282,418 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public void obterAvaliacao(ObterAvaliacaoRequest request,
+            StreamObserver<AvaliacaoResponse> responseObserver) {
+        try {
+            Avaliacao a = avaliacaoRepository.findById(request.getAvaliacaoId())
+                    .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
+            responseObserver.onNext(toAvaliacaoResponse(a));
+            responseObserver.onCompleted();
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void obterMenu(ObterMenuRequest request,
+            StreamObserver<MenuResponse> responseObserver) {
+        try {
+            Menu menu = menuService.buscarPorId(request.getMenuId());
+            responseObserver.onNext(toMenuResponse(menu));
+            responseObserver.onCompleted();
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
     // ═════════════════════════════════════════════════════════════════════════
-    // Pessoa 3 — Pedidos / Entregas / Pagamentos (stub — a implementar)
+    // Pedidos / Entregas / Pagamentos
     // ═════════════════════════════════════════════════════════════════════════
 
     @Override
     public void criarPedido(CriarPedidoRequest request,
-                            StreamObserver<PedidoResponse> responseObserver) {
+            StreamObserver<PedidoResponse> responseObserver) {
         responseObserver.onError(Status.UNIMPLEMENTED
-                .withDescription("CriarPedido ainda não implementado").asRuntimeException());
+                .withDescription("CriarPedido — será implementado em v1.1").asRuntimeException());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void listarPedidos(ListarPedidosRequest request,
-                              StreamObserver<ListarPedidosResponse> responseObserver) {
-        responseObserver.onError(Status.UNIMPLEMENTED
-                .withDescription("ListarPedidos ainda não implementado").asRuntimeException());
+            StreamObserver<ListarPedidosResponse> responseObserver) {
+        try {
+            PedidoStatus status = request.hasStatus() ? PedidoStatus.valueOf(request.getStatus()) : null;
+            List<Pedido> pedidos;
+
+            if (request.getClienteId() > 0) {
+                pedidos = pedidoService.buscarPorCliente(request.getClienteId(), status);
+            } else if (status != null) {
+                pedidos = pedidoRepository.findByStatus(status);
+            } else {
+                pedidos = pedidoRepository.findAll();
+            }
+
+            ListarPedidosResponse.Builder builder = ListarPedidosResponse.newBuilder();
+            for (Pedido pedido : pedidos) {
+                builder.addPedidos(toPedidoResponse(pedido));
+            }
+
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
+        } catch (IllegalArgumentException e) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription("Estado de pedido inválido: " + request.getStatus()).asRuntimeException());
+        } catch (Throwable e) {
+            e.printStackTrace();
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
     }
 
     @Override
     public void avancarEstadoPedido(AvancarEstadoPedidoRequest request,
-                                    StreamObserver<PedidoResponse> responseObserver) {
+            StreamObserver<PedidoResponse> responseObserver) {
         responseObserver.onError(Status.UNIMPLEMENTED
-                .withDescription("AvancarEstadoPedido ainda não implementado").asRuntimeException());
+                .withDescription("AvancarEstadoPedido — será implementado em v1.1").asRuntimeException());
     }
 
     @Override
     public void cancelarPedido(CancelarPedidoRequest request,
-                               StreamObserver<Empty> responseObserver) {
+            StreamObserver<Empty> responseObserver) {
         responseObserver.onError(Status.UNIMPLEMENTED
-                .withDescription("CancelarPedido ainda não implementado").asRuntimeException());
+                .withDescription("CancelarPedido — será implementado em v1.1").asRuntimeException());
     }
 
     @Override
     public void registarPagamento(RegistarPagamentoRequest request,
-                                  StreamObserver<PagamentoResponse> responseObserver) {
-        responseObserver.onError(Status.UNIMPLEMENTED
-                .withDescription("RegistarPagamento ainda não implementado").asRuntimeException());
+            StreamObserver<PagamentoResponse> responseObserver) {
+        try {
+            String dadosExtra = null;
+            if (request.hasReferencia()) {
+                dadosExtra = request.getReferencia();
+            } else if (request.hasTelemovel()) {
+                dadosExtra = request.getTelemovel();
+            }
+
+            String bandeira = request.hasBandeira() ? request.getBandeira() : null;
+            Double troco = request.hasTroco() ? request.getTroco() : null;
+
+            Pagamento pagamento = pagamentoService.processarPagamento(
+                    request.getPedidoId(),
+                    request.getTipoPagamento(),
+                    dadosExtra,
+                    bandeira,
+                    troco);
+
+            responseObserver.onNext(toPagamentoResponse(pagamento));
+            responseObserver.onCompleted();
+        } catch (IllegalArgumentException e) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage()).asRuntimeException());
+        } catch (IllegalStateException e) {
+            responseObserver.onError(Status.FAILED_PRECONDITION
+                    .withDescription(e.getMessage()).asRuntimeException());
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
     }
 
     @Override
     public void obterEntrega(ObterEntregaRequest request,
-                             StreamObserver<EntregaResponse> responseObserver) {
+            StreamObserver<EntregaResponse> responseObserver) {
         responseObserver.onError(Status.UNIMPLEMENTED
-                .withDescription("ObterEntrega ainda não implementado").asRuntimeException());
+                .withDescription("ObterEntrega — será implementado em v1.1").asRuntimeException());
     }
 
     // ═════════════════════════════════════════════════════════════════════════
-    // Helpers — conversão Entity → Proto message
+    // Entregas — Listagem e Atualização de Status
+    // ═════════════════════════════════════════════════════════════════════════
+
+    @Override
+    @Transactional(readOnly = true)
+    public void listarEntregas(ListarEntregasRequest request,
+            StreamObserver<ListarEntregasResponse> responseObserver) {
+        try {
+            List<Entrega> entregas = entregaRepository.findAll();
+
+            if (request.hasStatus()) {
+                EntregaStatus status = EntregaStatus.valueOf(request.getStatus());
+                entregas = entregas.stream()
+                        .filter(e -> e.getStatus() == status)
+                        .toList();
+            }
+
+            if (request.hasEntregadorId()) {
+                long entregadorId = request.getEntregadorId();
+                entregas = entregas.stream()
+                        .filter(e -> e.getEntregador() != null
+                                && e.getEntregador().getId() != null
+                                && e.getEntregador().getId().equals(entregadorId))
+                        .toList();
+            }
+
+            ListarEntregasResponse.Builder builder = ListarEntregasResponse.newBuilder();
+            for (Entrega e : entregas) {
+                builder.addEntregas(toEntregaResponse(e));
+            }
+
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void atualizarStatusEntrega(AtualizarStatusEntregaRequest request,
+            StreamObserver<EntregaResponse> responseObserver) {
+        try {
+            Entrega entrega = entregaRepository.findById(request.getEntregaId())
+                    .orElseThrow(() -> new RuntimeException("Entrega não encontrada"));
+
+            EntregaStatus novoEstado = EntregaStatus.valueOf(request.getNovoStatus());
+            entrega.setStatus(novoEstado);
+            Entrega updated = entregaRepository.save(entrega);
+
+            responseObserver.onNext(toEntregaResponse(updated));
+            responseObserver.onCompleted();
+        } catch (IllegalArgumentException e) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription("Estado de entrega inválido: " + request.getNovoStatus()).asRuntimeException());
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // Pagamentos — Listagem
+    // ═════════════════════════════════════════════════════════════════════════
+
+    @Override
+    public void listarPagamentos(ListarPagamentosRequest request,
+            StreamObserver<ListarPagamentosResponse> responseObserver) {
+        try {
+            List<Pagamento> pagamentos = pagamentoRepository.findAll();
+
+            if (request.hasPedidoId()) {
+                long pedidoId = request.getPedidoId();
+                pagamentos = pagamentos.stream()
+                        .filter(p -> p.getPedido() != null && p.getPedido().getId() != null
+                                && p.getPedido().getId().equals(pedidoId))
+                        .toList();
+            }
+
+            if (request.hasStatus()) {
+                PagamentoStatus status = PagamentoStatus.valueOf(request.getStatus());
+                pagamentos = pagamentos.stream()
+                        .filter(p -> p.getStatus() == status)
+                        .toList();
+            }
+
+            ListarPagamentosResponse.Builder builder = ListarPagamentosResponse.newBuilder();
+            for (Pagamento p : pagamentos) {
+                builder.addPagamentos(toPagamentoResponse(p));
+            }
+
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
+        } catch (IllegalArgumentException e) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription("Status de pagamento inválido: " + request.getStatus()).asRuntimeException());
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // Users — CRUD
+    // ═════════════════════════════════════════════════════════════════════════
+
+    @Override
+    public void listarUsers(ListarUsersRequest request,
+            StreamObserver<ListarUsersResponse> responseObserver) {
+        try {
+            List<User> users = userRepository.findAll();
+
+            if (request.hasTipo() && !request.getTipo().isBlank()) {
+                String tipo = request.getTipo().trim().toUpperCase();
+                users = users.stream()
+                        .filter(u -> resolveTipoUtilizador(u).equalsIgnoreCase(tipo))
+                        .toList();
+            }
+
+            ListarUsersResponse.Builder builder = ListarUsersResponse.newBuilder();
+            for (User u : users) {
+                builder.addUsers(toUserInfo(u));
+            }
+
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void registarUser(RegistarUserRequest request,
+            StreamObserver<UserResponse> responseObserver) {
+        try {
+            String tipo = request.getTipo().trim().toUpperCase();
+            User user;
+
+            switch (tipo) {
+                case "ADMIN" -> user = userService.registarAdmin(
+                        request.getEmail(), request.getNome(), request.getPassword());
+                case "ENTREGADOR" -> {
+                    String zonaAtuacao = request.hasZonaAtuacao() && !request.getZonaAtuacao().isBlank()
+                            ? request.getZonaAtuacao()
+                            : "Lisboa";
+                    user = userService.registarEntregador(
+                            request.getEmail(), request.getNome(), request.getPassword(), "Mota", zonaAtuacao);
+                }
+                case "CLIENTE" -> user = userService.registarCliente(
+                        request.getEmail(), request.getNome(), request.getPassword(),
+                        new Endereco("Rua por definir", "0000-000", "Lisboa"));
+                default -> throw new IllegalArgumentException("Tipo de utilizador inválido: " + request.getTipo());
+            }
+
+            if (request.hasTelemovel() && !request.getTelemovel().isBlank()) {
+                user.setTelemovel(request.getTelemovel());
+                user = userRepository.save(user);
+            }
+
+            UserResponse.Builder builder = UserResponse.newBuilder()
+                    .setId(user.getId())
+                    .setNome(user.getNome())
+                    .setEmail(user.getEmail())
+                    .setTipo(resolveTipoUtilizador(user))
+                    .setAtivo(user.isAtivo());
+
+            if (user instanceof Entregador entregador && entregador.getZonaAtuacao() != null) {
+                builder.setZonaAtuacao(entregador.getZonaAtuacao());
+            }
+            if (user.getTelemovel() != null && !user.getTelemovel().isBlank()) {
+                builder.setTelemovel(user.getTelemovel());
+            }
+
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
+        } catch (IllegalArgumentException e) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage()).asRuntimeException());
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void removerUser(RemoverUserRequest request,
+            StreamObserver<Empty> responseObserver) {
+        try {
+            User user = userRepository.findById(request.getUserId())
+                    .orElseThrow(() -> new RuntimeException("Utilizador não encontrado"));
+            userRepository.delete(user);
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // Produtos — CRUD
+    // ═════════════════════════════════════════════════════════════════════════
+
+    @Override
+    public void listarProdutos(ListarProdutosRequest request,
+            StreamObserver<ListarProdutosResponse> responseObserver) {
+        try {
+            List<Produto> produtos = produtoRepository.findAll();
+
+            ListarProdutosResponse.Builder builder = ListarProdutosResponse.newBuilder();
+            for (Produto p : produtos) {
+                builder.addProdutos(toProdutoResponse(p));
+            }
+
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void criarProduto(CriarProdutoRequest request,
+            StreamObserver<ProdutoResponse> responseObserver) {
+        try {
+            Produto produto = new Produto(
+                    request.getNome(),
+                    request.getDescricao(),
+                    request.getPreco(),
+                    request.getCategoria());
+            produto.setDisponivel(request.getDisponivel());
+
+            Produto created = produtoRepository.save(produto);
+            responseObserver.onNext(toProdutoResponse(created));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void atualizarProduto(AtualizarProdutoRequest request,
+            StreamObserver<ProdutoResponse> responseObserver) {
+        try {
+            Produto produto = produtoRepository.findById(request.getProdutoId())
+                    .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+
+            produto.setNome(request.getNome());
+            produto.setDescricao(request.getDescricao());
+            produto.setPreco(request.getPreco());
+            produto.setCategoria(request.getCategoria());
+            produto.setDisponivel(request.getDisponivel());
+
+            Produto updated = produtoRepository.save(produto);
+            responseObserver.onNext(toProdutoResponse(updated));
+            responseObserver.onCompleted();
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void removerProduto(RemoverProdutoRequest request,
+            StreamObserver<Empty> responseObserver) {
+        try {
+            Produto produto = produtoRepository.findById(request.getProdutoId())
+                    .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+            produtoRepository.delete(produto);
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // HELPERS — Conversão Entity → Proto Message
     // ═════════════════════════════════════════════════════════════════════════
 
     private MenuResponse toMenuResponse(Menu menu) {
@@ -360,13 +755,131 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
                 .build();
     }
 
+    private EntregaResponse toEntregaResponse(Entrega e) {
+        String entregadorNome = e.getEntregador() != null ? e.getEntregador().getNome() : "";
+        return EntregaResponse.newBuilder()
+                .setId(e.getId())
+                .setPedidoId(e.getPedido() != null && e.getPedido().getId() != null ? e.getPedido().getId() : 0L)
+                .setEntregadorId(
+                        e.getEntregador() != null && e.getEntregador().getId() != null ? e.getEntregador().getId() : 0L)
+                .setEntregadorNome(entregadorNome)
+                .setStatus(e.getStatus() != null ? e.getStatus().name() : "")
+                .setHoraRetirada(e.getHoraRetirada() != null ? e.getHoraRetirada().toString() : "")
+                .setHoraEntrega(e.getHoraEntrega() != null ? e.getHoraEntrega().toString() : "")
+                .build();
+    }
+
+    private PedidoResponse toPedidoResponse(Pedido p) {
+        PedidoResponse.Builder builder = PedidoResponse.newBuilder()
+                .setId(p.getId())
+                .setStatus(p.getStatus() != null ? p.getStatus().name() : "")
+                .setDataHora(p.getDataHora() != null ? p.getDataHora().toString() : "")
+                .setPrecoTotal(p.getPrecoTotal() != null ? p.getPrecoTotal() : 0.0)
+                .setClienteId(p.getCliente() != null && p.getCliente().getId() != null ? p.getCliente().getId() : 0L)
+                .setRestauranteNome(resolverNomeRestauranteDoPedido(p));
+
+        if (p.getEnderecoEntrega() != null) {
+            builder.setEnderecoEntrega(EnderecoInfo.newBuilder()
+                    .setRua(p.getEnderecoEntrega().getRua())
+                    .setCodigoPostal(p.getEnderecoEntrega().getCodigoPostal())
+                    .setCidade(p.getEnderecoEntrega().getCidade())
+                    .build());
+        }
+
+        for (ProdutoPedido item : p.getProdutosPedido()) {
+            builder.addItens(ProdutoPedidoInfo.newBuilder()
+                    .setProdutoId(
+                            item.getProduto() != null && item.getProduto().getId() != null ? item.getProduto().getId()
+                                    : 0L)
+                    .setProdutoNome(item.getProduto() != null ? item.getProduto().getNome() : "")
+                    .setQuantidade(item.getQuantity())
+                    .setPrecoCompra(item.getPrecoCompra() != null ? item.getPrecoCompra() : 0.0)
+                    .build());
+        }
+
+        return builder.build();
+    }
+
+    private String resolverNomeRestauranteDoPedido(Pedido pedido) {
+        if (pedido.getProdutosPedido().isEmpty()) {
+            return "";
+        }
+
+        Produto produto = pedido.getProdutosPedido().get(0).getProduto();
+        if (produto == null || produto.getMenus().isEmpty()) {
+            return "";
+        }
+
+        Menu menu = produto.getMenus().get(0);
+        if (menu.getRestaurantes().isEmpty()) {
+            return "";
+        }
+
+        return menu.getRestaurantes().get(0).getNome();
+    }
+
+    private PagamentoResponse toPagamentoResponse(Pagamento p) {
+        return PagamentoResponse.newBuilder()
+                .setId(p.getId())
+                .setTipoPagamento(resolveTipoPagamento(p))
+                .setStatus(p.getStatus() != null ? p.getStatus().name() : "")
+                .setValor(p.getPreco() != null ? p.getPreco() : 0.0)
+                .build();
+    }
+
+    private UserInfo toUserInfo(User u) {
+        return UserInfo.newBuilder()
+                .setId(u.getId())
+                .setNome(u.getNome())
+                .setEmail(u.getEmail())
+                .setTipo(resolveTipoUtilizador(u))
+                .setAtivo(u.isAtivo())
+                .build();
+    }
+
+    private String resolveTipoPagamento(Pagamento pagamento) {
+        if (pagamento instanceof MBWay) {
+            return "MBWAY";
+        }
+        if (pagamento instanceof Multibanco) {
+            return "MULTIBANCO";
+        }
+        if (pagamento instanceof Dinheiro) {
+            return "DINHEIRO";
+        }
+        return "DESCONHECIDO";
+    }
+
+    private String resolveTipoUtilizador(User user) {
+        if (user instanceof Admin) {
+            return "ADMIN";
+        }
+        if (user instanceof Entregador) {
+            return "ENTREGADOR";
+        }
+        return "CLIENTE";
+    }
+
+    private ProdutoResponse toProdutoResponse(Produto p) {
+        return ProdutoResponse.newBuilder()
+                .setId(p.getId())
+                .setNome(p.getNome())
+                .setDescricao(p.getDescricao() != null ? p.getDescricao() : "")
+                .setPreco(p.getPreco())
+                .setCategoria(p.getCategoria() != null ? p.getCategoria() : "")
+                .setDisponivel(p.isDisponivel())
+                .build();
+    }
+
     private List<Produto> resolverProdutos(List<Long> ids) {
-        if (ids == null || ids.isEmpty()) return new ArrayList<>();
+        if (ids == null || ids.isEmpty())
+            return new ArrayList<>();
         return new ArrayList<>(produtoRepository.findAllById(ids));
     }
 
     private List<Restaurante> resolverRestaurantes(List<Long> ids) {
-        if (ids == null || ids.isEmpty()) return new ArrayList<>();
+        if (ids == null || ids.isEmpty())
+            return new ArrayList<>();
         return new ArrayList<>(restauranteRepository.findAllById(ids));
     }
 }

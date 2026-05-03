@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>TascaEats - Dashboard</title>
+</head>
+<div layout:fragment="content" class="dashboard-shell">
+    <section class="welcome-section-te">
+        <h1>Bem-vindo ao TascaEats</h1>
+        <p
+            th:text="${userName != null ? 'Ola, ' + userName + '. Escolhe para onde queres ir.' : 'Escolhe para onde queres ir.'}">
+        </p>
+    </section>
+
+    <section class="actions-grid-te">
+        <a class="action-card-te" th:href="@{/restaurantes}">
+            <div class="card-icon-te"><i class="fas fa-store"></i></div>
+            <h2>Restaurantes</h2>
+            <p>Explora restaurantes, filtra por cozinha e consulta detalhes.</p>
+        </a>
+
+        <a class="action-card-te" th:href="@{/menus}">
+            <div class="card-icon-te"><i class="fas fa-utensils"></i></div>
+            <h2>Menus</h2>
+            <p>Consulta menus disponíveis e filtra por nome, preço e número de produtos.</p>
+        </a>
+
+        <a class="action-card-te" th:href="@{/produtos}">
+            <div class="card-icon-te"><i class="fas fa-box-open"></i></div>
+            <h2>Produtos</h2>
+            <p>Pesquisa produtos e usa filtros de preço, categoria e popularidade.</p>
+        </a>
+
+        <a class="action-card-te"
+            th:href="${session.user != null and session.user.role == 'CLIENTE'} ? @{/pedidos(clienteId=${session.user.id})} : @{/pedidos}">
+            <div class="card-icon-te"><i class="fas fa-receipt"></i></div>
+            <h2>Pedidos</h2>
+            <p>Acompanha pedidos, pagamento e estado de entrega.</p>
+        </a>
+
+        <a class="action-card-te" th:href="@{/users/me}">
+            <div class="card-icon-te"><i class="fas fa-user-circle"></i></div>
+            <h2>Perfil</h2>
+            <p>Consulta os teus dados e acede rapidamente as tuas paginas.</p>
+        </a>
+    </section>
+
+    <section class="info-section-te">
+        <h3>Como usar a plataforma</h3>
+        <div class="info-steps-te">
+            <article>
+                <span>1</span>
+                <div>
+                    <h4>Descobre</h4>
+                    <p>Consulta restaurantes e menus disponiveis.</p>
+                </div>
+            </article>
+            <article>
+                <span>2</span>
+                <div>
+                    <h4>Encomenda</h4>
+                    <p>Cria pedidos e seleciona a forma de pagamento.</p>
+                </div>
+            </article>
+            <article>
+                <span>3</span>
+                <div>
+                    <h4>Acompanha</h4>
+                    <p>Segue o estado do pedido e entrega em tempo real.</p>
+                </div>
+            </article>
+        </div>
+    </section>
+</div>
+
+</html>

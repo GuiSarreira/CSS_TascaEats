@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.lang.String?>
+<?import java.net.URL?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pt.ul.fc.css.tascaeats.javafx.controllers.AvaliacaoFormController"
+      spacing="10"
+      style="-fx-font-family: Arial; -fx-font-size: 11;">
+
+    <stylesheets>
+        <URL value="@../css/styles.css"/>
+    </stylesheets>
+
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <!-- Tí­tulo -->
+    <Label fx:id="lblTitulo" text="Nova Avaliação" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+
+    <!-- Restaurante -->
+    <VBox spacing="5">
+        <Label text="Restaurante:"/>
+        <ComboBox fx:id="cmbRestaurante" promptText="Selecione um restaurante"/>
+    </VBox>
+
+    <!-- ClassificaÃ§Ã£o (Estrelas 1-5) -->
+    <VBox spacing="5">
+        <Label text="Classificação: "/>
+        <HBox spacing="5" alignment="CENTER_LEFT">
+            <Slider fx:id="sldrClassificacao" min="1" max="5" value="3" 
+                    majorTickUnit="1" minorTickCount="0" showTickLabels="true" 
+                    showTickMarks="true" style="-fx-pref-width: 150;"/>
+            <Label fx:id="lblClassificacao" text="3/5" style="-fx-font-weight: bold; -fx-text-fill: #ff9800;"/>
+        </HBox>
+    </VBox>
+
+    <!-- ComentÃ¡rio -->
+    <VBox spacing="5" VBox.vgrow="ALWAYS">
+        <Label text="Comentário:"/>
+        <TextArea fx:id="txtComentario" promptText="Insira seu comentÃ¡rio" 
+                  wrapText="true" style="-fx-padding: 8;"/>
+    </VBox>
+
+    <!-- BotÃµes -->
+    <HBox spacing="10" style="-fx-alignment: center-right;">
+        <Button fx:id="btnGuardar" text="Guardar" onAction="#guardarAvaliacao" 
+                style="-fx-font-size: 12; -fx-padding: 8 30; -fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+        <Button fx:id="btnCancelar" text="Cancelar" onAction="#cancelar" 
+                style="-fx-font-size: 12; -fx-padding: 8 30; -fx-background-color: #f44336; -fx-text-fill: white;"/>
+    </HBox>
+
+    <!-- Mensagem de erro -->
+    <Label fx:id="lblErro" style="-fx-text-fill: #d32f2f; -fx-font-size: 10; -fx-padding: 5;"/>
+
+</VBox>

@@ -1,0 +1,79 @@
+SCRIPT VIDEO WEB
+DADOS INICIALIZADOS (USAR NA DEMO)
+- Admins:
+	- admin@tascaeats.pt / admin123
+	- admin2@tascaeats.pt / admin123
+- Entregadores:
+	- bruno@tascaeats.pt / pass123 (disponivel=true)
+	- ines@tascaeats.pt / pass123
+	- mario@tascaeats.pt / pass123
+	- pedro.removivel@tascaeats.pt / pass123
+- Clientes:
+	- ana@tascaeats.pt / pass123
+	- joao@tascaeats.pt / pass123
+	- rita@tascaeats.pt / pass123
+- Restaurantes:
+	- Tasca Lisboa (ABERTO)
+	- Solar do Bacalhau (ABERTO)
+	- Casa Fechada (FECHADO)
+	- Cantina Italiana (ABERTO)
+	- Dragão Wok (FECHADO)
+- Produtos (exemplos):
+  - Tasca Lisboa: Prego no Pao, Sopa do Dia, Bacalhau a Bras, Arroz de Pato (indisponivel)
+  - Solar do Bacalhau: Francesinha, Caldo Verde
+  - Cantina Italiana: Pizza Margherita, Tiramisu, Limonada da Casa
+  - Dragão Wok: Noodles de Frango, Gyoza (indisponivel)
+- Avaliacoes:
+  - 2 avaliacoes iniciais ligadas a pedidos DELIVERED
+  - notas de exemplo: 5 e 4
+
+A - LOGIN MOCK
+[A]
+- Valido: entrar com email existente (ex: ana@tascaeats.pt) e qualquer password (ex: "123", "abcd", "pass123").
+- Invalido: tentar email inexistente (ex: teste.naoexiste@tascaeats.pt).
+
+B - REGISTO CLIENTE
+[B]
+- Valido: registar novo cliente (ex: sofia.demo@tascaeats.pt).
+- Invalido: repetir registo com o mesmo email (deve mostrar erro de email duplicado).
+
+ADICIONAR MORADA
+- Rua da Liberdade, 10
+
+E - BUSCAR RESTAURANTES (FILTROS)
+[E]
+- Nome: "Tasca" 
+- Morada: "Cedofeita" 
+- Tipo cozinha: "Italiana" 
+- Horário: 12:30 
+- Estado: FECHADO 
+- Preço médio: min 7 / max 6 
+- Mín. avaliações: 1 -
+- Mín. pedidos: 1 
+- Invalido: Nome "Restaurante Inexistente" 
+
+I - BUSCAR PRODUTOS DE RESTAURANTE (FILTRO)
+[I]
+- Nome: "Sopa" 
+- Preço: min 5 e max 6 
+- Categoria: "Sobremesa" 
+- Popularidade: min 1 com intervalo data início/fim da demo 
+- Invalido: Nome "Produto XYZ Sem Match" 
+
+J - CRIACAO DE PEDIDO
+[J]
+- Login como cliente ana@tascaeats.pt.
+- Em "Pedidos" - "+ Novo Pedido", escolher morada guardada ou preencher nova morada.
+- Selecionar quantidades de produtos disponíveis de restaurante aberto (ex: Tasca Lisboa) e confirmar.
+- Resultado esperado: novo pedido com estado CREATED na lista "Os Meus Pedidos".
+- Invalido: tentar quantidade em produto indisponível/fechado (campo bloqueado; se forçado, backend rejeita).
+
+N - CANCELAMENTO DE PEDIDO
+[N]
+- Login como cliente ana@tascaeats.pt.
+- Na lista de pedidos, cancelar um pedido em CREATED (seed inclui exemplo cancelável).
+- Resultado esperado: estado muda para CANCELLED.
+- Invalido: abrir detalhe de pedido já DELIVERED e tentar cancelar (ação não permitida).
+
+FAZER UMA AVALIAÇÃO
+- Num pedido DELIVERED

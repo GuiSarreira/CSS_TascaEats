@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}" lang="pt">
 
 <head>
     <meta charset="UTF-8">
     <title>As Minhas Moradas</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 
-<body>
-    <div class="container mt-4">
+<div layout:fragment="content">
+    <div class="page-shell-te" style="max-width:900px;">
 
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -17,10 +17,10 @@
             </ol>
         </nav>
 
-        <h2>Moradas de <span th:text="${cliente.nome}"></span></h2>
+        <h2 class="page-title-te">Moradas de <span th:text="${cliente.nome}"></span></h2>
 
         <!-- Lista de moradas guardadas -->
-        <div class="card mb-4">
+        <div class="surface-card-te mb-2">
             <div class="card-header">Moradas guardadas</div>
             <ul class="list-group list-group-flush">
                 <li th:each="morada, iter : ${moradas}"
@@ -32,7 +32,7 @@
                     </span>
                     <form th:action="@{/cliente/{id}/moradas/{idx}/remover(id=${cliente.id},idx=${iter.index})}"
                         method="post" style="display:inline">
-                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                        <button type="submit" class="btn-te btn-te-danger btn-te-sm"
                             onclick="return confirm('Remover esta morada?')">Remover</button>
                     </form>
                 </li>
@@ -43,31 +43,34 @@
         </div>
 
         <!-- Formulário para adicionar nova morada -->
-        <div class="card">
+        <div class="surface-card-te">
             <div class="card-header">Adicionar nova morada</div>
             <div class="card-body">
                 <form th:action="@{/cliente/{id}/moradas(id=${cliente.id})}" method="post">
-                    <div class="mb-3">
-                        <label class="form-label">Rua e número</label>
-                        <input type="text" class="form-control" name="rua" required
-                            placeholder="Ex: Rua das Flores, 10">
+                    <div class="mb-3 field-group-inline-te">
+                        <label>Rua e número</label>
+                        <input type="text" name="rua" required placeholder="Ex: Rua das Flores, 10">
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label class="form-label">Código Postal</label>
-                            <input type="text" class="form-control" name="codigoPostal" required placeholder="1200-123">
+                            <div class="field-group-inline-te">
+                                <label>Código Postal</label>
+                                <input type="text" name="codigoPostal" required placeholder="1200-123">
+                            </div>
                         </div>
                         <div class="col-md-8">
-                            <label class="form-label">Cidade</label>
-                            <input type="text" class="form-control" name="cidade" required placeholder="Lisboa">
+                            <div class="field-group-inline-te">
+                                <label>Cidade</label>
+                                <input type="text" name="cidade" required placeholder="Lisboa">
+                            </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Adicionar morada</button>
+                    <button type="submit" class="btn-te btn-te-primary">Adicionar morada</button>
                 </form>
             </div>
         </div>
-
     </div>
-</body>
+
+</div>
 
 </html>

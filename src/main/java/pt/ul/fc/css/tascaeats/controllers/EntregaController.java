@@ -99,7 +99,7 @@ public class EntregaController {
      * @param pedidoId ID do pedido
      * @return A entrega do pedido
      */
-    @GetMapping("/entregas/pedido/{pedidoId}")
+    @GetMapping({ "/entregas/pedido/{pedidoId}", "/pedidos/{pedidoId}/entrega" })
     public ResponseEntity<EntregaResponse> buscarEntregaPorPedidoId(@PathVariable Long pedidoId) {
         Entrega entrega = entregaService.buscarPorPedidoId(pedidoId);
         return ResponseEntity.ok(EntregaResponse.from(entrega));

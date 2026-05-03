@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>TascaEats - Registo</title>
+</head>
+<div layout:fragment="content" class="auth-shell">
+    <div class="auth-card-te">
+        <h2>Criar conta</h2>
+
+        <div th:if="${error}" class="auth-message error" th:text="${error}"></div>
+
+        <form th:action="@{/register}" th:object="${registerRequest}" method="post" class="auth-form-te">
+            <div class="field-group-te">
+                <label for="nome">Nome</label>
+                <input id="nome" type="text" th:field="*{nome}" placeholder="Nome completo" required>
+            </div>
+
+            <div class="field-group-te">
+                <label for="email">Email</label>
+                <input id="email" type="email" th:field="*{email}" placeholder="nome@exemplo.com" required>
+            </div>
+
+            <div class="field-row-te">
+                <div class="field-group-te">
+                    <label for="password">Palavra-passe</label>
+                    <input id="password" type="password" th:field="*{password}" required>
+                </div>
+                <div class="field-group-te">
+                    <label for="confirmPassword">Confirmar palavra-passe</label>
+                    <input id="confirmPassword" type="password" th:field="*{confirmPassword}" required>
+                </div>
+            </div>
+
+            <div class="field-group-te">
+                <label for="rua">Rua</label>
+                <input id="rua" type="text" th:field="*{rua}" placeholder="Rua e numero" required>
+            </div>
+
+            <div class="field-row-te">
+                <div class="field-group-te">
+                    <label for="codigoPostal">Código postal</label>
+                    <input id="codigoPostal" type="text" th:field="*{codigoPostal}" placeholder="1000-000" required>
+                </div>
+                <div class="field-group-te">
+                    <label for="cidade">Cidade</label>
+                    <input id="cidade" type="text" th:field="*{cidade}" placeholder="Lisboa" required>
+                </div>
+            </div>
+
+            <button type="submit" class="auth-btn-te">Criar conta</button>
+        </form>
+
+        <p class="auth-link-te">
+            Já tens conta?
+            <a th:href="@{/login}">Iniciar sessão</a>
+        </p>
+    </div>
+</div>
+</html>

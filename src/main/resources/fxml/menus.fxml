@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.lang.String?>
+<?import java.net.URL?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pt.ul.fc.css.tascaeats.javafx.controllers.MenusController"
+    spacing="16"
+    styleClass="page-container">
+
+    <stylesheets>
+        <URL value="@../css/styles.css"/>
+    </stylesheets>
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <!-- Title -->
+    <Label text="Gestão de Menus" styleClass="section-title"/>
+    <Label text="Consulta todos os menus e gere novas entradas com a mesma linguagem visual do dashboard." styleClass="section-subtitle" wrapText="true"/>
+
+    <!-- Filter Bar -->
+    <FlowPane hgap="10" vgap="8" prefWrapLength="820" styleClass="toolbar" style="-fx-alignment: center-left;">
+        <Label text="Nome:"/>
+        <TextField fx:id="txtFiltroNomeMenu" prefWidth="170" promptText="Nome do menu"/>
+        <Label text="Produtos:"/>
+        <TextField fx:id="txtFiltroMinProdutos" prefWidth="80" promptText="min"/>
+        <TextField fx:id="txtFiltroMaxProdutos" prefWidth="80" promptText="max"/>
+        <Label text="Preço médio:"/>
+        <TextField fx:id="txtFiltroMinPrecoMedio" prefWidth="90" promptText="min"/>
+        <TextField fx:id="txtFiltroMaxPrecoMedio" prefWidth="90" promptText="max"/>
+        <Button fx:id="btnRecarregarMenus" text="Recarregar" onAction="#recarregarMenus"/>
+        <Button fx:id="btnNovoMenu" text="+ Novo Menu" onAction="#novoMenu" styleClass="button-secondary"/>
+    </FlowPane>
+
+    <!-- Menus Table -->
+    <TableView fx:id="tblMenus" prefHeight="400" VBox.vgrow="ALWAYS">
+        <columns>
+            <!-- ID -->
+            <TableColumn fx:id="colMenuId" text="ID" prefWidth="60"/>
+            
+            <!-- Nome Menu -->
+            <TableColumn fx:id="colMenuNome" text="Nome do Menu" prefWidth="200"/>
+            
+            <!-- Descricao -->
+            <TableColumn fx:id="colMenuDescricao" text="Descriçao" prefWidth="250"/>
+            
+            <!-- Preco -->
+            <TableColumn fx:id="colMenuPreco" text="Preço" prefWidth="100"/>
+
+            <!-- Nº Produtos -->
+            <TableColumn fx:id="colMenuNumProdutos" text="Nº Produtos" prefWidth="120"/>
+            
+            <!-- Restaurante -->
+            <TableColumn fx:id="colMenuRestaurante" text="Restaurante" prefWidth="200"/>
+            
+            <!-- Acoes -->
+            <TableColumn fx:id="colMenuAcoes" text="Ações" prefWidth="220"/>
+        </columns>
+    </TableView>
+
+    <!-- Status Bar -->
+    <HBox spacing="10" styleClass="status-bar" style="-fx-alignment: center-left;">
+        <Label fx:id="lblMenuStatus" text="Aguarde..." styleClass="label,muted"/>
+        <Label fx:id="lblTotalMenus" text="Total: 0 menus" styleClass="label,muted"/>
+    </HBox>
+
+</VBox>

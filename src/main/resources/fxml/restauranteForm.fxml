@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pt.ul.fc.css.tascaeats.javafx.controllers.RestauranteFormController"
+    spacing="15"
+    styleClass="page-container"
+    fillWidth="true">
+
+    <stylesheets>
+        <URL value="@../css/styles.css"/>
+    </stylesheets>
+
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <!-- Title -->
+    <Label text="Gerir Restaurante" styleClass="section-title"/>
+    <Label text="Crie ou edite restaurante. Apenas administradores podem guardar alterações." styleClass="section-subtitle" wrapText="true"/>
+
+    <!-- Form -->
+    <GridPane hgap="10" vgap="10" styleClass="toolbar">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
+
+        <!-- Nome -->
+        <Label text="Nome:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtName" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <!-- NIF -->
+        <Label text="NIF:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtNif" GridPane.rowIndex="1" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <!-- Endereço -->
+        <Label text="Endereço:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtAddress" GridPane.rowIndex="2" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <!-- Código Postal -->
+        <Label text="Código Postal:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtPostalCode" GridPane.rowIndex="3" GridPane.columnIndex="1" prefWidth="300" promptText="0000-000"/>
+
+        <!-- Cidade -->
+        <Label text="Cidade:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtCity" GridPane.rowIndex="4" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <!-- Tipo de Restaurante -->
+        <Label text="Tipo de Restaurante:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="comboCuisineType" GridPane.rowIndex="5" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <!-- Hora de Abertura -->
+        <Label text="Hora de Abertura:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtOpenTime" GridPane.rowIndex="6" GridPane.columnIndex="1" prefWidth="300" promptText="HH:mm"/>
+
+        <!-- Hora de Fecho -->
+        <Label text="Hora de Fecho:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtCloseTime" GridPane.rowIndex="7" GridPane.columnIndex="1" prefWidth="300" promptText="HH:mm"/>
+
+        <!-- Descrição -->
+        <Label text="Descrição:" GridPane.rowIndex="8" GridPane.columnIndex="0" GridPane.valignment="TOP"/>
+        <TextArea fx:id="txtDescription" GridPane.rowIndex="8" GridPane.columnIndex="1" prefHeight="100" prefWidth="300"/>
+    </GridPane>
+
+    <!-- Buttons -->
+    <HBox spacing="10" style="-fx-alignment: center;">
+        <Button fx:id="btnSave" text="Guardar" onAction="#save" styleClass="button-secondary"/>
+        <Button fx:id="btnCancel" text="Cancelar" onAction="#cancel"/>
+    </HBox>
+
+    <!-- Status -->
+    <Label fx:id="lblStatus" text="Pronto" styleClass="label,muted"/>
+
+</VBox>

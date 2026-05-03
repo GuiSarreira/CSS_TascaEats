@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Produtos</title>
+</head>
+<div layout:fragment="content">
+    <div class="page-shell-te">
+        <div class="page-header-te">
+            <h1 class="page-title-te"><i class="fas fa-box-open me-2"></i>Produtos</h1>
+        </div>
+
+        <div class="surface-card-te">
+            <div class="card-header">Filtros de Produto</div>
+            <div>
+                <form th:action="@{/produtos}" method="get" class="filters-form-te">
+                    <div class="field-group-inline-te">
+                        <label for="nome">Nome</label>
+                        <input id="nome" name="nome" th:value="${filtroNome}" placeholder="Ex: Pizza" />
+                    </div>
+                    <div class="field-group-inline-te">
+                        <label for="precoMin">Preço Min</label>
+                        <input id="precoMin" name="precoMin" type="number" step="0.01" min="0"
+                            th:value="${filtroPrecoMin}" />
+                    </div>
+                    <div class="field-group-inline-te">
+                        <label for="precoMax">Preço Max</label>
+                        <input id="precoMax" name="precoMax" type="number" step="0.01" min="0"
+                            th:value="${filtroPrecoMax}" />
+                    </div>
+                    <div class="field-group-inline-te">
+                        <label for="categoria">Categoria</label>
+                        <input id="categoria" name="categoria" th:value="${filtroCategoria}"
+                            placeholder="Ex: SOBREMESA" />
+                    </div>
+                    <div class="field-group-inline-te" th:if="${podeFiltrarDisponibilidade}">
+                        <label for="disponivel">Disponibilidade</label>
+                        <select id="disponivel" name="disponivel">
+                            <option value="" th:selected="${filtroDisponivel == null}">Todos</option>
+                            <option value="true" th:selected="${filtroDisponivel == true}">Disponível</option>
+                            <option value="false" th:selected="${filtroDisponivel == false}">Indisponível</option>
+                        </select>
+                    </div>
+                    <div class="field-group-inline-te">
+                        <label for="minPopularidade">Mín. Popularidade</label>
+                        <input id="minPopularidade" name="minPopularidade" type="number" min="0"
+                            th:value="${filtroMinPopularidade}" />
+                    </div>
+                    <div class="field-group-inline-te">
+                        <label for="dataInicio">Data Início</label>
+                        <input id="dataInicio" name="dataInicio" type="datetime-local" th:value="${filtroDataInicio}" />
+                    </div>
+                    <div class="field-group-inline-te">
+                        <label for="dataFim">Data Fim</label>
+                        <input id="dataFim" name="dataFim" type="datetime-local" th:value="${filtroDataFim}" />
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn-te btn-te-primary">Filtrar</button>
+                        <a th:href="@{/produtos}" class="btn-te btn-te-outline">Limpar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="surface-card-te" th:if="${#lists.isEmpty(produtos)}">
+            <p class="vazio-te">Nenhum produto encontrado com estes filtros.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(produtos)}" class="surface-card-te table-shell-te">
+            <table class="table-te">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Categoria</th>
+                        <th>Preço</th>
+                        <th>Disponibilidade</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${produtos}">
+                        <td th:text="${p.id}">1</td>
+                        <td>
+                            <div class="fw-semibold" th:text="${p.nome}">Produto</div>
+                            <small class="text-muted" th:text="${p.descricao}">Descrição</small>
+                        </td>
+                        <td th:text="${p.categoria != null ? p.categoria : '-'}">-</td>
+                        <td th:text="${#numbers.formatDecimal(p.preco, 1, 2)} + ' €'">0.00 €</td>
+                        <td>
+                            <span class="pill-te pill-open-te" th:if="${p.disponivel}">Disponível</span>
+                            <span class="pill-te pill-closed-te" th:unless="${p.disponivel}">Indisponível</span>
+                        </td>
+                        <td>
+                            <span class="pill-te pill-closed-te" th:if="${p.eliminado}">Eliminado</span>
+                            <span class="pill-te pill-open-te" th:unless="${p.eliminado}">Ativo</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</html>

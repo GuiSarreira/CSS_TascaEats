@@ -181,8 +181,8 @@ public class EntregaService {
         Entrega entrega = entregaRepository.findById(entregaId)
                 .orElseThrow(() -> new RuntimeException("Entrega não encontrada: " + entregaId));
 
-        if (entrega.getStatus() != EntregaStatus.ATRIBUIDA) {
-            throw new IllegalStateException("Só é possível cancelar entrega no estado ATRIBUIDA.");
+        if (entrega.getStatus() != EntregaStatus.ATRIBUIDA && entrega.getStatus() != EntregaStatus.A_CAMINHO) {
+            throw new IllegalStateException("So e possivel cancelar entrega nos estados ATRIBUIDA ou A_CAMINHO.");
         }
 
         entrega.cancelar();
@@ -251,10 +251,12 @@ public class EntregaService {
     }
 
     /**
-     * Query de negócio — devolve o entregador com mais entregas concluídas para um restaurante.
+     * Query de negócio — devolve o entregador com mais entregas concluídas para um
+     * restaurante.
      *
      * @param restauranteId ID do restaurante
-     * @return Optional com o entregador mais activo, vazio se não houver entregas concluídas
+     * @return Optional com o entregador mais activo, vazio se não houver entregas
+     *         concluídas
      */
     public Optional<Entregador> entregadorComMaisEntregasParaRestaurante(Long restauranteId) {
         List<Object[]> results = entregaRepository.findEntregadorComMaisEntregasParaRestaurante(restauranteId);

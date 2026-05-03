@@ -5,19 +5,18 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import pt.ul.fc.css.tascaeats.dto.LoginRequest;
 import pt.ul.fc.css.tascaeats.dto.UserResponse;
+import pt.ul.fc.css.tascaeats.services.AuthService;
 
 @Controller
 @RequestMapping("/")
 public class WebAuthController {
 
-    private final RestTemplate restTemplate;
-    private final String API_BASE = "http://localhost:8080/api";
+    private final AuthService authService;
 
-    public WebAuthController(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public WebAuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @GetMapping("/login")
@@ -29,10 +28,10 @@ public class WebAuthController {
     @PostMapping("/login")
     public String processarLogin(@ModelAttribute LoginRequest loginRequest, HttpSession session, Model model) {
         try {
-            UserResponse user = restTemplate.postForObject(
-                    API_BASE + "/auth/login", loginRequest, UserResponse.class);
+            UserResponse user = UserResponse
+                    .from(authService.login(loginRequest.getEmail(), loginRequest.getPassword()));
             session.setAttribute("user", user);
-            return "redirect:/restaurantes";
+            return "redirect:/dashboard";
         } catch (Exception e) {
             model.addAttribute("error", "Credenciais inválidas ou utilizador inativo");
             model.addAttribute("loginRequest", loginRequest);
@@ -46,4 +45,3 @@ public class WebAuthController {
         return "redirect:/login";
     }
 }
-

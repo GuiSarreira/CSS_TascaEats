@@ -1,37 +1,55 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <div th:fragment="navbar">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark te-navbar">
         <div class="container">
-            <a class="navbar-brand" href="/">🍽️ TascaEats</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <a class="navbar-brand te-brand" th:href="${session.user != null} ? @{/dashboard} : @{/}">
+                <i class="fas fa-utensils me-2"></i>TascaEats
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="/restaurantes">Restaurantes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/menus">Menus</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/pedidos">Meus Pedidos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/clientes/moradas">Moradas</a></li>
+                <ul class="navbar-nav me-auto" th:if="${session.user != null}">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/dashboard}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/restaurantes}">Restaurantes</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/menus}">Menus</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/produtos}">Produtos</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            th:href="${session.user.role == 'CLIENTE'} ? @{/pedidos(clienteId=${session.user.id})} : @{/pedidos}">
+                            Pedidos
+                        </a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
-                    <!-- usar session ou authentication para mostrar nome do user -->
                     <li class="nav-item dropdown" th:if="${session.user != null}">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-user"></i> <span th:text="${session.user.nome}">Utilizador</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/users/me">Perfil</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/auth/logout">Sair</a></li>
+                            <li><a class="dropdown-item" th:href="@{/users/me}">Perfil</a></li>
+                            <li th:if="${session.user.role == 'CLIENTE'}">
+                                <a class="dropdown-item"
+                                    th:href="@{/cliente/{id}/moradas(id=${session.user.id})}">Moradas</a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" th:href="@{/auth/logout}">Sair</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item" th:unless="${session.user != null}">
-                        <a class="nav-link btn btn-outline-light" href="/login">Entrar</a>
+                    <li class="nav-item" th:if="${session.user == null}">
+                        <a class="nav-link" th:href="@{/login}">Entrar</a>
+                    </li>
+                    <li class="nav-item" th:if="${session.user == null}">
+                        <a class="nav-link" th:href="@{/register}">Registar</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 </div>
+
 </html>

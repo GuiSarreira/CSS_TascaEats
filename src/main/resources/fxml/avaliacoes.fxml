@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pt.ul.fc.css.tascaeats.javafx.controllers.AvaliacoesController"
+            spacing="16"
+            styleClass="page-container">
+
+    <stylesheets>
+        <URL value="@../css/styles.css"/>
+    </stylesheets>
+
+    <padding>
+                <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <!-- Title -->
+        <Label fx:id="lblTitulo" text="Avaliações dos Restaurantes" styleClass="section-title"/>
+        <Label fx:id="lblSubtitulo" text="Consulta apenas as avaliações já submetidas na interface web." styleClass="section-subtitle" wrapText="true"/>
+
+    <!-- Button Bar -->
+        <HBox spacing="10" styleClass="toolbar" style="-fx-alignment: center-left;">
+                <Button fx:id="btnRecarregarAvaliacoes" text="Recarregar" onAction="#recarregarAvaliacoes"/>
+    </HBox>
+
+    <!-- AvaliaÃ§Ãµes Table -->
+    <TableView fx:id="tblAvaliacoes" prefHeight="400" VBox.vgrow="ALWAYS">
+        <columns>
+            <!-- ID -->
+            <TableColumn fx:id="colAvaliacaoId" text="ID" prefWidth="60"/>
+            
+            <!-- Cliente -->
+            <TableColumn fx:id="colAvaliacaoMenu" text="Cliente" prefWidth="170"/>
+            
+            <!-- Restaurante -->
+            <TableColumn fx:id="colAvaliacaoRestaurante" text="Restaurante" prefWidth="170"/>
+            
+            <!-- Classificacao -->
+            <TableColumn fx:id="colAvaliacaoClassificacao" text="Classificacao" prefWidth="100"/>
+            
+            <!-- Comentario -->
+            <TableColumn fx:id="colAvaliacaoComentario" text="Comentario" prefWidth="320"/>
+            
+            <!-- Data -->
+            <TableColumn fx:id="colAvaliacaoData" text="Data" prefWidth="170"/>
+            
+        </columns>
+    </TableView>
+
+    <!-- Status Bar -->
+    <HBox spacing="10" styleClass="status-bar" style="-fx-alignment: center-left;">
+        <Label fx:id="lblAvaliacaoStatus" text="Aguarde..." styleClass="label,muted"/>
+        <Label fx:id="lblTotalAvaliacoes" text="Total: 0 avaliações" styleClass="label,muted"/>
+    </HBox>
+
+</VBox>

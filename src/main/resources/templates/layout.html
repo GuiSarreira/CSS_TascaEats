@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,10 +12,11 @@
     <!-- Custom CSS -->
     <link th:href="@{/css/style.css}" rel="stylesheet">
 </head>
+
 <body>
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <main class="container my-4">
+    <main class="container app-main-shell">
         <div th:replace="~{fragments/alerts :: alerts}"></div>
         <div layout:fragment="content">
             <!-- conteúdo específico da página -->
@@ -29,4 +30,5 @@
     <!-- Custom JS -->
     <script th:src="@{/js/main.js}"></script>
 </body>
+
 </html>

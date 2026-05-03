@@ -25,4 +25,13 @@ public interface AvaliacaoRepository extends JpaRepository<Avaliacao, Long> {
 
     @Query("SELECT AVG(a.nota) FROM Avaliacao a WHERE a.restaurante.id = :restauranteId")
     Double calcularMediaNotasPorRestaurante(@Param("restauranteId") Long restauranteId);
+
+    @Query("SELECT a FROM Avaliacao a JOIN FETCH a.cliente JOIN FETCH a.restaurante")
+    List<Avaliacao> findAllWithClienteAndRestaurante();
+
+    @Query("SELECT a FROM Avaliacao a JOIN FETCH a.cliente JOIN FETCH a.restaurante WHERE a.restaurante.id = :restauranteId")
+    List<Avaliacao> findByRestauranteIdWithFetch(@Param("restauranteId") Long restauranteId);
+
+    @Query("SELECT a FROM Avaliacao a JOIN FETCH a.cliente JOIN FETCH a.restaurante WHERE a.cliente.id = :clienteId")
+    List<Avaliacao> findByClienteIdWithFetch(@Param("clienteId") Long clienteId);
 }

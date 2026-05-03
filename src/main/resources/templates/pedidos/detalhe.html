@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}" lang="pt">
 
 <head>
     <meta charset="UTF-8">
     <title th:text="'Pedido #' + ${pedido.id}">Detalhe do Pedido</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 
-<body>
-    <div class="container mt-4">
+<div layout:fragment="content">
+    <div class="page-shell-te">
 
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -19,10 +19,14 @@
             </ol>
         </nav>
 
+        <div class="mb-3">
+            <a th:href="@{/pedidos(clienteId=${pedido.cliente.id})}" class="btn-te btn-te-secondary">← Voltar</a>
+        </div>
+
         <!-- Cabeçalho -->
         <div class="d-flex justify-content-between align-items-start mb-4">
             <div>
-                <h2 th:text="'Pedido #' + ${pedido.id}"></h2>
+                <h2 class="page-title-te" th:text="'Pedido #' + ${pedido.id}"></h2>
                 <p class="text-muted mb-0" th:text="${#temporals.format(pedido.dataHora, 'dd/MM/yyyy HH:mm')}"></p>
             </div>
             <span th:text="${pedido.status}"
@@ -32,46 +36,50 @@
             </span>
         </div>
 
-        <div class="row g-4">
+        <div class="two-col-te">
 
             <!-- Coluna esquerda: itens + morada -->
-            <div class="col-md-7">
+            <div>
 
                 <!-- Itens do pedido -->
-                <div class="card mb-3">
+                <div class="surface-card-te mb-3">
                     <div class="card-header">Itens</div>
-                    <table class="table table-sm mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Produto</th>
-                                <th class="text-end">Preço unit.</th>
-                                <th class="text-end">Qtd</th>
-                                <th class="text-end">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="item : ${pedido.produtosPedido}">
-                                <td th:text="${item.produto.nome}"></td>
-                                <td class="text-end" th:text="${#numbers.formatDecimal(item.precoCompra, 1, 2) + ' €'}">
-                                </td>
-                                <td class="text-end" th:text="${item.quantity}"></td>
-                                <td class="text-end"
-                                    th:text="${#numbers.formatDecimal(item.precoCompra * item.quantity, 1, 2) + ' €'}">
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr class="fw-bold">
-                                <td colspan="3" class="text-end">Total</td>
-                                <td class="text-end"
-                                    th:text="${#numbers.formatDecimal(pedido.precoTotal, 1, 2) + ' €'}"></td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                    <div class="table-shell-te">
+                        <table class="table-te">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produto</th>
+                                    <th class="text-end">Preço unit.</th>
+                                    <th class="text-end">Qtd</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${pedido.produtosPedido}">
+                                    <td th:text="${item.produto.nome}"></td>
+                                    <td class="text-end"
+                                        th:text="${#numbers.formatDecimal(item.precoCompra, 1, 2) + ' €'}">
+                                    </td>
+                                    <td class="text-end" th:text="${item.quantity}"></td>
+                                    <td class="text-end"
+                                        th:text="${#numbers.formatDecimal(item.precoCompra * item.quantity, 1, 2) + ' €'}">
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="fw-bold">
+                                    <td colspan="3" class="text-end">Total</td>
+                                    <td class="text-end"
+                                        th:text="${#numbers.formatDecimal(pedido.precoTotal, 1, 2) + ' €'}">
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- Morada de entrega -->
-                <div class="card">
+                <div class="surface-card-te">
                     <div class="card-header">Morada de entrega</div>
                     <div class="card-body">
                         <p class="mb-0" th:text="${pedido.enderecoEntrega.rua}"></p>
@@ -82,35 +90,37 @@
             </div>
 
             <!-- Coluna direita: ações + entrega + pagamento -->
-            <div class="col-md-5">
+            <div>
 
                 <!-- Ações -->
-                <div class="card mb-3">
+                <div class="surface-card-te mb-3">
                     <div class="card-header">Ações</div>
                     <div class="card-body d-flex flex-column gap-2">
 
                         <!-- Pagar (só se CREATED) -->
                         <a th:if="${pedido.status.name() == 'CREATED'}"
                             th:href="@{/pagamentos/novo(pedidoId=${pedido.id},clienteId=${pedido.cliente.id})}"
-                            class="btn btn-success">Pagar</a>
+                            class="btn-te btn-te-success">Pagar</a>
 
                         <!-- Cancelar (só se CREATED ou PAID) -->
                         <form th:if="${pedido.status.name() == 'CREATED' or pedido.status.name() == 'PAID'}"
                             th:action="@{/pedidos/{id}/cancelar(id=${pedido.id})}" method="post">
                             <input type="hidden" name="clienteId" th:value="${pedido.cliente.id}">
-                            <button type="submit" class="btn btn-outline-danger w-100"
+                            <button type="submit" class="btn-te btn-te-danger w-100"
                                 onclick="return confirm('Cancelar este pedido?')">Cancelar Pedido</button>
                         </form>
 
                         <!-- Avaliar (só se DELIVERED e sem avaliação ainda) -->
-                        <a th:if="${pedido.status.name() == 'DELIVERED'}"
+                        <a th:if="${pedido.status.name() == 'DELIVERED' and !pedidoAvaliado}"
                             th:href="@{/avaliacoes/novo(pedidoId=${pedido.id},clienteId=${pedido.cliente.id})}"
-                            class="btn btn-outline-primary">Avaliar Restaurante</a>
+                            class="btn-te btn-te-outline">Avaliar Restaurante</a>
+                        <span th:if="${pedido.status.name() == 'DELIVERED' and pedidoAvaliado}"
+                            class="text-muted">Pedido já avaliado</span>
                     </div>
                 </div>
 
                 <!-- Entrega -->
-                <div class="card mb-3">
+                <div class="surface-card-te mb-3">
                     <div class="card-header">Entrega</div>
                     <div class="card-body" th:if="${pedido.entrega != null}">
                         <p class="mb-1">
@@ -136,7 +146,7 @@
                 </div>
 
                 <!-- Pagamento -->
-                <div class="card">
+                <div class="surface-card-te">
                     <div class="card-header">Pagamento</div>
                     <div class="card-body" th:if="${pedido.pagamento != null}">
                         <p class="mb-1">
@@ -145,7 +155,7 @@
                         </p>
                         <p class="mb-0">
                             <strong>Valor:</strong>
-                            <span th:text="${#numbers.formatDecimal(pedido.pagamento.valor, 1, 2) + ' €'}"></span>
+                            <span th:text="${#numbers.formatDecimal(pedido.pagamento.preco, 1, 2) + ' €'}"></span>
                         </p>
                     </div>
                     <div class="card-body text-muted" th:if="${pedido.pagamento == null}">
@@ -154,8 +164,8 @@
                 </div>
             </div>
         </div>
-
     </div>
-</body>
+
+</div>
 
 </html>

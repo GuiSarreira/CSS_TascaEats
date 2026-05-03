@@ -6,7 +6,8 @@ import java.time.LocalDateTime;
 
 /**
  * Especificações JPA para filtragem dinâmica de Produtos.
- * Utiliza a Criteria API para construir queries SQL baseadas em filtros opcionais.
+ * Utiliza a Criteria API para construir queries SQL baseadas em filtros
+ * opcionais.
  *
  * Filtros suportados:
  * - Nome: busca parcial (case-insensitive)
@@ -31,8 +32,7 @@ public class ProdutoSpecifications {
             }
             return cb.like(
                     cb.lower(root.get("nome")),
-                    "%" + nome.toLowerCase() + "%"
-            );
+                    "%" + nome.toLowerCase() + "%");
         };
     }
 
@@ -61,7 +61,8 @@ public class ProdutoSpecifications {
     /**
      * Especificação para filtrar produtos por categoria.
      *
-     * @param categoria Categoria exata a procurar (ex: "Entrada", "Prato Principal")
+     * @param categoria Categoria exata a procurar (ex: "Entrada", "Prato
+     *                  Principal")
      * @return Specification que verifica correspondência de categoria
      */
     public static Specification<Produto> comCategoria(String categoria) {
@@ -69,7 +70,12 @@ public class ProdutoSpecifications {
             if (categoria == null || categoria.isBlank()) {
                 return cb.conjunction();
             }
-            return cb.equal(root.get("categoria"), categoria);
+
+            String normalizedInput = categoria.trim().toLowerCase().replace('_', ' ');
+            return cb.equal(
+                    cb.lower(cb.function("replace", String.class, root.get("categoria"), cb.literal("_"),
+                            cb.literal(" "))),
+                    normalizedInput);
         };
     }
 
@@ -89,15 +95,18 @@ public class ProdutoSpecifications {
     }
 
     /**
-     * Especificação para filtrar produtos por popularidade (número de vezes pedido).
-     * Conta quantas vezes o produto foi incluído em pedidos dentro de um intervalo de tempo.
+     * Especificação para filtrar produtos por popularidade (número de vezes
+     * pedido).
+     * Conta quantas vezes o produto foi incluído em pedidos dentro de um intervalo
+     * de tempo.
      *
-     * @param minVezes Número mínimo de vezes que o produto deve ter sido pedido
+     * @param minVezes   Número mínimo de vezes que o produto deve ter sido pedido
      * @param dataInicio Data/hora inicial do intervalo (null para ignorar)
-     * @param dataFim Data/hora final do intervalo (null para ignorar)
+     * @param dataFim    Data/hora final do intervalo (null para ignorar)
      * @return Specification que filtra por popularidade com GROUP BY e HAVING
      */
-    public static Specification<Produto> comPopularidade(Integer minVezes, LocalDateTime dataInicio, LocalDateTime dataFim) {
+    public static Specification<Produto> comPopularidade(Integer minVezes, LocalDateTime dataInicio,
+            LocalDateTime dataFim) {
         return (root, query, cb) -> {
             if (minVezes == null || minVezes <= 0) {
                 return cb.conjunction();

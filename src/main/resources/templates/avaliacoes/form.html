@@ -1,40 +1,47 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
 <head>
     <title>Avaliar Restaurante</title>
 </head>
 <div layout:fragment="content">
-    <div class="card mx-auto" style="max-width: 600px;">
-        <div class="card-header bg-warning text-dark">
-            <h4><i class="fas fa-star"></i> Avaliar Restaurante</h4>
-        </div>
-        <div class="card-body">
-            <p>Pedido #<span th:text="${pedido.id}"></span> — Restaurante: <strong th:text="${pedido.restauranteNome}"></strong></p>
-            <form th:action="@{/avaliacoes}" th:object="${avaliacaoRequest}" method="post">
-                <input type="hidden" th:field="*{clienteId}" th:value="${pedido.clienteId}"/>
-                <input type="hidden" th:field="*{restauranteId}" th:value="${pedido.restauranteId}"/>
-                <input type="hidden" th:field="*{pedidoId}" th:value="${pedido.id}"/>
+    <div class="page-shell-te" style="max-width: 760px;">
+        <div class="surface-card-te mx-auto" style="max-width: 600px;">
+            <div class="mb-3">
+                <h4><i class="fas fa-star"></i> Avaliar Restaurante</h4>
+            </div>
+            <div>
+                <p>Pedido #<span th:text="${pedido.id}"></span> — Restaurante: <strong
+                        th:text="${restauranteNome}"></strong></p>
+                <form th:action="@{/avaliacoes}" th:object="${avaliacaoRequest}" method="post">
+                    <input type="hidden" th:field="*{clienteId}" />
+                    <input type="hidden" th:field="*{restauranteId}" />
+                    <input type="hidden" th:field="*{pedidoId}" th:value="${pedido.id}" />
 
-                <div class="mb-3">
-                    <label class="form-label">Nota (1 a 5)</label>
-                    <select th:field="*{nota}" class="form-select">
-                        <option value="1">1 – Muito Mau</option>
-                        <option value="2">2 – Mau</option>
-                        <option value="3">3 – Regular</option>
-                        <option value="4">4 – Bom</option>
-                        <option value="5">5 – Excelente</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Comentário</label>
-                    <textarea th:field="*{comentario}" rows="4" class="form-control"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Enviar avaliação</button>
-                <a th:href="@{/pedidos}" class="btn btn-secondary">Cancelar</a>
-            </form>
+                    <div class="field-group-inline-te mb-3">
+                        <label>Nota (1 a 5)</label>
+                        <select th:field="*{nota}">
+                            <option value="1">1 – Muito Mau</option>
+                            <option value="2">2 – Mau</option>
+                            <option value="3">3 – Regular</option>
+                            <option value="4">4 – Bom</option>
+                            <option value="5">5 – Excelente</option>
+                        </select>
+                    </div>
+                    <div class="field-group-inline-te mb-3">
+                        <label>Comentário</label>
+                        <textarea th:field="*{comentario}" rows="4"></textarea>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn-te btn-te-primary">Enviar avaliação</button>
+                        <a th:href="@{/pedidos(clienteId=${avaliacaoRequest.clienteId})}"
+                            class="btn-te btn-te-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
+
 </html>

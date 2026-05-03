@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.lang.String?>
+<?import java.net.URL?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pt.ul.fc.css.tascaeats.javafx.controllers.PedidosController"
+    spacing="16"
+    styleClass="page-container">
+
+    <stylesheets>
+        <URL value="@../css/styles.css"/>
+    </stylesheets>
+
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <!-- Title -->
+    <Label text="Pedidos" styleClass="section-title"/>
+    <Label text="Acompanha estado, atribuição de entregador e cancelamentos." styleClass="section-subtitle" wrapText="true"/>
+
+    <!-- Button Bar -->
+    <HBox spacing="10" styleClass="toolbar" style="-fx-alignment: center-left;">
+        <Button text="Atualizar Estado" fx:id="btnUpdateStatus" onAction="#updateOrderStatus"/>
+        <Button text="Atribuir Entregador" fx:id="btnAssignDelivery" onAction="#assignDeliveryPerson"/>
+        <Button text="Cancelar" fx:id="btnCancelPedido" onAction="#cancelOrder" styleClass="button-danger"/>
+        <Button text="Recarregar" onAction="#refresh"/>
+    </HBox>
+
+    <!-- Pedidos Table -->
+    <TableView fx:id="tblPedidos" prefHeight="400" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colPedidoId" text="ID" prefWidth="80"/>
+            <TableColumn fx:id="colPedidoData" text="Data/Hora" prefWidth="150"/>
+            <TableColumn fx:id="colPedidoRestaurante" text="Restaurante" prefWidth="200"/>
+            <TableColumn fx:id="colPedidoTotal" text="Total (EUR)" prefWidth="100"/>
+            <TableColumn fx:id="colPedidoStatus" text="Estado" prefWidth="120"/>
+        </columns>
+    </TableView>
+
+    <!-- Status Bar -->
+    <HBox spacing="10" styleClass="status-bar" style="-fx-alignment: center-left;">
+        <Label fx:id="lblPedidoStatus" text="Pronto" styleClass="label,muted"/>
+        <Label fx:id="lblTotalPedidos" text="Total: 0 pedidos" styleClass="label,muted"/>
+    </HBox>
+
+</VBox>

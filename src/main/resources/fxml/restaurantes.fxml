@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pt.ul.fc.css.tascaeats.javafx.controllers.RestaurantesController"
+      spacing="16"
+    styleClass="page-container">
+
+    <stylesheets>
+        <URL value="@../css/styles.css"/>
+    </stylesheets>
+
+    <!-- Title row -->
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <Label text="Restaurantes" styleClass="section-title"/>
+    <Label text="Explora restaurantes, verifica estado e entra rapidamente na gestão operacional." styleClass="section-subtitle" wrapText="true"/>
+
+    <GridPane hgap="10" vgap="10" styleClass="toolbar" style="-fx-alignment: center-left;">
+        <TextField fx:id="txtFiltroNome" promptText="Nome" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="txtFiltroMinPedidos" promptText="Min pedidos" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <TextField fx:id="txtFiltroMinAvaliacoes" promptText="Min avaliacoes" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+        <TextField fx:id="txtFiltroMorada" promptText="Morada/Cidade" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+        <ComboBox fx:id="comboFiltroCozinha" promptText="Tipo cozinha" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <ComboBox fx:id="comboFiltroHorario" promptText="Horario" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <TextField fx:id="txtFiltroMinPrecoMedio" promptText="Preco medio min" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+        <TextField fx:id="txtFiltroMaxPrecoMedio" promptText="Preco medio max" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+        <Button fx:id="btnAplicarFiltros" text="Aplicar Filtros" onAction="#aplicarFiltros" GridPane.columnIndex="4" GridPane.rowIndex="0" styleClass="button-primary"/>
+        <Button fx:id="btnLimparFiltros" text="Limpar" onAction="#limparFiltros" GridPane.columnIndex="4" GridPane.rowIndex="1"/>
+    </GridPane>
+
+    <!-- Button Bar -->
+    <HBox spacing="10" styleClass="toolbar" style="-fx-alignment: center-left;">
+        <Button fx:id="btnRecarregar" text="Recarregar" onAction="#recarregarRestaurantes"/>
+        <Button fx:id="btnNovoRestaurante" text="+ Novo Restaurante" onAction="#novoRestaurante" styleClass="button-secondary"/>
+    </HBox>
+
+    <!-- Restaurantes Table -->
+    <TableView fx:id="tblRestaurantes" prefHeight="420" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colNome" text="Nome do Restaurante" prefWidth="220"/>
+            <TableColumn fx:id="colTipoCozinha" text="Tipo de Cozinha" prefWidth="160"/>
+            <TableColumn fx:id="colLocalizacao" text="Localizacao" prefWidth="220"/>
+            <TableColumn fx:id="colAvaliacao" text="Avaliacao" prefWidth="100"/>
+            <TableColumn fx:id="colStatus" text="Status" prefWidth="110"/>
+            <TableColumn fx:id="colAcoes" text="Acoes" prefWidth="240"/>
+        </columns>
+    </TableView>
+
+    <!-- Status Bar -->
+    <HBox spacing="16" styleClass="status-bar" style="-fx-alignment: center-left;">
+        <Label fx:id="lblStatus" text="Aguardando..." styleClass="label,muted"/>
+        <Label fx:id="lblTotalRestaurantes" text="Total: 0 restaurantes" styleClass="label,muted"/>
+    </HBox>
+
+</VBox>

@@ -4,11 +4,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import pt.ul.fc.css.tascaeats.entities.*;
+import pt.ul.fc.css.tascaeats.repositories.AvaliacaoRepository;
 import pt.ul.fc.css.tascaeats.services.*;
 
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Controller MVC (Thymeleaf) para gestão de Pedidos.
@@ -24,13 +27,16 @@ public class WebPedidoController {
     private final PedidoService pedidoService;
     private final UserService userService;
     private final RestauranteService restauranteService;
+    private final AvaliacaoRepository avaliacaoRepository;
 
     public WebPedidoController(PedidoService pedidoService,
             UserService userService,
-            RestauranteService restauranteService) {
+            RestauranteService restauranteService,
+            AvaliacaoRepository avaliacaoRepository) {
         this.pedidoService = pedidoService;
         this.userService = userService;
         this.restauranteService = restauranteService;
+        this.avaliacaoRepository = avaliacaoRepository;
     }
 
     // ─── Novo Pedido ─────────────────────────────────────────────────────────
@@ -82,7 +88,15 @@ public class WebPedidoController {
             @RequestParam(required = false) PedidoStatus status,
             Model model) {
         List<Pedido> pedidos = pedidoService.buscarPorCliente(clienteId, status);
+        Set<Long> pedidosAvaliados = new HashSet<>();
+        for (Pedido pedido : pedidos) {
+            if (avaliacaoRepository.findByPedidoId(pedido.getId()).isPresent()) {
+                pedidosAvaliados.add(pedido.getId());
+            }
+        }
+
         model.addAttribute("pedidos", pedidos);
+        model.addAttribute("pedidosAvaliados", pedidosAvaliados);
         model.addAttribute("clienteId", clienteId);
         model.addAttribute("statusAtual", status);
         model.addAttribute("todosStatus", PedidoStatus.values());
@@ -95,6 +109,7 @@ public class WebPedidoController {
     public String detalhe(@PathVariable Long id, Model model) {
         Pedido pedido = pedidoService.buscarPorId(id);
         model.addAttribute("pedido", pedido);
+        model.addAttribute("pedidoAvaliado", avaliacaoRepository.findByPedidoId(id).isPresent());
         return "pedidos/detalhe";
     }
 

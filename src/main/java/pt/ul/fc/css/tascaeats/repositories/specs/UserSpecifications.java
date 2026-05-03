@@ -35,14 +35,13 @@ public class UserSpecifications {
 
             return switch (tipo.toUpperCase()) {
                 case "CLIENTE" -> {
-                    // Verifica se existe um join com Cliente (ou equivalente com TREAT)
-                    yield cb.isNotNull(cb.treat(root, Cliente.class));
+                    yield cb.equal(root.type(), Cliente.class);
                 }
                 case "ENTREGADOR" -> {
-                    yield cb.isNotNull(cb.treat(root, Entregador.class));
+                    yield cb.equal(root.type(), Entregador.class);
                 }
                 case "ADMIN" -> {
-                    yield cb.isNotNull(cb.treat(root, Admin.class));
+                    yield cb.equal(root.type(), Admin.class);
                 }
                 default -> null;
             };
