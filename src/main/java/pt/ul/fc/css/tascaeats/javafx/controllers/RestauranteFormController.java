@@ -23,9 +23,9 @@ import java.util.regex.Pattern;
  */
 public class RestauranteFormController {
 
-    private static final String RESTAURANTES_BASE_URL = "http://localhost:8081/api/restaurantes";
-    private static final String USERS_BY_EMAIL_URL = "http://localhost:8081/api/users/email?email=";
-    private static final String ADMINS_FILTER_URL = "http://localhost:8081/api/users/filtros?tipo=ADMIN";
+    private static final String RESTAURANTES_BASE_URL = "http://localhost:8082/api/restaurantes";
+    private static final String USERS_BY_EMAIL_URL = "http://localhost:8082/api/users/email?email=";
+    private static final String ADMINS_FILTER_URL = "http://localhost:8082/api/users/filtros?tipo=ADMIN";
 
     @FXML
     private TextField txtName;

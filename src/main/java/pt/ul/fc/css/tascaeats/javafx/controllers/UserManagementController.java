@@ -32,8 +32,8 @@ import java.util.Optional;
  */
 public class UserManagementController {
 
-    private static final String USERS_BASE_URL = "http://localhost:8081/api/users";
-    private static final String RESTAURANTES_BASE_URL = "http://localhost:8081/api/restaurantes";
+    private static final String USERS_BASE_URL = "http://localhost:8082/api/users";
+    private static final String RESTAURANTES_BASE_URL = "http://localhost:8082/api/restaurantes";
 
     @FXML
     private ComboBox<String> comboUserType;

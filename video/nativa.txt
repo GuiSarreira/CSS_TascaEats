@@ -51,7 +51,7 @@ C/D - UTILIZADORES (GESTAO NATIVA)
 E/F - RESTAURANTES
 [E][F]
 - Buscar por filtros (nome/cidade/etc.) na vista de restaurantes.
-- Criar restaurante (ADMIN) com dados concretos
+- Criar restaurante (ADMIN) com dados concretos - BUG
 - Transferir restaurante valido para outro admin:
   - abrir Utilizadores -> ADMIN (admin2@tascaeats.pt) -> Atualizar
     - nome: Mar e Serra

@@ -100,7 +100,7 @@ public class AvaliacaoFormController {
     /**
      * Configurar para modo EDITAR
      */
-        public void configurarEditar(TascaEatsGrpcClient grpcClient, int avaliacaoId,
+    public void configurarEditar(TascaEatsGrpcClient grpcClient, int avaliacaoId,
             int classificacao, String comentario, Runnable refresh) {
         this.grpcClient = grpcClient;
         this.callbackRefresh = refresh;
@@ -114,9 +114,11 @@ public class AvaliacaoFormController {
     }
 
     /**
-     * Configurar para criar avaliaÃ§Ã£o de restaurante especÃ­fico (prÃ©-selecionado)
+     * Configurar para criar avaliaÃ§Ã£o de restaurante especÃ­fico
+     * (prÃ©-selecionado)
      */
-    public void configurarAvaliacao(TascaEatsGrpcClient grpcClient, int restauranteId, String restauranteNome, Runnable refresh) {
+    public void configurarAvaliacao(TascaEatsGrpcClient grpcClient, int restauranteId, String restauranteNome,
+            Runnable refresh) {
         this.grpcClient = grpcClient;
         this.callbackRefresh = refresh;
         this.avaliacaoIdEdicao = null;
@@ -133,13 +135,14 @@ public class AvaliacaoFormController {
     }
 
     /**
-     * Carregar restaurantes para o ComboBox com opÃ§Ã£o de prÃ©-selecionar um especÃ­fico
+     * Carregar restaurantes para o ComboBox com opÃ§Ã£o de prÃ©-selecionar um
+     * especÃ­fico
      */
     private void carregarRestaurantesComPrescricao(int restauranteIdPrescrito) {
         Thread thread = new Thread(() -> {
             try {
                 if (grpcClient == null) {
-                    grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                    grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                     grpcClient.connect();
                 }
 
@@ -220,7 +223,7 @@ public class AvaliacaoFormController {
         Thread thread = new Thread(() -> {
             try {
                 if (grpcClient == null) {
-                    grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                    grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                     grpcClient.connect();
                 }
 
@@ -285,7 +288,7 @@ public class AvaliacaoFormController {
         Thread thread = new Thread(() -> {
             try {
                 if (grpcClient == null) {
-                    grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                    grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                     grpcClient.connect();
                 }
 
@@ -372,4 +375,3 @@ public class AvaliacaoFormController {
         stage.close();
     }
 }
-

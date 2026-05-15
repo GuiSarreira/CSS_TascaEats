@@ -34,9 +34,9 @@ import java.time.Duration;
  */
 public class RestaurantesController {
 
-    private static final String RESTAURANTES_BASE_URL = "http://localhost:8081/api/restaurantes";
-    private static final String USERS_BY_EMAIL_URL = "http://localhost:8081/api/users/email?email=";
-    private static final String ADMINS_FILTER_URL = "http://localhost:8081/api/users/filtros?tipo=ADMIN";
+    private static final String RESTAURANTES_BASE_URL = "http://localhost:8082/api/restaurantes";
+    private static final String USERS_BY_EMAIL_URL = "http://localhost:8082/api/users/email?email=";
+    private static final String ADMINS_FILTER_URL = "http://localhost:8082/api/users/filtros?tipo=ADMIN";
 
     // FXML Elements
     @FXML
@@ -202,7 +202,7 @@ public class RestaurantesController {
             try {
                 // Conectar ao gRPC se necessÃ¡rio
                 if (grpcClient == null) {
-                    grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                    grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                     grpcClient.connect();
                 }
 
@@ -350,7 +350,7 @@ public class RestaurantesController {
         try {
             // Conectar ao gRPC se necessÃ¡rio
             if (grpcClient == null) {
-                grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                 grpcClient.connect();
             }
 

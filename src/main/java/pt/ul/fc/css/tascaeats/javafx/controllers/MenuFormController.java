@@ -96,7 +96,7 @@ public class MenuFormController {
         Thread thread = new Thread(() -> {
             try {
                 if (grpcClient == null) {
-                    grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                    grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                     grpcClient.connect();
                 }
 
@@ -201,7 +201,7 @@ public class MenuFormController {
         Thread thread = new Thread(() -> {
             try {
                 if (grpcClient == null) {
-                    grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                    grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                     grpcClient.connect();
                 }
 
@@ -265,7 +265,7 @@ public class MenuFormController {
         Thread thread = new Thread(() -> {
             try {
                 if (grpcClient == null) {
-                    grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                    grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                     grpcClient.connect();
                 }
 

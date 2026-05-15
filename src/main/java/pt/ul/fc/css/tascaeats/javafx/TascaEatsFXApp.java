@@ -11,8 +11,8 @@ import pt.ul.fc.css.tascaeats.javafx.util.WindowManager;
  * Aplicação JavaFX TascaEats — Entry Point para Fase G
  * 
  * Esta aplicação utiliza gRPC para comunicar com o backend Spring Boot:
- * - REST API: http://localhost:8081
- * - gRPC Server: localhost:9091
+ * - REST API: http://localhost:8082
+ * - gRPC Server: localhost:9092
  * 
  * O JavaFX roda como cliente desktop nativo, conectando-se ao servidor gRPC.
  */

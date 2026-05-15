@@ -31,8 +31,8 @@ import java.util.List;
  */
 public class ProductController {
 
-    private static final String PRODUTOS_FILTROS_URL = "http://localhost:8081/api/restaurantes/1/produtos/filtros";
-    private static final String PRODUTOS_BASE_URL = "http://localhost:8081/api/restaurantes/1/produtos";
+    private static final String PRODUTOS_FILTROS_URL = "http://localhost:8082/api/restaurantes/1/produtos/filtros";
+    private static final String PRODUTOS_BASE_URL = "http://localhost:8082/api/restaurantes/1/produtos";
 
     @FXML
     private ComboBox<String> comboCategory;
@@ -215,7 +215,7 @@ public class ProductController {
         }
 
         if (grpcClient == null) {
-            grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+            grpcClient = new TascaEatsGrpcClient("localhost", 9092);
             grpcClient.connect();
         }
 
@@ -326,7 +326,7 @@ public class ProductController {
             Thread thread = new Thread(() -> {
                 try {
                     if (grpcClient == null) {
-                        grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                        grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                         grpcClient.connect();
                     }
 

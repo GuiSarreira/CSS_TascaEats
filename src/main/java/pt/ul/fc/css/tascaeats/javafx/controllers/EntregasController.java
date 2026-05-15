@@ -33,10 +33,10 @@ import java.util.Optional;
  */
 public class EntregasController {
 
-    private static final String PEDIDOS_BASE_URL = "http://localhost:8081/api/pedidos";
-    private static final String ENTREGAS_BASE_URL = "http://localhost:8081/api/entregas";
-    private static final String USERS_FILTER_URL = "http://localhost:8081/api/users/filtros?tipo=ENTREGADOR";
-    private static final String USERS_BY_EMAIL_URL = "http://localhost:8081/api/users/email?email=";
+    private static final String PEDIDOS_BASE_URL = "http://localhost:8082/api/pedidos";
+    private static final String ENTREGAS_BASE_URL = "http://localhost:8082/api/entregas";
+    private static final String USERS_FILTER_URL = "http://localhost:8082/api/users/filtros?tipo=ENTREGADOR";
+    private static final String USERS_BY_EMAIL_URL = "http://localhost:8082/api/users/email?email=";
 
     @FXML
     private TableView<EntregaTableItem> tblEntregas;
@@ -98,7 +98,7 @@ public class EntregasController {
         Thread thread = new Thread(() -> {
             try {
                 if (grpcClient == null) {
-                    grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                    grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                     grpcClient.connect();
                 }
 
@@ -176,7 +176,7 @@ public class EntregasController {
             Thread t = new Thread(() -> {
                 try {
                     if (grpcClient == null) {
-                        grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                        grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                         grpcClient.connect();
                     }
 

@@ -36,56 +36,77 @@ Verificar estado:
 Parar e remover container da BD:
 - docker compose down
 
-## Build (Obrigatório para Fase 2)
+## Desenvolvimento Local
 
-Sempre que houver alterações no gRPC/proto, correr este comando antes de testar:
+### Portas usadas em desenvolvimento
 
-- Windows:
-	- .\mvnw.cmd -U clean generate-sources compile -DskipTests
-- Linux/macOS:
-	- ./mvnw -U clean generate-sources compile -DskipTests
+- Interface web Spring Boot: `http://localhost:8082`
+- Swagger/OpenAPI: `http://localhost:8082/swagger-ui/index.html`
+- Servidor gRPC: `localhost:9092`
 
-Este passo é necessário para:
-- gerar classes Protobuf em `target/generated-sources/protobuf/java`
-- gerar stubs gRPC em `target/generated-sources/protobuf/grpc-java`
-- compilar backend e cliente JavaFX com tipos atualizados
+Estas portas são usadas no modo local para evitar conflitos com serviços já comuns na `8080` e `9090`.
 
-## Executar Fase 2 — Interface Web
+### Arranque recomendado: `start-dev.bat`
 
-Na raiz do projeto:
+No Windows, o fluxo mais seguro para backend + JavaFX é:
 
-- Windows:
-	- .\mvnw.cmd spring-boot:run
-- Linux/macOS:
-	- ./mvnw spring-boot:run
+- `.\start-dev.bat`
 
-Depois de arrancar, aceder no browser a:
+O script faz isto:
 
-- Web app (login): http://localhost:8081
-- REST/Swagger: http://localhost:8081/swagger-ui/index.html
+1. corre `clean generate-sources compile -DskipTests`
+2. arranca o Spring Boot usando as classes já compiladas
+3. arranca o cliente JavaFX sem recompilar protobuf/java outra vez
 
-Nota: Spring Boot está configurado para porta 8081 porque Docker usa a porta 8080.
+### Se alterar `.proto` ou contratos gRPC
 
-## Executar Fase 2 — Interface Nativa JavaFX
-
-Modo suportado: backend e cliente em processos separados.
-
-1. Terminal 1: iniciar backend Spring/gRPC
+Antes de testar, recompila tudo uma vez:
 
 - Windows:
-	- .\mvnw.cmd spring-boot:run
+	- `.\mvnw.cmd -U clean generate-sources compile -DskipTests`
 - Linux/macOS:
-	- ./mvnw spring-boot:run
+	- `./mvnw -U clean generate-sources compile -DskipTests`
 
-2. Terminal 2: iniciar app JavaFX
+Isto regenera:
 
-- Windows:
-	- .\mvnw.cmd javafx:run
-- Linux/macOS:
-	- ./mvnw javafx:run
+- classes Protobuf em `target/generated-sources/protobuf/java`
+- stubs gRPC em `target/generated-sources/protobuf/grpc-java`
+- classes compiladas usadas pelo backend e pela app JavaFX
 
-Nota:
-- A BD (`pgserver`) deve estar ativa via Docker Compose antes de iniciar.
+## Correr Apenas a Interface Web
+
+1. Garante que a base de dados está ativa:
+	- `docker compose up -d pgserver`
+2. Arranca o backend web:
+	- Windows: `.\mvnw.cmd spring-boot:run`
+	- Linux/macOS: `./mvnw spring-boot:run`
+3. Abre no browser:
+	- login web: `http://localhost:8082`
+	- Swagger: `http://localhost:8082/swagger-ui/index.html`
+
+Notas:
+
+- O `spring-boot:run` está configurado no `pom.xml` para arrancar localmente na `8082` e o gRPC na `9092`.
+
+## Correr Backend + Interface Nativa JavaFX
+
+Modo recomendado no Windows:
+
+- `.\start-dev.bat`
+
+Modo manual:
+
+1. Terminal 1:
+	- Windows: `.\mvnw.cmd spring-boot:run -Dmaven.main.skip=true -Dprotoc.skip=true -Dmaven.test.skip=true`
+	- Linux/macOS: `./mvnw spring-boot:run -Dmaven.main.skip=true -Dprotoc.skip=true -Dmaven.test.skip=true`
+2. Terminal 2:
+	- Windows: `.\mvnw.cmd javafx:run -Dmaven.main.skip=true -Dprotoc.skip=true`
+	- Linux/macOS: `./mvnw javafx:run -Dmaven.main.skip=true -Dprotoc.skip=true`
+
+Notas:
+
+- A BD (`pgserver`) deve estar ativa antes do arranque.
+- Neste modo, o JavaFX fala com REST em `8082` e gRPC em `9092`.
 
 ## Testes
 Validação recomendada para Fase 2 (funcional/compilação):
@@ -104,10 +125,12 @@ Cobertura (regra de qualidade no `pom.xml`):
 
 ## Vídeo
 
+Nos videos da fase 2 não fizemos clone, porque estávamos a ter problemas com o spring-boot:run a recompilar, e por estar em cima do prazo de entrega não fizemos o clone e não mostramos o build.
+
 Fase 1 - `video/video.mp4`.
 Fase 2:
 Interface Web - `video/interf_web.mp4`
-Interface Nativa - `video/interf_nativa.mp4`
+Interface Nativa - `video/interf_nativa.mp4` - Não foi colocado por tamanho muito grande, ver pelo link
 
 Links:
 
@@ -115,5 +138,5 @@ Links:
 - https://youtu.be/FUYIWUyKIuU?t=35&is=BVrYl7sToJMr1iHH
 
 ## Fase 2 
-- Interface Web - 
-- Interface Nativa - 
+- Interface Web - https://youtu.be/Gs2GXsSE2_E?is=RNlQV_ncfoPoOg8J
+- Interface Nativa - https://youtu.be/OWqookbjX-8?is=1LCHZRDwA-wfNdFi

@@ -68,7 +68,7 @@ public class UserRegistrationController {
         Thread thread = new Thread(() -> {
             try {
                 // Conectar ao gRPC se necessario
-                TascaEatsGrpcClient grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                TascaEatsGrpcClient grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                 grpcClient.connect();
 
                 // Construir request de registo

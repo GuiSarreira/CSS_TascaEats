@@ -21,8 +21,8 @@ import java.util.Map;
  */
 public class AuthenticationService {
 
-    private static final String USERS_BY_EMAIL_URL = "http://localhost:8081/api/users/email?email=";
-    private static final String USERS_FILTER_URL = "http://localhost:8081/api/users/filtros?nome=";
+    private static final String USERS_BY_EMAIL_URL = "http://localhost:8082/api/users/email?email=";
+    private static final String USERS_FILTER_URL = "http://localhost:8082/api/users/filtros?nome=";
 
     private static AuthenticationService instance;
     private CurrentUser currentUser;

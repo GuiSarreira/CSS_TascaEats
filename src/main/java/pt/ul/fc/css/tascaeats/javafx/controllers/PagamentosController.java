@@ -34,7 +34,7 @@ import java.util.Optional;
  */
 public class PagamentosController {
 
-    private static final String PEDIDOS_BASE_URL = "http://localhost:8081/api/pedidos";
+    private static final String PEDIDOS_BASE_URL = "http://localhost:8082/api/pedidos";
 
     @FXML
     private TableView<PagamentoTableItem> tblPagamentos;
@@ -87,7 +87,7 @@ public class PagamentosController {
         Thread thread = new Thread(() -> {
             try {
                 if (grpcClient == null) {
-                    grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                    grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                     grpcClient.connect();
                 }
                 ObservableList<PagamentoTableItem> pagamentos = FXCollections.observableArrayList();
@@ -125,7 +125,7 @@ public class PagamentosController {
         Thread thread = new Thread(() -> {
             try {
                 if (grpcClient == null) {
-                    grpcClient = new TascaEatsGrpcClient("localhost", 9091);
+                    grpcClient = new TascaEatsGrpcClient("localhost", 9092);
                     grpcClient.connect();
                 }
 
