@@ -54,7 +54,7 @@ No Windows, o fluxo mais seguro para backend + JavaFX é:
 
 O script faz isto:
 
-1. corre `clean generate-sources compile -DskipTests`
+1. corre `clean compile -DskipTests`
 2. arranca o Spring Boot usando as classes já compiladas
 3. arranca o cliente JavaFX sem recompilar protobuf/java outra vez
 
@@ -95,7 +95,7 @@ Modo recomendado no Windows:
 - `.\start-dev.bat`
 
 Modo manual:
-
+ 
 1. Terminal 1:
 	- Windows: `.\mvnw.cmd spring-boot:run -Dmaven.main.skip=true -Dprotoc.skip=true -Dmaven.test.skip=true`
 	- Linux/macOS: `./mvnw spring-boot:run -Dmaven.main.skip=true -Dprotoc.skip=true -Dmaven.test.skip=true`

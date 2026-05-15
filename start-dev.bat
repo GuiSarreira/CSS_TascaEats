@@ -6,7 +6,7 @@ REM  2. Inicia Spring Boot com as classes ja compiladas (web em 8082, gRPC em 90
 REM  3. Inicia JavaFX com as mesmas classes (sem recompilar)
 
 echo [1/3] Compilar projeto completo...
-call mvnw.cmd clean generate-sources compile -DskipTests
+call mvnw.cmd clean compile -DskipTests
 if %errorlevel% neq 0 (
     echo ERRO: Compilacao falhou.
     pause
