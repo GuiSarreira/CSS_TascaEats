@@ -1,5 +1,7 @@
 package pt.ul.fc.css.tascaeats.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.repositories.PagamentoRepository;
 import pt.ul.fc.css.tascaeats.repositories.PedidoRepository;
@@ -26,6 +30,10 @@ class PagamentoServiceTest {
     private PagamentoRepository pagamentoRepository;
     @Mock
     private PedidoRepository pedidoRepository;
+    @Mock
+    private KafkaTemplate<String, String> kafkaTemplate;
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private PagamentoService pagamentoService;
@@ -35,6 +43,11 @@ class PagamentoServiceTest {
 
     @BeforeEach
     void setUp() {
+        // Inicializar contexto de sincronização transacional (necessário para o afterCommit do Kafka)
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.initSynchronization();
+        }
+
         Endereco endereco = new Endereco("Rua X", "1000-001", "Lisboa");
         cliente = new Cliente("c@test.com", "Cliente", "pass", endereco);
         pedido = new Pedido(cliente, endereco);
@@ -43,6 +56,14 @@ class PagamentoServiceTest {
         when(pagamentoRepository.existsByPedidoId(1L)).thenReturn(false);
         when(pagamentoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(pedidoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    }
+
+    @AfterEach
+    void tearDown() {
+        // Limpar contexto de sincronização transacional
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
     }
 
     // ─── processarPagamento ───────────────────────────────────────────────────
