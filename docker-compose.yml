@@ -21,7 +21,7 @@ services:
       retries: 20
     restart: unless-stopped
 
-  # APP*****************************************
+  # APP (Monólito) — portas internas apenas, Nginx faz o proxy externo
   springbootapp:
     image: myapp:latest
     build:
@@ -31,18 +31,104 @@ services:
     depends_on:
       pgserver:
         condition: service_healthy
+      kafka:
+        condition: service_started
     networks:
       - dbnet
-    ports:
-      - 8080:8080
-      - 9090:9090
+    expose:
+      - 8080
+      - 9090
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://pgserver:5432/postgres
       - SPRING_DATASOURCE_USERNAME=user
       - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+  # BD exclusiva do microserviço de entregas
+  entrega-db:
+    image: postgres:18.3-alpine3.23
+    container_name: entrega-db
+    volumes:
+      - entrega-data:/var/lib/postgresql/
+    expose:
+      - 5432
+    networks:
+      - dbnet
+    environment:
+      - POSTGRES_USER=entrega_user
+      - POSTGRES_PASSWORD=entrega_pass
+      - POSTGRES_DB=entrega_db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U entrega_user -d entrega_db" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # Zookeeper (dependência do Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - dbnet
+    restart: unless-stopped
+
+  # Apache Kafka (comunicação assíncrona monólito <-> microserviço)
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - dbnet
+    restart: unless-stopped
+
+  # Microserviço de Entregas
+  entrega-service:
+    build:
+      context: ./entrega-service
+    container_name: entrega-service
+    restart: unless-stopped
+    depends_on:
+      entrega-db:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - dbnet
+    expose:
+      - 8081
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://entrega-db:5432/entrega_db
+      - SPRING_DATASOURCE_USERNAME=entrega_user
+      - SPRING_DATASOURCE_PASSWORD=entrega_pass
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+  # Nginx Reverse Proxy (ponto de entrada único)
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "9090:9090"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - springbootapp
+    networks:
+      - dbnet
+    restart: unless-stopped
 
 volumes:
   postgres-data:
+  entrega-data:
 
 networks:
   dbnet:
