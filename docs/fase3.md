@@ -211,40 +211,40 @@ As propriedades Docker devem usar portas standard (8080 interno, 9090 interno). 
 ## 7. Lista de Tarefas (por ordem de implementação)
 
 ### Fase A — Infraestrutura Docker
-- [ ] Criar `entrega-service/` com `pom.xml` Spring Boot mínimo
-- [ ] Criar `entrega-service/Dockerfile`
-- [ ] Adicionar `entrega-db` ao `docker-compose.yml`
-- [ ] Adicionar `zookeeper` + `kafka` ao `docker-compose.yml`
-- [ ] Criar `nginx.conf` com proxy REST (http) e gRPC (stream/TCP)
-- [ ] Adicionar serviço `nginx` ao `docker-compose.yml`
-- [ ] Ajustar `springbootapp` no compose (remover portas expostas externamente, adicionar env Kafka)
+- [x] Criar `entrega-service/` com `pom.xml` Spring Boot mínimo
+- [x] Criar `entrega-service/Dockerfile`
+- [x] Adicionar `entrega-db` ao `docker-compose.yml`
+- [x] Adicionar `zookeeper` + `kafka` ao `docker-compose.yml`
+- [x] Criar `nginx.conf` com proxy REST (http) e gRPC (stream/TCP)
+- [x] Adicionar serviço `nginx` ao `docker-compose.yml`
+- [x] Ajustar `springbootapp` no compose (remover portas expostas externamente, adicionar env Kafka)
 - [ ] Testar `docker compose up` — todos os serviços sobem sem erros
 
 ### Fase B — Microserviço: Domínio e Persistência
-- [ ] Criar entidades `Entregador` e `Entrega` no microserviço (sem herança User)
-- [ ] Criar `EntregadorRepository` e `EntregaRepository`
-- [ ] Configurar `application.properties` do microserviço (porta 8081, datasource entrega-db)
+- [x] Criar entidades `Entregador` e `Entrega` no microserviço (sem herança User)
+- [x] Criar `EntregadorRepository` e `EntregaRepository`
+- [x] Configurar `application.properties` do microserviço (porta 8081, datasource entrega-db)
 - [ ] Testar que o microserviço inicia e cria as tabelas na `entrega-db`
 
 ### Fase C — Kafka no Monólito (Produtor)
-- [ ] Adicionar dependência `spring-kafka` ao `pom.xml` do monólito
-- [ ] Criar `KafkaProducerConfig` no monólito
-- [ ] Criar DTO/evento `PedidoPagoEvent` (pedidoId, moradaEntrega, cidade, valorTotal)
-- [ ] Em `PagamentoService.confirmarPagamento()`: publicar evento `pedido.pago`
+- [x] Adicionar dependência `spring-kafka` ao `pom.xml` do monólito
+- [x] Criar `KafkaProducerConfig` no monólito
+- [x] Criar DTO/evento `PedidoPagoEvent` (pedidoId, moradaEntrega, cidade, valorTotal)
+- [x] Em `PagamentoService.confirmarPagamento()`: publicar evento `pedido.pago`
 - [ ] Testar publicação via Kafka UI ou logs
 
 ### Fase D — Kafka no Microserviço (Consumidor + Lógica)
-- [ ] Adicionar dependência `spring-kafka` ao `pom.xml` do microserviço
-- [ ] Criar `KafkaConsumerConfig` no microserviço
-- [ ] Criar `PedidoPagoConsumer`: consome `pedido.pago`, chama `EntregaService.atribuirEntregadorAutomatico()`
-- [ ] Implementar `EntregaService` no microserviço (lógica vinda do monólito)
-- [ ] Criar `EntregaEventProducer`: publica `entrega.atribuida` e `entrega.status.atualizada`
+- [x] Adicionar dependência `spring-kafka` ao `pom.xml` do microserviço
+- [x] Criar `KafkaConsumerConfig` no microserviço
+- [x] Criar `PedidoPagoConsumer`: consome `pedido.pago`, chama `EntregaService.atribuirEntregadorAutomatico()`
+- [x] Implementar `EntregaService` no microserviço (lógica vinda do monólito)
+- [x] Criar `EntregaEventProducer`: publica `entrega.atribuida` e `entrega.status.atualizada`
 - [ ] Testar fluxo completo: pagamento → kafka → atribuição → evento de resposta
 
 ### Fase E — Kafka no Monólito (Consumidor — Consistência Eventual)
-- [ ] Criar `KafkaConsumerConfig` no monólito
-- [ ] Criar `EntregaAtribuidaConsumer`: consome `entrega.atribuida` → actualiza `Pedido.status = IN_DELIVERY`
-- [ ] Criar `EntregaStatusConsumer`: consome `entrega.status.atualizada` → actualiza projeção local de `Entrega`
+- [ ] Criar `KafkaConsumerConfig` no monólito ⚠️ **em falta** no monólito
+- [ ] Criar `EntregaAtribuidaConsumer`: consome `entrega.atribuida` → actualiza `Pedido.status = IN_DELIVERY` ⚠️ **ficheiro no projeto errado** (está em `entrega-service/`, precisa estar em `src/main/java/.../tascaeats/kafka/`); também falta o DTO `EntregaAtribuidaEvent` no monólito e há bug: verifica `READY` em vez de `PAID`
+- [ ] Criar `EntregaStatusConsumer`: consome `entrega.status.atualizada` → actualiza projeção local de `Entrega` ⚠️ **ficheiro no projeto errado** (idem); falta o DTO `EntregaStatusEvent` no monólito
 - [ ] Garantir que as UIs (Web + JavaFX) refletem o estado actualizado via monólito
 
 ### Fase F — Migração de Endpoints de Entrega no Monólito
