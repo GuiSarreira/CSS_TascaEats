@@ -31,6 +31,12 @@ public interface EntregaRepository extends JpaRepository<Entrega, Long> {
         */
        Optional<Entrega> findByPedidoId(Long pedidoId);
 
+       @Query("SELECT e FROM Entrega e LEFT JOIN FETCH e.entregador WHERE e.id = :id")
+       Optional<Entrega> findByIdWithEntregador(@Param("id") Long id);
+
+       @Query("SELECT e FROM Entrega e LEFT JOIN FETCH e.entregador WHERE e.pedidoId = :pedidoId")
+       Optional<Entrega> findByPedidoIdWithEntregador(@Param("pedidoId") Long pedidoId);
+
        /**
         * Lista todas as entregas realizadas por um determinado entregador.
         *

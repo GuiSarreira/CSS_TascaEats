@@ -209,6 +209,9 @@ public class PedidoService {
      * @return lista de pedidos do cliente
      */
     public List<Pedido> buscarPorCliente(Long clienteId, PedidoStatus status) {
+        if (clienteId == null) {
+            return pedidoRepository.findAllByOrderByDataHoraDesc();
+        }
         if (status != null) {
             return pedidoRepository.findByClienteIdAndStatus(clienteId, status);
         }

@@ -34,7 +34,7 @@ public class Entrega {
      * Referência lógica ao pedido no monólito.
      * Não é uma FK real — o microserviço não acede à BD do monólito.
      */
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private Long pedidoId;
 
     /**
@@ -130,8 +130,8 @@ public class Entrega {
      *                               {@code ATRIBUIDA}
      */
     public void cancelar() {
-        if (this.status != EntregaStatus.ATRIBUIDA) {
-            throw new IllegalStateException("Só é possível cancelar entrega no estado ATRIBUIDA");
+        if (this.status != EntregaStatus.ATRIBUIDA && this.status != EntregaStatus.A_CAMINHO) {
+            throw new IllegalStateException("Só é possível cancelar entrega nos estados ATRIBUIDA ou A_CAMINHO");
         }
         this.status = EntregaStatus.CANCELADA;
         this.entregador.setDisponivel(true);

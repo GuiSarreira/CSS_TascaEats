@@ -16,7 +16,21 @@ Fase 2 — Construção de Sistemas de Software (CSS) 2025/2026
 - PowerShell (Windows)
 - Docker Desktop (ou Docker Engine) + Docker Compose
 
-## Arranque da Base de Dados (Docker)
+> Para correr o stack completo (modo recomendado) é necessário apenas Docker. O JDK e o Maven são necessários apenas para desenvolvimento local ou para reconstruir as imagens.
+
+## Arranque com Docker (Stack Completo)
+
+O projeto corre inteiramente em Docker com 7 serviços:
+
+| Serviço | Descrição |
+|---|---|
+| `pgserver` | PostgreSQL — base de dados do monolito |
+| `springbootapp` | Backend Spring Boot (monolito) |
+| `entrega-db` | PostgreSQL — base de dados do serviço de entregas |
+| `zookeeper` | Coordenação do Kafka |
+| `kafka` | Broker de mensagens (tópicos: `pedido.pago`, `entrega.atribuida`, `entrega.status.atualizada`) |
+| `entrega-service` | Microserviço de gestão de entregas |
+| `nginx` | Reverse proxy (HTTP → `springbootapp:8082`, gRPC → `springbootapp:9092`) |
 
 Nota para Linux/macOS (primeira execução):
 
@@ -28,23 +42,28 @@ Para fazer build completa e lançar pgserver:
 - docker compose up --build -d 
 
 Para lançar o pgserver com imagem já construída:
-- docker compose up -d pgserver
+- docker compose up -d
 
-Verificar estado:
+Verificar estado de todos os serviços:
 - docker compose ps
 
-Parar e remover container da BD:
+Parar e remover todos os containers:
 - docker compose down
 
-## Desenvolvimento Local
+## Portas
 
-### Portas usadas em desenvolvimento
+### Modo Docker (acesso via nginx)
+
+- Interface web: `http://localhost` (nginx na porta 80)
+- gRPC (via nginx): `localhost:9090`
+
+### Modo desenvolvimento local (sem Docker para a app)
 
 - Interface web Spring Boot: `http://localhost:8082`
 - Swagger/OpenAPI: `http://localhost:8082/swagger-ui/index.html`
 - Servidor gRPC: `localhost:9092`
 
-Estas portas são usadas no modo local para evitar conflitos com serviços já comuns na `8080` e `9090`.
+As portas `8082` e `9092` são usadas internamente para evitar conflitos. Em modo Docker, o nginx faz proxy das portas `80` e `9090` para elas.
 
 ### Arranque recomendado: `start-dev.bat`
 
@@ -73,7 +92,17 @@ Isto regenera:
 - stubs gRPC em `target/generated-sources/protobuf/grpc-java`
 - classes compiladas usadas pelo backend e pela app JavaFX
 
-## Correr Apenas a Interface Web
+## Correr a Interface Web
+
+### Modo Docker (recomendado)
+
+1. Faz build e arranca todo o stack:
+	- `docker compose up --build -d`
+2. Abre no browser:
+	- login web: `http://localhost`
+	- Swagger: `http://localhost/swagger-ui/index.html`
+
+### Modo desenvolvimento local
 
 1. Garante que a base de dados está ativa:
 	- `docker compose up -d pgserver`
@@ -87,6 +116,7 @@ Isto regenera:
 Notas:
 
 - O `spring-boot:run` está configurado no `pom.xml` para arrancar localmente na `8082` e o gRPC na `9092`.
+- Em modo local, o Kafka e o serviço de entregas não estão ativos; para pipeline completa usa o modo Docker.
 
 ## Correr Backend + Interface Nativa JavaFX
 
@@ -105,8 +135,8 @@ Modo manual:
 
 Notas:
 
-- A BD (`pgserver`) deve estar ativa antes do arranque.
-- Neste modo, o JavaFX fala com REST em `8082` e gRPC em `9092`.
+- A BD (`pgserver`) deve estar ativa antes do arranque: `docker compose up -d pgserver`.
+- Neste modo, o JavaFX fala com REST em `8082` e gRPC em `9092` diretamente (sem nginx).
 
 ## Testes
 Validação recomendada para Fase 2 (funcional/compilação):

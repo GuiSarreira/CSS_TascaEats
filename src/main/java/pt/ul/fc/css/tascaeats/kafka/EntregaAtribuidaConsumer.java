@@ -29,12 +29,12 @@ public class EntregaAtribuidaConsumer {
         try {
             EntregaAtribuidaEvent event = objectMapper.readValue(message, EntregaAtribuidaEvent.class);
             Pedido pedido = pedidoRepository.findById(event.getPedidoId()).orElse(null);
-            if (pedido != null && pedido.getStatus() == PedidoStatus.READY) {
+            if (pedido != null && pedido.getStatus() == PedidoStatus.PAID) {
                 pedido.setStatus(PedidoStatus.IN_DELIVERY);
                 pedidoRepository.save(pedido);
                 logger.info("Pedido {} atualizado para IN_DELIVERY após atribuição de entrega", event.getPedidoId());
             } else {
-                logger.warn("Pedido {} não encontrado ou não está READY para receber entrega", event.getPedidoId());
+                logger.warn("Pedido {} não encontrado ou não está PAID para receber entrega", event.getPedidoId());
             }
         } catch (Exception e) {
             logger.error("Erro ao processar evento entrega.atribuida", e);

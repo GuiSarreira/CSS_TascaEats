@@ -84,7 +84,7 @@ public class WebPedidoController {
     // ─── Listagem ─────────────────────────────────────────────────────────────
 
     @GetMapping
-    public String listarPedidos(@RequestParam Long clienteId,
+    public String listarPedidos(@RequestParam(required = false) Long clienteId,
             @RequestParam(required = false) PedidoStatus status,
             Model model) {
         List<Pedido> pedidos = pedidoService.buscarPorCliente(clienteId, status);
@@ -122,9 +122,9 @@ public class WebPedidoController {
 
     @PostMapping("/{id}/cancelar")
     public String cancelar(@PathVariable Long id,
-            @RequestParam Long clienteId) {
+            @RequestParam(required = false) Long clienteId) {
         pedidoService.cancelarPedido(id);
-        return "redirect:/pedidos?clienteId=" + clienteId;
+        return clienteId != null ? "redirect:/pedidos?clienteId=" + clienteId : "redirect:/pedidos";
     }
 
     // ─── Query 3: Média de Pedidos por Cliente por Mês ───────────────────────

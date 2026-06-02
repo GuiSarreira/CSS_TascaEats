@@ -10,6 +10,7 @@ import pt.ul.fc.css.entrega.repositories.EntregaRepository;
 import pt.ul.fc.css.entrega.repositories.EntregadorRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EntregaService {
@@ -28,6 +29,36 @@ public class EntregaService {
         this.eventProducer = eventProducer;
     }
 
+    public Entrega buscarPorId(Long id) {
+        return entregaRepository.findByIdWithEntregador(id)
+                .orElseThrow(() -> new RuntimeException("Entrega não encontrada: " + id));
+    }
+
+    public Entrega buscarPorPedidoId(Long pedidoId) {
+        return entregaRepository.findByPedidoIdWithEntregador(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Entrega não encontrada para pedido: " + pedidoId));
+    }
+
+    @Transactional
+    public Optional<Entrega> atribuirEntregadorAutomatico(Long pedidoId) {
+        Entregador entregador = entregadorRepository.findFirstByDisponivelTrue().orElse(null);
+        if (entregador == null) return Optional.empty();
+        entregador.setDisponivel(false);
+        entregadorRepository.save(entregador);
+        Entrega entrega = new Entrega(pedidoId, entregador, "N/A");
+        return Optional.of(entregaRepository.save(entrega));
+    }
+
+    @Transactional
+    public Entrega atribuirEntregador(Long pedidoId, Long entregadorId) {
+        Entregador entregador = entregadorRepository.findByIdAndDisponivelTrue(entregadorId)
+                .orElseThrow(() -> new RuntimeException("Entregador não disponível: " + entregadorId));
+        entregador.setDisponivel(false);
+        entregadorRepository.save(entregador);
+        Entrega entrega = new Entrega(pedidoId, entregador, "N/A");
+        return entregaRepository.save(entrega);
+    }
+
     @Transactional
     public void atribuirEntregadorAutomatico(Long pedidoId, String moradaEntrega, String cidade) {
         logger.info("A processar atribuição automática para pedido {}", pedidoId);
@@ -39,7 +70,7 @@ public class EntregaService {
         }
 
         // Procurar entregador disponível na mesma zona (cidade)
-        List<Entregador> entregadores = entregadorRepository.findByZonaAtuacaoAndDisponivelTrue(cidade);
+        List<Entregador> entregadores = entregadorRepository.findByZonaAtuacaoIgnoreCaseAndDisponivelTrue(cidade);
         if (entregadores.isEmpty()) {
             logger.warn("Nenhum entregador disponível na zona {}", cidade);
             // Em produção, poderia tentar novamente mais tarde ou notificar admin
@@ -61,29 +92,28 @@ public class EntregaService {
     }
 
     @Transactional
-    public void iniciarEntrega(Long entregaId) {
-        Entrega entrega = entregaRepository.findById(entregaId)
+    public Entrega iniciarEntrega(Long entregaId) {
+        Entrega entrega = entregaRepository.findByIdWithEntregador(entregaId)
                 .orElseThrow(() -> new RuntimeException("Entrega não encontrada"));
         entrega.iniciarEntrega(); // muda estado para A_CAMINHO
-        entregaRepository.save(entrega);
-
-        // Publicar evento de status actualizado
+        Entrega saved = entregaRepository.save(entrega);
         eventProducer.publicarStatusAtualizado(entrega.getPedidoId(), "A_CAMINHO", entregaId);
+        return saved;
     }
 
     @Transactional
-    public void concluirEntrega(Long entregaId) {
-        Entrega entrega = entregaRepository.findById(entregaId)
+    public Entrega concluirEntrega(Long entregaId) {
+        Entrega entrega = entregaRepository.findByIdWithEntregador(entregaId)
                 .orElseThrow(() -> new RuntimeException("Entrega não encontrada"));
         entrega.concluir(); // muda para CONCLUIDA e liberta entregador
-        entregaRepository.save(entrega);
-
+        Entrega saved = entregaRepository.save(entrega);
         eventProducer.publicarStatusAtualizado(entrega.getPedidoId(), "CONCLUIDA", entregaId);
+        return saved;
     }
 
     @Transactional
     public void cancelarEntrega(Long entregaId) {
-        Entrega entrega = entregaRepository.findById(entregaId)
+        Entrega entrega = entregaRepository.findByIdWithEntregador(entregaId)
                 .orElseThrow(() -> new RuntimeException("Entrega não encontrada"));
         entrega.cancelar(); // muda para CANCELADA e liberta entregador
         entregaRepository.save(entrega);

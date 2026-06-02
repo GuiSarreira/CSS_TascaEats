@@ -58,10 +58,11 @@ public class Entregador {
      * Lado fraco da relação — o dono é {@link Entrega}.
      */
     @OneToMany(mappedBy = "entregador")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Entrega> entregas = new ArrayList<>();
 
-    /** Construtor protegido exigido pelo JPA. */
-    protected Entregador() {
+    /** Construtor sem argumentos exigido pelo JPA e pelo Jackson. */
+    public Entregador() {
     }
 
     /**

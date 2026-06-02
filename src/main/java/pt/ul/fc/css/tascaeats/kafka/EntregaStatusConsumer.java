@@ -36,7 +36,8 @@ public class EntregaStatusConsumer {
 
             switch (event.getStatus()) {
                 case "A_CAMINHO":
-                    // Já está IN_DELIVERY, podemos apenas logar ou manter
+                    // Já está IN_DELIVERY, apenas logar
+                    logger.info("Pedido {} — entregador a caminho", event.getPedidoId());
                     break;
                 case "CONCLUIDA":
                     pedido.setStatus(PedidoStatus.DELIVERED);

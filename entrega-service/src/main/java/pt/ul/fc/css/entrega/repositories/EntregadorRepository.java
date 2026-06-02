@@ -48,7 +48,7 @@ public interface EntregadorRepository extends JpaRepository<Entregador, Long> {
      * @param zonaAtuacao a zona onde se procura entregadores
      * @return lista de entregadores disponíveis na zona
      */
-    List<Entregador> findByZonaAtuacaoAndDisponivelTrue(String zonaAtuacao);
+    List<Entregador> findByZonaAtuacaoIgnoreCaseAndDisponivelTrue(String zonaAtuacao);
 
     /**
      * Retorna o primeiro entregador disponível.

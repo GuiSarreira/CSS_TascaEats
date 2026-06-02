@@ -36,8 +36,8 @@ services:
     networks:
       - dbnet
     expose:
-      - 8080
-      - 9090
+      - 8082
+      - 9092
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://pgserver:5432/postgres
       - SPRING_DATASOURCE_USERNAME=user

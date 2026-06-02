@@ -29,6 +29,8 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
         */
        List<Pedido> findByClienteIdOrderByDataHoraDesc(Long clienteId);
 
+       List<Pedido> findAllByOrderByDataHoraDesc();
+
        /**
         * Lista todos os pedidos de um cliente com um determinado estado.
         *
