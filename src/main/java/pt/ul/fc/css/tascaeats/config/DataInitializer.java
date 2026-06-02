@@ -64,197 +64,211 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         @Override
-        @Transactional
-        public void run(String... args) throws Exception {
+        public void run(String... args) {
                 try {
-                        // ── Utilizadores ─────────────────────────────────────────────
-                        Admin adminPrincipal = getOrCreateAdmin("admin@tascaeats.pt", "Carlos Mendes", "admin123");
-                        Admin adminSecundario = getOrCreateAdmin("admin2@tascaeats.pt", "Marta Rocha", "admin123");
-
-                        Cliente clienteAna = getOrCreateCliente(
-                                        "ana@tascaeats.pt", "Ana Silva", "pass123",
-                                        new Endereco("Rua das Flores, 10", "1200-192", "Lisboa"));
-                        Cliente clienteJoao = getOrCreateCliente(
-                                        "joao@tascaeats.pt", "João Pires", "pass123",
-                                        new Endereco("Rua do Ouro, 21", "1100-061", "Lisboa"));
-                        getOrCreateCliente(
-                                        "rita@tascaeats.pt", "Rita Gomes", "pass123",
-                                        new Endereco("Rua das Oliveiras, 2", "4050-449", "Porto"));
-
-                        Entregador entregadorBruno = getOrCreateEntregador(
-                                        "bruno@tascaeats.pt", "Bruno Costa", "pass123", "Mota", "Lisboa");
-                        getOrCreateEntregador(
-                                        "ines@tascaeats.pt", "Inês Barros", "pass123", "Bicicleta", "Lisboa");
-                        getOrCreateEntregador(
-                                        "mario@tascaeats.pt", "Mário Lima", "pass123", "Carro", "Porto");
-                        getOrCreateEntregador(
-                                        "pedro.removivel@tascaeats.pt", "Pedro Removível", "pass123", "Mota", "Braga");
-
-                        // Garantir que o entregador base está disponível para as demos de atribuição.
-                        userService.atualizarDisponibilidadeEntregador(entregadorBruno.getId(), true);
-
-                        ensureTelemovel(adminPrincipal, "911111111");
-                        ensureTelemovel(adminSecundario, "922222222");
-                        ensureTelemovel(clienteAna, "933333333");
-                        ensureTelemovel(clienteJoao, "944444444");
-                        ensureTelemovel(entregadorBruno, "955555555");
-
-                        // ── Restaurantes ──────────────────────────────────────────────
-                        Restaurante tascaLisboa = getOrCreateRestaurante(
-                                        "123456789",
-                                        "Tasca Lisboa",
-                                        new Endereco("Av. da Liberdade, 100", "1250-096", "Lisboa"),
-                                        "Portuguesa",
-                                        LocalTime.of(11, 0),
-                                        LocalTime.of(23, 0),
-                                        adminPrincipal,
-                                        true);
-
-                        Restaurante solarPorto = getOrCreateRestaurante(
-                                        "987654321",
-                                        "Solar do Bacalhau",
-                                        new Endereco("Rua de Cedofeita, 80", "4050-175", "Porto"),
-                                        "Portuguesa",
-                                        LocalTime.of(12, 0),
-                                        LocalTime.of(23, 30),
-                                        adminSecundario,
-                                        true);
-
-                        Restaurante casaFechada = getOrCreateRestaurante(
-                                        "333222111",
-                                        "Casa Fechada",
-                                        new Endereco("Rua Fechada, 5", "1000-001", "Lisboa"),
-                                        "Tradicional",
-                                        LocalTime.of(10, 0),
-                                        LocalTime.of(22, 0),
-                                        adminPrincipal,
-                                        false);
-
-                        Restaurante cantinaItaliana = getOrCreateRestaurante(
-                                        "444555666",
-                                        "Cantina Italiana",
-                                        new Endereco("Rua Augusta, 220", "1100-060", "Lisboa"),
-                                        "Italiana",
-                                        LocalTime.of(12, 0),
-                                        LocalTime.of(23, 30),
-                                        adminSecundario,
-                                        true);
-
-                        Restaurante dragaoWok = getOrCreateRestaurante(
-                                        "555666777",
-                                        "Dragão Wok",
-                                        new Endereco("Rua das Flores, 77", "4000-098", "Porto"),
-                                        "Asiática",
-                                        LocalTime.of(18, 0),
-                                        LocalTime.of(23, 0),
-                                        adminPrincipal,
-                                        false);
-
-                        // ── Produtos ──────────────────────────────────────────────────
-                        Produto pregoLisboa = getOrCreateProduto(
-                                        tascaLisboa,
-                                        "Prego no Pão",
-                                        "Carne de vitela grelhada",
-                                        5.50,
-                                        "Prato Principal",
-                                        true);
-                        Produto sopaLisboa = getOrCreateProduto(
-                                        tascaLisboa,
-                                        "Sopa do Dia",
-                                        "Caldo verde com broa",
-                                        2.50,
-                                        "Entrada",
-                                        true);
-                        Produto bacalhauLisboa = getOrCreateProduto(
-                                        tascaLisboa,
-                                        "Bacalhau à Brás",
-                                        "Com batata palha e ovos",
-                                        9.50,
-                                        "Prato Principal",
-                                        true);
-                        getOrCreateProduto(
-                                        tascaLisboa,
-                                        "Arroz de Pato",
-                                        "Com chouriço e laranja",
-                                        11.00,
-                                        "Prato Principal",
-                                        false);
-
-                        Produto francesinhaPorto = getOrCreateProduto(
-                                        solarPorto,
-                                        "Francesinha",
-                                        "Francesinha tradicional do Porto",
-                                        10.00,
-                                        "Prato Principal",
-                                        true);
-                        Produto caldoVerdePorto = getOrCreateProduto(
-                                        solarPorto,
-                                        "Caldo Verde",
-                                        "Sopa tradicional",
-                                        3.00,
-                                        "Entrada",
-                                        true);
-
-                        getOrCreateProduto(
-                                        casaFechada,
-                                        "Bitoque da Casa",
-                                        "Bitoque com ovo a cavalo",
-                                        8.00,
-                                        "Prato Principal",
-                                        true);
-
-                        getOrCreateProduto(
-                                        cantinaItaliana,
-                                        "Pizza Margherita",
-                                        "Tomate, mozzarella e manjericão",
-                                        8.90,
-                                        "Prato Principal",
-                                        true);
-                        getOrCreateProduto(
-                                        cantinaItaliana,
-                                        "Tiramisu",
-                                        "Sobremesa italiana clássica",
-                                        4.20,
-                                        "Sobremesa",
-                                        true);
-                        getOrCreateProduto(
-                                        cantinaItaliana,
-                                        "Limonada da Casa",
-                                        "Limonada fresca com hortelã",
-                                        2.20,
-                                        "Bebida",
-                                        true);
-
-                        getOrCreateProduto(
-                                        dragaoWok,
-                                        "Noodles de Frango",
-                                        "Noodles salteados com legumes",
-                                        9.80,
-                                        "Prato Principal",
-                                        true);
-                        getOrCreateProduto(
-                                        dragaoWok,
-                                        "Gyoza",
-                                        "Raviolis japoneses grelhados",
-                                        4.60,
-                                        "Entrada",
-                                        false);
-
-                        // Garantir um menu com associação produto-restaurante para suportar
-                        // validações de avaliações em pedidos seed.
-                        ensureSharedMenu(tascaLisboa, solarPorto, pregoLisboa, francesinhaPorto);
-
-                        seedPedidosSeNecessario(clienteAna, clienteJoao, entregadorBruno,
-                                        pregoLisboa, sopaLisboa, bacalhauLisboa, francesinhaPorto, caldoVerdePorto,
-                                        tascaLisboa);
-
-                        printResumo(adminPrincipal, adminSecundario, tascaLisboa, solarPorto, casaFechada,
-                                        cantinaItaliana, dragaoWok);
-
+                        seedData();
+                        System.out.println("\u001B[32m[DataInitializer] Inicialização completa com sucesso.\u001B[0m");
                 } catch (Exception e) {
-                        System.out.println("\u001B[31m[DataInitializer] Erro ao carregar dados: " + e.getMessage()
-                                        + "\u001B[0m");
+                        System.out.println("\u001B[31m[DataInitializer] Erro crítico: " + e.getMessage() + "\u001B[0m");
+                        e.printStackTrace();
                 }
+        }
+
+        @Transactional
+        private void seedData() {
+                // ── Utilizadores ─────────────────────────────────────────────
+                Admin adminPrincipal = getOrCreateAdmin("admin@tascaeats.pt", "Carlos Mendes", "admin123");
+                Admin adminSecundario = getOrCreateAdmin("admin2@tascaeats.pt", "Marta Rocha", "admin123");
+
+                Cliente clienteAna = getOrCreateCliente(
+                                "ana@tascaeats.pt", "Ana Silva", "pass123",
+                                new Endereco("Rua das Flores, 10", "1200-192", "Lisboa"));
+                Cliente clienteJoao = getOrCreateCliente(
+                                "joao@tascaeats.pt", "João Pires", "pass123",
+                                new Endereco("Rua do Ouro, 21", "1100-061", "Lisboa"));
+                getOrCreateCliente(
+                                "rita@tascaeats.pt", "Rita Gomes", "pass123",
+                                new Endereco("Rua das Oliveiras, 2", "4050-449", "Porto"));
+
+                Entregador entregadorBruno = getOrCreateEntregador(
+                                "bruno@tascaeats.pt", "Bruno Costa", "pass123", "Mota", "Lisboa");
+                getOrCreateEntregador(
+                                "ines@tascaeats.pt", "Inês Barros", "pass123", "Bicicleta", "Lisboa");
+                getOrCreateEntregador(
+                                "mario@tascaeats.pt", "Mário Lima", "pass123", "Carro", "Porto");
+                getOrCreateEntregador(
+                                "pedro.removivel@tascaeats.pt", "Pedro Removível", "pass123", "Mota", "Braga");
+
+                // Garantir que o entregador base está disponível para as demos de atribuição.
+                userService.atualizarDisponibilidadeEntregador(entregadorBruno.getId(), true);
+
+                ensureTelemovel(adminPrincipal, "911111111");
+                ensureTelemovel(adminSecundario, "922222222");
+                ensureTelemovel(clienteAna, "933333333");
+                ensureTelemovel(clienteJoao, "944444444");
+                ensureTelemovel(entregadorBruno, "955555555");
+
+                // ── Restaurantes ──────────────────────────────────────────────
+                Restaurante tascaLisboa = getOrCreateRestaurante(
+                                "123456789",
+                                "Tasca Lisboa",
+                                new Endereco("Av. da Liberdade, 100", "1250-096", "Lisboa"),
+                                "Portuguesa",
+                                LocalTime.of(11, 0),
+                                LocalTime.of(23, 0),
+                                adminPrincipal,
+                                true);
+
+                Restaurante solarPorto = getOrCreateRestaurante(
+                                "987654321",
+                                "Solar do Bacalhau",
+                                new Endereco("Rua de Cedofeita, 80", "4050-175", "Porto"),
+                                "Portuguesa",
+                                LocalTime.of(12, 0),
+                                LocalTime.of(23, 30),
+                                adminSecundario,
+                                true);
+
+                Restaurante casaFechada = getOrCreateRestaurante(
+                                "333222111",
+                                "Casa Fechada",
+                                new Endereco("Rua Fechada, 5", "1000-001", "Lisboa"),
+                                "Tradicional",
+                                LocalTime.of(10, 0),
+                                LocalTime.of(22, 0),
+                                adminPrincipal,
+                                false);
+
+                Restaurante cantinaItaliana = getOrCreateRestaurante(
+                                "444555666",
+                                "Cantina Italiana",
+                                new Endereco("Rua Augusta, 220", "1100-060", "Lisboa"),
+                                "Italiana",
+                                LocalTime.of(12, 0),
+                                LocalTime.of(23, 30),
+                                adminSecundario,
+                                true);
+
+                Restaurante dragaoWok = getOrCreateRestaurante(
+                                "555666777",
+                                "Dragão Wok",
+                                new Endereco("Rua das Flores, 77", "4000-098", "Porto"),
+                                "Asiática",
+                                LocalTime.of(18, 0),
+                                LocalTime.of(23, 0),
+                                adminPrincipal,
+                                false);
+
+                // ── Produtos ──────────────────────────────────────────────────
+                Produto pregoLisboa = getOrCreateProduto(
+                                tascaLisboa,
+                                "Prego no Pão",
+                                "Carne de vitela grelhada",
+                                5.50,
+                                "Prato Principal",
+                                true);
+                Produto sopaLisboa = getOrCreateProduto(
+                                tascaLisboa,
+                                "Sopa do Dia",
+                                "Caldo verde com broa",
+                                2.50,
+                                "Entrada",
+                                true);
+                Produto bacalhauLisboa = getOrCreateProduto(
+                                tascaLisboa,
+                                "Bacalhau à Brás",
+                                "Com batata palha e ovos",
+                                9.50,
+                                "Prato Principal",
+                                true);
+                getOrCreateProduto(
+                                tascaLisboa,
+                                "Arroz de Pato",
+                                "Com chouriço e laranja",
+                                11.00,
+                                "Prato Principal",
+                                false);
+
+                Produto francesinhaPorto = getOrCreateProduto(
+                                solarPorto,
+                                "Francesinha",
+                                "Francesinha tradicional do Porto",
+                                10.00,
+                                "Prato Principal",
+                                true);
+                Produto caldoVerdePorto = getOrCreateProduto(
+                                solarPorto,
+                                "Caldo Verde",
+                                "Sopa tradicional",
+                                3.00,
+                                "Entrada",
+                                true);
+
+                getOrCreateProduto(
+                                casaFechada,
+                                "Bitoque da Casa",
+                                "Bitoque com ovo a cavalo",
+                                8.00,
+                                "Prato Principal",
+                                true);
+
+                getOrCreateProduto(
+                                cantinaItaliana,
+                                "Pizza Margherita",
+                                "Tomate, mozzarella e manjericão",
+                                8.90,
+                                "Prato Principal",
+                                true);
+                getOrCreateProduto(
+                                cantinaItaliana,
+                                "Tiramisu",
+                                "Sobremesa italiana clássica",
+                                4.20,
+                                "Sobremesa",
+                                true);
+                getOrCreateProduto(
+                                cantinaItaliana,
+                                "Limonada da Casa",
+                                "Limonada fresca com hortelã",
+                                2.20,
+                                "Bebida",
+                                true);
+
+                getOrCreateProduto(
+                                dragaoWok,
+                                "Noodles de Frango",
+                                "Noodles salteados com legumes",
+                                9.80,
+                                "Prato Principal",
+                                true);
+                getOrCreateProduto(
+                                dragaoWok,
+                                "Gyoza",
+                                "Raviolis japoneses grelhados",
+                                4.60,
+                                "Entrada",
+                                false);
+
+                // Garantir um menu com associação produto-restaurante para suportar
+                // validações de avaliações em pedidos seed.
+                ensureSharedMenu(tascaLisboa, solarPorto, pregoLisboa, francesinhaPorto);
+
+                // Tentar seed de pedidos (com tratamento de Kafka errors)
+                try {
+                        seedPedidosSeNecessario(clienteAna, clienteJoao, entregadorBruno,
+                                        pregoLisboa, sopaLisboa, bacalhauLisboa, francesinhaPorto,
+                                        caldoVerdePorto,
+                                        tascaLisboa, solarPorto);
+                } catch (Exception kafkaError) {
+                        // Kafka falhou mas dados básicos já foram salvos
+                        System.err.println(
+                                        "\u001B[33m[DataInitializer] Aviso: Kafka nao esta disponível - pedidos ignorados.\u001B[0m");
+                        System.err.println(
+                                        "\u001B[[33m[DataInitializer] Para testar com Kafka: docker compose up\u001B[0m");
+                }
+
+                printResumo(adminPrincipal, adminSecundario, tascaLisboa, solarPorto, casaFechada,
+                                cantinaItaliana, dragaoWok);
         }
 
         private Admin getOrCreateAdmin(String email, String nome, String password) {
@@ -307,14 +321,8 @@ public class DataInitializer implements CommandLineRunner {
 
         private Produto getOrCreateProduto(Restaurante restaurante, String nome, String descricao,
                         double preco, String categoria, boolean disponivel) {
-                List<Produto> produtosExistentes = produtoService.listarMenuDoRestaurante(restaurante.getId());
-                for (Produto produto : produtosExistentes) {
-                        if (produto.getNome().equalsIgnoreCase(nome)) {
-                                produtoService.alternarDisponibilidade(produto.getId(), disponivel);
-                                return produtoService.buscarPorId(produto.getId());
-                        }
-                }
-
+                // Durante seed com create-drop, produtos não existem de antemão
+                // Criar diretamente sem verificar (evita lazy loading de Menu.produtos)
                 Produto novo = new Produto(nome, descricao, preco, categoria);
                 novo.setDisponivel(disponivel);
                 return produtoService.criarProduto(restaurante.getId(), novo);
@@ -334,10 +342,11 @@ public class DataInitializer implements CommandLineRunner {
                                 List.of(restauranteA, restauranteB));
         }
 
+        @Transactional
         private void seedPedidosSeNecessario(Cliente clienteAna, Cliente clienteJoao, Entregador entregadorBruno,
                         Produto pregoLisboa, Produto sopaLisboa, Produto bacalhauLisboa,
                         Produto francesinhaPorto, Produto caldoVerdePorto,
-                        Restaurante restauranteAvaliacao) {
+                        Restaurante restauranteLisboa, Restaurante restaurantePorto) {
                 if (pedidoRepository.count() > 0) {
                         System.out.println(
                                         "\u001B[33m[DataInitializer] Pedidos já existentes — seed avançado de pedidos foi ignorado.\u001B[0m");
@@ -355,14 +364,14 @@ public class DataInitializer implements CommandLineRunner {
                                 clienteJoao.getId(),
                                 new Endereco("Rua Seed B, 2", "1000-002", "Lisboa"),
                                 Map.of(sopaLisboa.getId(), 2));
-                pagamentoService.processarPagamento(pedidoPaid.getId(), "MULTIBANCO", "111 222 333", "VISA", null);
+                procesarPagamentoSafe(pedidoPaid.getId(), "MULTIBANCO", "111 222 333", "VISA", null);
 
                 // Pedido READY para atribuição manual
                 Pedido pedidoReadyManual = pedidoService.criarPedido(
                                 clienteAna.getId(),
                                 new Endereco("Rua Seed C, 3", "1000-003", "Lisboa"),
                                 Map.of(bacalhauLisboa.getId(), 1));
-                pagamentoService.processarPagamento(pedidoReadyManual.getId(), "MBWAY", "912345678", null, null);
+                procesarPagamentoSafe(pedidoReadyManual.getId(), "MBWAY", "912345678", null, null);
                 pedidoService.avancarEstado(pedidoReadyManual.getId()); // PAID -> PREPARING
                 pedidoService.avancarEstado(pedidoReadyManual.getId()); // PREPARING -> READY
 
@@ -371,7 +380,7 @@ public class DataInitializer implements CommandLineRunner {
                                 clienteJoao.getId(),
                                 new Endereco("Rua Seed D, 4", "4050-100", "Porto"),
                                 Map.of(francesinhaPorto.getId(), 1, caldoVerdePorto.getId(), 1));
-                pagamentoService.processarPagamento(pedidoReadyAuto.getId(), "DINHEIRO", null, null, 20.0);
+                procesarPagamentoSafe(pedidoReadyAuto.getId(), "DINHEIRO", null, null, 20.0);
                 pedidoService.avancarEstado(pedidoReadyAuto.getId());
                 pedidoService.avancarEstado(pedidoReadyAuto.getId());
 
@@ -380,25 +389,21 @@ public class DataInitializer implements CommandLineRunner {
                                 clienteAna.getId(),
                                 new Endereco("Rua Seed E, 5", "1000-004", "Lisboa"),
                                 Map.of(pregoLisboa.getId(), 1));
-                pagamentoService.processarPagamento(pedidoDelivered.getId(), "MULTIBANCO", "999 888 777", "MASTERCARD",
+                procesarPagamentoSafe(pedidoDelivered.getId(), "MULTIBANCO", "999 888 777", "MASTERCARD",
                                 null);
                 pedidoService.avancarEstado(pedidoDelivered.getId());
                 pedidoService.avancarEstado(pedidoDelivered.getId());
-                Entrega entrega = entregaService.atribuirEntregador(pedidoDelivered.getId(), entregadorBruno.getId());
-                entregaService.iniciarEntrega(entrega.getId());
-                entregaService.concluirEntrega(entrega.getId());
+                atribuirEntregaSafe(pedidoDelivered.getId(), entregadorBruno.getId());
 
                 // Segunda entrega concluída para ter mais avaliações disponíveis na demo.
                 Pedido pedidoDelivered2 = pedidoService.criarPedido(
                                 clienteJoao.getId(),
                                 new Endereco("Rua Seed F, 6", "1000-005", "Lisboa"),
                                 Map.of(sopaLisboa.getId(), 1, pregoLisboa.getId(), 1));
-                pagamentoService.processarPagamento(pedidoDelivered2.getId(), "MBWAY", "919191919", null, null);
+                procesarPagamentoSafe(pedidoDelivered2.getId(), "MBWAY", "919191919", null, null);
                 pedidoService.avancarEstado(pedidoDelivered2.getId());
                 pedidoService.avancarEstado(pedidoDelivered2.getId());
-                Entrega entrega2 = entregaService.atribuirEntregador(pedidoDelivered2.getId(), entregadorBruno.getId());
-                entregaService.iniciarEntrega(entrega2.getId());
-                entregaService.concluirEntrega(entrega2.getId());
+                atribuirEntregaSafe(pedidoDelivered2.getId(), entregadorBruno.getId());
 
                 // Mais 3 pedidos DELIVERED sem avaliação para demonstração web (avaliar
                 // pedido).
@@ -406,46 +411,40 @@ public class DataInitializer implements CommandLineRunner {
                                 clienteAna.getId(),
                                 new Endereco("Rua Seed G, 7", "1000-006", "Lisboa"),
                                 Map.of(bacalhauLisboa.getId(), 1));
-                pagamentoService.processarPagamento(pedidoDelivered3.getId(), "MBWAY", "913333333", null, null);
+                procesarPagamentoSafe(pedidoDelivered3.getId(), "MBWAY", "913333333", null, null);
                 pedidoService.avancarEstado(pedidoDelivered3.getId());
                 pedidoService.avancarEstado(pedidoDelivered3.getId());
-                Entrega entrega3 = entregaService.atribuirEntregador(pedidoDelivered3.getId(), entregadorBruno.getId());
-                entregaService.iniciarEntrega(entrega3.getId());
-                entregaService.concluirEntrega(entrega3.getId());
+                atribuirEntregaSafe(pedidoDelivered3.getId(), entregadorBruno.getId());
 
                 Pedido pedidoDelivered4 = pedidoService.criarPedido(
                                 clienteAna.getId(),
                                 new Endereco("Rua Seed H, 8", "1000-007", "Lisboa"),
                                 Map.of(pregoLisboa.getId(), 1, sopaLisboa.getId(), 1));
-                pagamentoService.processarPagamento(pedidoDelivered4.getId(), "MULTIBANCO", "123 123 123", "VISA",
+                procesarPagamentoSafe(pedidoDelivered4.getId(), "MULTIBANCO", "123 123 123", "VISA",
                                 null);
                 pedidoService.avancarEstado(pedidoDelivered4.getId());
                 pedidoService.avancarEstado(pedidoDelivered4.getId());
-                Entrega entrega4 = entregaService.atribuirEntregador(pedidoDelivered4.getId(), entregadorBruno.getId());
-                entregaService.iniciarEntrega(entrega4.getId());
-                entregaService.concluirEntrega(entrega4.getId());
+                atribuirEntregaSafe(pedidoDelivered4.getId(), entregadorBruno.getId());
 
                 Pedido pedidoDelivered5 = pedidoService.criarPedido(
                                 clienteJoao.getId(),
                                 new Endereco("Rua Seed I, 9", "4050-101", "Porto"),
                                 Map.of(francesinhaPorto.getId(), 1));
-                pagamentoService.processarPagamento(pedidoDelivered5.getId(), "DINHEIRO", null, null, 15.0);
+                procesarPagamentoSafe(pedidoDelivered5.getId(), "DINHEIRO", null, null, 15.0);
                 pedidoService.avancarEstado(pedidoDelivered5.getId());
                 pedidoService.avancarEstado(pedidoDelivered5.getId());
-                Entrega entrega5 = entregaService.atribuirEntregador(pedidoDelivered5.getId(), entregadorBruno.getId());
-                entregaService.iniciarEntrega(entrega5.getId());
-                entregaService.concluirEntrega(entrega5.getId());
+                atribuirEntregaSafe(pedidoDelivered5.getId(), entregadorBruno.getId());
 
                 criarAvaliacaoSeed(
                                 clienteJoao,
-                                restauranteAvaliacao,
+                                restauranteLisboa,
                                 pedidoDelivered2,
                                 4,
                                 "Boa experiência no geral.");
 
                 criarAvaliacaoSeed(
                                 clienteJoao,
-                                restauranteAvaliacao,
+                                restaurantePorto,
                                 pedidoDelivered5,
                                 5,
                                 "Entrega impecável e muito rápida.");
@@ -457,13 +456,7 @@ public class DataInitializer implements CommandLineRunner {
                         return;
                 }
 
-                Restaurante restauranteAssociado = pedido.getProdutosPedido().stream()
-                                .flatMap(pp -> pp.getProduto().getMenus().stream())
-                                .flatMap(menu -> menu.getRestaurantes().stream())
-                                .findFirst()
-                                .orElse(restaurante);
-
-                Avaliacao avaliacao = new Avaliacao(nota, comentario, cliente, restauranteAssociado, pedido);
+                Avaliacao avaliacao = new Avaliacao(nota, comentario, cliente, restaurante, pedido);
                 avaliacaoRepository.save(avaliacao);
         }
 
@@ -498,5 +491,43 @@ public class DataInitializer implements CommandLineRunner {
                                 + "  nome=Dragão Wok (FECHADO)\u001B[0m");
                 System.out.println(
                                 "\u001B[36m  Nota         → Pedidos seed só são criados quando a tabela de pedidos está vazia\u001B[0m");
+        }
+
+        /**
+         * Processa pagamento com tratamento de falhas (ex: Kafka timeout).
+         * Continua com seed mesmo se Kafka não estiver disponível.
+         */
+        private void procesarPagamentoSafe(Long pedidoId, String tipo, String referencia, String bandeira,
+                        Double troco) {
+                try {
+                        pagamentoService.processarPagamento(pedidoId, tipo, referencia, bandeira, troco);
+                } catch (Exception e) {
+                        System.err.println(
+                                        "[DataInitializer] Aviso: Falha ao processar pagamento para pedido " + pedidoId
+                                                        + " (Kafka timeout?) - continuando...");
+                }
+        }
+
+        /**
+         * Atribui entregador com tratamento de falhas (ex: Kafka timeout).
+         * Continua com seed mesmo se Kafka não estiver disponível.
+         */
+        private void atribuirEntregaSafe(Long pedidoId, Long entregadorId) {
+                try {
+                        Entrega entrega = entregaService.atribuirEntregador(pedidoId, entregadorId);
+                        if (entrega != null) {
+                                try {
+                                        entregaService.iniciarEntrega(entrega.getId());
+                                        entregaService.concluirEntrega(entrega.getId());
+                                } catch (Exception e) {
+                                        System.err.println("[DataInitializer] Aviso: Falha ao processar entrega "
+                                                        + entrega.getId() + " - continuando...");
+                                }
+                        }
+                } catch (Exception e) {
+                        System.err.println(
+                                        "[DataInitializer] Aviso: Falha ao atribuir entregador para pedido " + pedidoId
+                                                        + " - continuando...");
+                }
         }
 }

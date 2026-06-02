@@ -119,6 +119,16 @@ public interface EntregaRepository extends JpaRepository<Entrega, Long> {
                      @Param("fim") LocalDateTime fim);
 
        /**
+        * Lista todas as entregas com as associações {@code entregador} e {@code pedido}
+        * carregadas eagerly via JOIN FETCH. Evita {@code LazyInitializationException}
+        * quando estas relações são acedidas fora de uma sessão Hibernate (ex: gRPC).
+        *
+        * @return lista de todas as entregas com entregador e pedido carregados
+        */
+       @Query("SELECT e FROM Entrega e LEFT JOIN FETCH e.entregador LEFT JOIN FETCH e.pedido")
+       List<Entrega> findAllWithEntregadorAndPedido();
+
+       /**
         * Verifica se já existe uma entrega associada a um determinado pedido.
         * 
         * @param pedidoId O identificador do pedido.

@@ -4,6 +4,7 @@ import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.repositories.ProdutoRepository;
 import pt.ul.fc.css.tascaeats.repositories.RestauranteRepository;
@@ -18,17 +19,21 @@ import pt.ul.fc.css.tascaeats.services.PedidoService;
 import pt.ul.fc.css.tascaeats.services.RestauranteService;
 import pt.ul.fc.css.tascaeats.services.PagamentoService;
 import pt.ul.fc.css.tascaeats.services.UserService;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementação do serviço gRPC TascaEats
+ * Implementação do serviço gRPC TascaEats.
+ *
+ * <p>{@code @Transactional(readOnly = true)} garante que a sessão Hibernate
+ * permanece aberta durante toda a execução de cada método gRPC, evitando
+ * {@code LazyInitializationException} ao aceder a relações lazy-loaded
+ * (ex: Entrega → Entregador, Pedido → Cliente).
  */
 @GrpcService
+@Transactional(readOnly = true)
 public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServiceImplBase {
 
     private final MenuService menuService;
@@ -78,7 +83,6 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     // ═════════════════════════════════════════════════════════════════════════
 
     @Override
-    @Transactional
     public void criarMenu(CriarMenuRequest request,
             StreamObserver<MenuResponse> responseObserver) {
         try {
@@ -97,7 +101,6 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
-    @Transactional(readOnly = true)
     public void listarMenus(ListarMenusRequest request,
             StreamObserver<ListarMenusResponse> responseObserver) {
         try {
@@ -124,7 +127,6 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
-    @Transactional
     public void atualizarMenu(AtualizarMenuRequest request,
             StreamObserver<MenuResponse> responseObserver) {
         try {
@@ -226,7 +228,6 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
-    @Transactional(readOnly = true)
     public void listarAvaliacoes(ListarAvaliacoesRequest request,
             StreamObserver<ListarAvaliacoesResponse> responseObserver) {
         try {
@@ -283,7 +284,6 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
-    @Transactional(readOnly = true)
     public void obterAvaliacao(ObterAvaliacaoRequest request,
             StreamObserver<AvaliacaoResponse> responseObserver) {
         try {
@@ -298,7 +298,6 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
-    @Transactional(readOnly = true)
     public void obterMenu(ObterMenuRequest request,
             StreamObserver<MenuResponse> responseObserver) {
         try {
@@ -323,7 +322,6 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
-    @Transactional(readOnly = true)
     public void listarPedidos(ListarPedidosRequest request,
             StreamObserver<ListarPedidosResponse> responseObserver) {
         try {
@@ -416,11 +414,10 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     // ═════════════════════════════════════════════════════════════════════════
 
     @Override
-    @Transactional(readOnly = true)
     public void listarEntregas(ListarEntregasRequest request,
             StreamObserver<ListarEntregasResponse> responseObserver) {
         try {
-            List<Entrega> entregas = entregaRepository.findAll();
+            List<Entrega> entregas = entregaRepository.findAllWithEntregadorAndPedido();
 
             if (request.hasStatus()) {
                 EntregaStatus status = EntregaStatus.valueOf(request.getStatus());
@@ -452,6 +449,7 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
+    @Transactional
     public void atualizarStatusEntrega(AtualizarStatusEntregaRequest request,
             StreamObserver<EntregaResponse> responseObserver) {
         try {
@@ -545,6 +543,7 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
+    @Transactional
     public void registarUser(RegistarUserRequest request,
             StreamObserver<UserResponse> responseObserver) {
         try {
@@ -598,6 +597,7 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
+    @Transactional
     public void removerUser(RemoverUserRequest request,
             StreamObserver<Empty> responseObserver) {
         try {
@@ -636,6 +636,7 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
+    @Transactional
     public void criarProduto(CriarProdutoRequest request,
             StreamObserver<ProdutoResponse> responseObserver) {
         try {
@@ -656,6 +657,7 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
+    @Transactional
     public void atualizarProduto(AtualizarProdutoRequest request,
             StreamObserver<ProdutoResponse> responseObserver) {
         try {
@@ -678,6 +680,7 @@ public class TascaEatsGrpcServiceImpl extends TascaEatsServiceGrpc.TascaEatsServ
     }
 
     @Override
+    @Transactional
     public void removerProduto(RemoverProdutoRequest request,
             StreamObserver<Empty> responseObserver) {
         try {
